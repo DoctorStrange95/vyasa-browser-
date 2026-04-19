@@ -1,0 +1,2132 @@
+[
+  {
+    "slug": "agartala",
+    "name": "Agartala",
+    "stateSlug": "tripura",
+    "stateName": "Tripura",
+    "aqi": 83,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "ahmedabad",
+    "name": "Ahmedabad",
+    "stateSlug": "gujarat",
+    "stateName": "Gujarat",
+    "aqi": 66,
+    "aqiLabel": "Moderate",
+    "stations": 8,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "ahmednagar",
+    "name": "Ahmednagar",
+    "stateSlug": "maharashtra",
+    "stateName": "Maharashtra",
+    "aqi": 82,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "aizawl",
+    "name": "Aizawl",
+    "stateSlug": "mizoram",
+    "stateName": "Mizoram",
+    "aqi": 66,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "ajmer",
+    "name": "Ajmer",
+    "stateSlug": "rajasthan",
+    "stateName": "Rajasthan",
+    "aqi": 56,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "akola",
+    "name": "Akola",
+    "stateSlug": "maharashtra",
+    "stateName": "Maharashtra",
+    "aqi": 80,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "amaravati",
+    "name": "Amaravati",
+    "stateSlug": "andhra-pradesh",
+    "stateName": "Andhra Pradesh",
+    "aqi": 22,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "ambala",
+    "name": "Ambala",
+    "stateSlug": "haryana",
+    "stateName": "Haryana",
+    "aqi": 104,
+    "aqiLabel": "Unhealthy for Sensitive",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "ambernath",
+    "name": "Ambernath",
+    "stateSlug": "maharashtra",
+    "stateName": "Maharashtra",
+    "aqi": 61,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "amravati",
+    "name": "Amravati",
+    "stateSlug": "maharashtra",
+    "stateName": "Maharashtra",
+    "aqi": 68,
+    "aqiLabel": "Moderate",
+    "stations": 2,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "amritsar",
+    "name": "Amritsar",
+    "stateSlug": "punjab",
+    "stateName": "Punjab",
+    "aqi": 64,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "anantapur",
+    "name": "Anantapur",
+    "stateSlug": "andhra-pradesh",
+    "stateName": "Andhra Pradesh",
+    "aqi": 67,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "angul",
+    "name": "Angul",
+    "stateSlug": "odisha",
+    "stateName": "Odisha",
+    "aqi": 61,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "ankleshwar",
+    "name": "Ankleshwar",
+    "stateSlug": "gujarat",
+    "stateName": "Gujarat",
+    "aqi": 71,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "araria",
+    "name": "Araria",
+    "stateSlug": "bihar",
+    "stateName": "Bihar",
+    "aqi": 34,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "arrah",
+    "name": "Arrah",
+    "stateSlug": "bihar",
+    "stateName": "Bihar",
+    "aqi": 64,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "aurangabad",
+    "name": "Aurangabad",
+    "stateSlug": "maharashtra",
+    "stateName": "Maharashtra",
+    "aqi": 94,
+    "aqiLabel": "Moderate",
+    "stations": 3,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "baddi",
+    "name": "Baddi",
+    "stateSlug": "himachal-pradesh",
+    "stateName": "Himachal Pradesh",
+    "aqi": 136,
+    "aqiLabel": "Unhealthy for Sensitive",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "badlapur",
+    "name": "Badlapur",
+    "stateSlug": "maharashtra",
+    "stateName": "Maharashtra",
+    "aqi": 57,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "bagalkot",
+    "name": "Bagalkot",
+    "stateSlug": "karnataka",
+    "stateName": "Karnataka",
+    "aqi": 34,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "bahadurgarh",
+    "name": "Bahadurgarh",
+    "stateSlug": "haryana",
+    "stateName": "Haryana",
+    "aqi": 153,
+    "aqiLabel": "Unhealthy",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "balasore",
+    "name": "Balasore",
+    "stateSlug": "odisha",
+    "stateName": "Odisha",
+    "aqi": 27,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "ballabgarh",
+    "name": "Ballabgarh",
+    "stateSlug": "haryana",
+    "stateName": "Haryana",
+    "aqi": 240,
+    "aqiLabel": "Very Unhealthy",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "banswara",
+    "name": "Banswara",
+    "stateSlug": "rajasthan",
+    "stateName": "Rajasthan",
+    "aqi": 55,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "baran",
+    "name": "Baran",
+    "stateSlug": "rajasthan",
+    "stateName": "Rajasthan",
+    "aqi": 62,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "barbil",
+    "name": "Barbil",
+    "stateSlug": "odisha",
+    "stateName": "Odisha",
+    "aqi": 132,
+    "aqiLabel": "Unhealthy for Sensitive",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "baripada",
+    "name": "Baripada",
+    "stateSlug": "odisha",
+    "stateName": "Odisha",
+    "aqi": 48,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "barmer",
+    "name": "Barmer",
+    "stateSlug": "rajasthan",
+    "stateName": "Rajasthan",
+    "aqi": 17,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "bathinda",
+    "name": "Bathinda",
+    "stateSlug": "punjab",
+    "stateName": "Punjab",
+    "aqi": 60,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "beed",
+    "name": "Beed",
+    "stateSlug": "maharashtra",
+    "stateName": "Maharashtra",
+    "aqi": 62,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "begusarai",
+    "name": "Begusarai",
+    "stateSlug": "bihar",
+    "stateName": "Bihar",
+    "aqi": 28,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "belapur",
+    "name": "Belapur",
+    "stateSlug": "maharashtra",
+    "stateName": "Maharashtra",
+    "aqi": 98,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "belgaum",
+    "name": "Belgaum",
+    "stateSlug": "karnataka",
+    "stateName": "Karnataka",
+    "aqi": 34,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "bengaluru",
+    "name": "Bengaluru",
+    "stateSlug": "karnataka",
+    "stateName": "Karnataka",
+    "aqi": 63,
+    "aqiLabel": "Moderate",
+    "stations": 10,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "bettiah",
+    "name": "Bettiah",
+    "stateSlug": "bihar",
+    "stateName": "Bihar",
+    "aqi": 13,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "bhagalpur",
+    "name": "Bhagalpur",
+    "stateSlug": "bihar",
+    "stateName": "Bihar",
+    "aqi": 64,
+    "aqiLabel": "Moderate",
+    "stations": 2,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "bharatpur",
+    "name": "Bharatpur",
+    "stateSlug": "rajasthan",
+    "stateName": "Rajasthan",
+    "aqi": 39,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "bhavnagar",
+    "name": "Bhavnagar",
+    "stateSlug": "gujarat",
+    "stateName": "Gujarat",
+    "aqi": 87,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "bhilai",
+    "name": "Bhilai",
+    "stateSlug": "chhattisgarh",
+    "stateName": "Chhattisgarh",
+    "aqi": 38,
+    "aqiLabel": "Good",
+    "stations": 3,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "bhiwadi",
+    "name": "Bhiwadi",
+    "stateSlug": "rajasthan",
+    "stateName": "Rajasthan",
+    "aqi": 170,
+    "aqiLabel": "Unhealthy",
+    "stations": 2,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "bhiwandi",
+    "name": "Bhiwandi",
+    "stateSlug": "maharashtra",
+    "stateName": "Maharashtra",
+    "aqi": 89,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "bhiwani",
+    "name": "Bhiwani",
+    "stateSlug": "haryana",
+    "stateName": "Haryana",
+    "aqi": 29,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "bhopal",
+    "name": "Bhopal",
+    "stateSlug": "madhya-pradesh",
+    "stateName": "Madhya Pradesh",
+    "aqi": 87,
+    "aqiLabel": "Moderate",
+    "stations": 3,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "bhubaneswar",
+    "name": "Bhubaneswar",
+    "stateSlug": "odisha",
+    "stateName": "Odisha",
+    "aqi": 32,
+    "aqiLabel": "Good",
+    "stations": 2,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "bihar-sharif",
+    "name": "Bihar Sharif",
+    "stateSlug": "bihar",
+    "stateName": "Bihar",
+    "aqi": 62,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "bikaner",
+    "name": "Bikaner",
+    "stateSlug": "rajasthan",
+    "stateName": "Rajasthan",
+    "aqi": 56,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "bilaspur",
+    "name": "Bilaspur",
+    "stateSlug": "chhattisgarh",
+    "stateName": "Chhattisgarh",
+    "aqi": 163,
+    "aqiLabel": "Unhealthy",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "bileipada",
+    "name": "Bileipada",
+    "stateSlug": "odisha",
+    "stateName": "Odisha",
+    "aqi": 185,
+    "aqiLabel": "Unhealthy",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "boisar",
+    "name": "Boisar",
+    "stateSlug": "maharashtra",
+    "stateName": "Maharashtra",
+    "aqi": 54,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "bundi",
+    "name": "Bundi",
+    "stateSlug": "rajasthan",
+    "stateName": "Rajasthan",
+    "aqi": 22,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "buxar",
+    "name": "Buxar",
+    "stateSlug": "bihar",
+    "stateName": "Bihar",
+    "aqi": 78,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "byasanagar",
+    "name": "Byasanagar",
+    "stateSlug": "odisha",
+    "stateName": "Odisha",
+    "aqi": 42,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "byrnihat",
+    "name": "Byrnihat",
+    "stateSlug": "meghalaya",
+    "stateName": "Meghalaya",
+    "aqi": 85,
+    "aqiLabel": "Moderate",
+    "stations": 2,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "chamarajanagar",
+    "name": "Chamarajanagar",
+    "stateSlug": "karnataka",
+    "stateName": "Karnataka",
+    "aqi": 27,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "chandigarh",
+    "name": "Chandigarh",
+    "stateSlug": "chandigarh",
+    "stateName": "Chandigarh",
+    "aqi": 71,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "chandrapur",
+    "name": "Chandrapur",
+    "stateSlug": "maharashtra",
+    "stateName": "Maharashtra",
+    "aqi": 58,
+    "aqiLabel": "Moderate",
+    "stations": 2,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "charkhi-dadri",
+    "name": "Charkhi Dadri",
+    "stateSlug": "haryana",
+    "stateName": "Haryana",
+    "aqi": 265,
+    "aqiLabel": "Very Unhealthy",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "chhal",
+    "name": "Chhal",
+    "stateSlug": "chhattisgarh",
+    "stateName": "Chhattisgarh",
+    "aqi": 124,
+    "aqiLabel": "Unhealthy for Sensitive",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "chikkaballapur",
+    "name": "Chikkaballapur",
+    "stateSlug": "karnataka",
+    "stateName": "Karnataka",
+    "aqi": 72,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "chikkamagaluru",
+    "name": "Chikkamagaluru",
+    "stateSlug": "karnataka",
+    "stateName": "Karnataka",
+    "aqi": 30,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "chittoor",
+    "name": "Chittoor",
+    "stateSlug": "andhra-pradesh",
+    "stateName": "Andhra Pradesh",
+    "aqi": 52,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "chittorgarh",
+    "name": "Chittorgarh",
+    "stateSlug": "rajasthan",
+    "stateName": "Rajasthan",
+    "aqi": 44,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "churu",
+    "name": "Churu",
+    "stateSlug": "rajasthan",
+    "stateName": "Rajasthan",
+    "aqi": 75,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "cuttack",
+    "name": "Cuttack",
+    "stateSlug": "odisha",
+    "stateName": "Odisha",
+    "aqi": 24,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "damoh",
+    "name": "Damoh",
+    "stateSlug": "madhya-pradesh",
+    "stateName": "Madhya Pradesh",
+    "aqi": 90,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "dausa",
+    "name": "Dausa",
+    "stateSlug": "rajasthan",
+    "stateName": "Rajasthan",
+    "aqi": 63,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "dehradun",
+    "name": "Dehradun",
+    "stateSlug": "uttarakhand",
+    "stateName": "Uttarakhand",
+    "aqi": 64,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "delhi",
+    "name": "Delhi",
+    "stateSlug": "delhi",
+    "stateName": "Delhi (NCT)",
+    "aqi": 225,
+    "aqiLabel": "Very Unhealthy",
+    "stations": 45,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "dewas",
+    "name": "Dewas",
+    "stateSlug": "madhya-pradesh",
+    "stateName": "Madhya Pradesh",
+    "aqi": 76,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "dharuhera",
+    "name": "Dharuhera",
+    "stateSlug": "haryana",
+    "stateName": "Haryana",
+    "aqi": 199,
+    "aqiLabel": "Unhealthy",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "dharwad",
+    "name": "Dharwad",
+    "stateSlug": "karnataka",
+    "stateName": "Karnataka",
+    "aqi": 100,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "dholpur",
+    "name": "Dholpur",
+    "stateSlug": "rajasthan",
+    "stateName": "Rajasthan",
+    "aqi": 39,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "dhule",
+    "name": "Dhule",
+    "stateSlug": "maharashtra",
+    "stateName": "Maharashtra",
+    "aqi": 88,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "dombivli",
+    "name": "Dombivli",
+    "stateSlug": "maharashtra",
+    "stateName": "Maharashtra",
+    "aqi": 41,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "dungarpur",
+    "name": "Dungarpur",
+    "stateSlug": "rajasthan",
+    "stateName": "Rajasthan",
+    "aqi": 24,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "eluru",
+    "name": "Eluru",
+    "stateSlug": "andhra-pradesh",
+    "stateName": "Andhra Pradesh",
+    "aqi": 52,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "faridabad",
+    "name": "Faridabad",
+    "stateSlug": "haryana",
+    "stateName": "Haryana",
+    "aqi": 166,
+    "aqiLabel": "Unhealthy",
+    "stations": 3,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "gandhinagar",
+    "name": "Gandhinagar",
+    "stateSlug": "gujarat",
+    "stateName": "Gujarat",
+    "aqi": 64,
+    "aqiLabel": "Moderate",
+    "stations": 3,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "gangtok",
+    "name": "Gangtok",
+    "stateSlug": "sikkim",
+    "stateName": "Sikkim",
+    "aqi": 32,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "gaya",
+    "name": "Gaya",
+    "stateSlug": "bihar",
+    "stateName": "Bihar",
+    "aqi": 127,
+    "aqiLabel": "Unhealthy for Sensitive",
+    "stations": 2,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "guntur",
+    "name": "Guntur",
+    "stateSlug": "andhra-pradesh",
+    "stateName": "Andhra Pradesh",
+    "aqi": 68,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "gurugram",
+    "name": "Gurugram",
+    "stateSlug": "haryana",
+    "stateName": "Haryana",
+    "aqi": 207,
+    "aqiLabel": "Very Unhealthy",
+    "stations": 4,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "guwahati",
+    "name": "Guwahati",
+    "stateSlug": "assam",
+    "stateName": "Assam",
+    "aqi": 58,
+    "aqiLabel": "Moderate",
+    "stations": 3,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "gwalior",
+    "name": "Gwalior",
+    "stateSlug": "madhya-pradesh",
+    "stateName": "Madhya Pradesh",
+    "aqi": 100,
+    "aqiLabel": "Moderate",
+    "stations": 2,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "hajipur",
+    "name": "Hajipur",
+    "stateSlug": "bihar",
+    "stateName": "Bihar",
+    "aqi": 85,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "hanumangarh",
+    "name": "Hanumangarh",
+    "stateSlug": "rajasthan",
+    "stateName": "Rajasthan",
+    "aqi": 60,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "hingoli",
+    "name": "Hingoli",
+    "stateSlug": "maharashtra",
+    "stateName": "Maharashtra",
+    "aqi": 46,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "hisar",
+    "name": "Hisar",
+    "stateSlug": "haryana",
+    "stateName": "Haryana",
+    "aqi": 95,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "hubballi",
+    "name": "Hubballi",
+    "stateSlug": "karnataka",
+    "stateName": "Karnataka",
+    "aqi": 38,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "hyderabad",
+    "name": "Hyderabad",
+    "stateSlug": "telangana",
+    "stateName": "Telangana",
+    "aqi": 60,
+    "aqiLabel": "Moderate",
+    "stations": 10,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "indore",
+    "name": "Indore",
+    "stateSlug": "madhya-pradesh",
+    "stateName": "Madhya Pradesh",
+    "aqi": 69,
+    "aqiLabel": "Moderate",
+    "stations": 5,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "jabalpur",
+    "name": "Jabalpur",
+    "stateSlug": "madhya-pradesh",
+    "stateName": "Madhya Pradesh",
+    "aqi": 51,
+    "aqiLabel": "Moderate",
+    "stations": 4,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "jaipur",
+    "name": "Jaipur",
+    "stateSlug": "rajasthan",
+    "stateName": "Rajasthan",
+    "aqi": 101,
+    "aqiLabel": "Unhealthy for Sensitive",
+    "stations": 6,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "jaisalmer",
+    "name": "Jaisalmer",
+    "stateSlug": "rajasthan",
+    "stateName": "Rajasthan",
+    "aqi": 28,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "jalandhar",
+    "name": "Jalandhar",
+    "stateSlug": "punjab",
+    "stateName": "Punjab",
+    "aqi": 92,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "jalgaon",
+    "name": "Jalgaon",
+    "stateSlug": "maharashtra",
+    "stateName": "Maharashtra",
+    "aqi": 150,
+    "aqiLabel": "Unhealthy for Sensitive",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "jalna",
+    "name": "Jalna",
+    "stateSlug": "maharashtra",
+    "stateName": "Maharashtra",
+    "aqi": 66,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "jalore",
+    "name": "Jalore",
+    "stateSlug": "rajasthan",
+    "stateName": "Rajasthan",
+    "aqi": 25,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "jhalawar",
+    "name": "Jhalawar",
+    "stateSlug": "rajasthan",
+    "stateName": "Rajasthan",
+    "aqi": 67,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "jhunjhunu",
+    "name": "Jhunjhunu",
+    "stateSlug": "rajasthan",
+    "stateName": "Rajasthan",
+    "aqi": 62,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "jind",
+    "name": "Jind",
+    "stateSlug": "haryana",
+    "stateName": "Haryana",
+    "aqi": 180,
+    "aqiLabel": "Unhealthy",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "jodhpur",
+    "name": "Jodhpur",
+    "stateSlug": "rajasthan",
+    "stateName": "Rajasthan",
+    "aqi": 34,
+    "aqiLabel": "Good",
+    "stations": 5,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "jorapokhar",
+    "name": "Jorapokhar",
+    "stateSlug": "jharkhand",
+    "stateName": "Jharkhand",
+    "aqi": 78,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "kadapa",
+    "name": "Kadapa",
+    "stateSlug": "andhra-pradesh",
+    "stateName": "Andhra Pradesh",
+    "aqi": 64,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "kaithal",
+    "name": "Kaithal",
+    "stateSlug": "haryana",
+    "stateName": "Haryana",
+    "aqi": 120,
+    "aqiLabel": "Unhealthy for Sensitive",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "kalaburagi",
+    "name": "Kalaburagi",
+    "stateSlug": "karnataka",
+    "stateName": "Karnataka",
+    "aqi": 32,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "kannur",
+    "name": "Kannur",
+    "stateSlug": "kerala",
+    "stateName": "Kerala",
+    "aqi": 74,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "karauli",
+    "name": "Karauli",
+    "stateSlug": "rajasthan",
+    "stateName": "Rajasthan",
+    "aqi": 87,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "karnal",
+    "name": "Karnal",
+    "stateSlug": "haryana",
+    "stateName": "Haryana",
+    "aqi": 131,
+    "aqiLabel": "Unhealthy for Sensitive",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "katihar",
+    "name": "Katihar",
+    "stateSlug": "bihar",
+    "stateName": "Bihar",
+    "aqi": 14,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "katni",
+    "name": "Katni",
+    "stateSlug": "madhya-pradesh",
+    "stateName": "Madhya Pradesh",
+    "aqi": 98,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "keonjhar",
+    "name": "Keonjhar",
+    "stateSlug": "odisha",
+    "stateName": "Odisha",
+    "aqi": 67,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "khanna",
+    "name": "Khanna",
+    "stateSlug": "punjab",
+    "stateName": "Punjab",
+    "aqi": 64,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "kishanganj",
+    "name": "Kishanganj",
+    "stateSlug": "bihar",
+    "stateName": "Bihar",
+    "aqi": 32,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "kohima",
+    "name": "Kohima",
+    "stateSlug": "nagaland",
+    "stateName": "Nagaland",
+    "aqi": 41,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "kolhapur",
+    "name": "Kolhapur",
+    "stateSlug": "maharashtra",
+    "stateName": "Maharashtra",
+    "aqi": 56,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "kollam",
+    "name": "Kollam",
+    "stateSlug": "kerala",
+    "stateName": "Kerala",
+    "aqi": 46,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "korba",
+    "name": "Korba",
+    "stateSlug": "chhattisgarh",
+    "stateName": "Chhattisgarh",
+    "aqi": 28,
+    "aqiLabel": "Good",
+    "stations": 2,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "kota",
+    "name": "Kota",
+    "stateSlug": "rajasthan",
+    "stateName": "Rajasthan",
+    "aqi": 38,
+    "aqiLabel": "Good",
+    "stations": 3,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "kunjemura",
+    "name": "Kunjemura",
+    "stateSlug": "chhattisgarh",
+    "stateName": "Chhattisgarh",
+    "aqi": 53,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "kurukshetra",
+    "name": "Kurukshetra",
+    "stateSlug": "haryana",
+    "stateName": "Haryana",
+    "aqi": 149,
+    "aqiLabel": "Unhealthy for Sensitive",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "latur",
+    "name": "Latur",
+    "stateSlug": "maharashtra",
+    "stateName": "Maharashtra",
+    "aqi": 74,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "ludhiana",
+    "name": "Ludhiana",
+    "stateSlug": "punjab",
+    "stateName": "Punjab",
+    "aqi": 74,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "machilipatnam",
+    "name": "Machilipatnam",
+    "stateSlug": "andhra-pradesh",
+    "stateName": "Andhra Pradesh",
+    "aqi": 54,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "madikeri",
+    "name": "Madikeri",
+    "stateSlug": "karnataka",
+    "stateName": "Karnataka",
+    "aqi": 32,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "mahad",
+    "name": "Mahad",
+    "stateSlug": "maharashtra",
+    "stateName": "Maharashtra",
+    "aqi": 66,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "mandi-gobindgarh",
+    "name": "Mandi Gobindgarh",
+    "stateSlug": "punjab",
+    "stateName": "Punjab",
+    "aqi": 281,
+    "aqiLabel": "Very Unhealthy",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "mandideep",
+    "name": "Mandideep",
+    "stateSlug": "madhya-pradesh",
+    "stateName": "Madhya Pradesh",
+    "aqi": 119,
+    "aqiLabel": "Unhealthy for Sensitive",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "mandikhera",
+    "name": "Mandikhera",
+    "stateSlug": "haryana",
+    "stateName": "Haryana",
+    "aqi": 72,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "manesar",
+    "name": "Manesar",
+    "stateSlug": "haryana",
+    "stateName": "Haryana",
+    "aqi": 251,
+    "aqiLabel": "Very Unhealthy",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "mangalore",
+    "name": "Mangalore",
+    "stateSlug": "karnataka",
+    "stateName": "Karnataka",
+    "aqi": 35,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "manguraha",
+    "name": "Manguraha",
+    "stateSlug": "bihar",
+    "stateName": "Bihar",
+    "aqi": 235,
+    "aqiLabel": "Very Unhealthy",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "mehsana",
+    "name": "Mehsana",
+    "stateSlug": "gujarat",
+    "stateName": "Gujarat",
+    "aqi": 108,
+    "aqiLabel": "Unhealthy for Sensitive",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "mira-bhayandar",
+    "name": "Mira-Bhayandar",
+    "stateSlug": "maharashtra",
+    "stateName": "Maharashtra",
+    "aqi": 57,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "motihari",
+    "name": "Motihari",
+    "stateSlug": "bihar",
+    "stateName": "Bihar",
+    "aqi": 47,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "mumbai",
+    "name": "Mumbai",
+    "stateSlug": "maharashtra",
+    "stateName": "Maharashtra",
+    "aqi": 55,
+    "aqiLabel": "Moderate",
+    "stations": 23,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "munger",
+    "name": "Munger",
+    "stateSlug": "bihar",
+    "stateName": "Bihar",
+    "aqi": 43,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "muzaffarpur",
+    "name": "Muzaffarpur",
+    "stateSlug": "bihar",
+    "stateName": "Bihar",
+    "aqi": 81,
+    "aqiLabel": "Moderate",
+    "stations": 3,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "mysuru",
+    "name": "Mysuru",
+    "stateSlug": "karnataka",
+    "stateName": "Karnataka",
+    "aqi": 26,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "nagaon",
+    "name": "Nagaon",
+    "stateSlug": "assam",
+    "stateName": "Assam",
+    "aqi": 59,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "nagaur",
+    "name": "Nagaur",
+    "stateSlug": "rajasthan",
+    "stateName": "Rajasthan",
+    "aqi": 34,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "nagpur",
+    "name": "Nagpur",
+    "stateSlug": "maharashtra",
+    "stateName": "Maharashtra",
+    "aqi": 95,
+    "aqiLabel": "Moderate",
+    "stations": 3,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "nalbari",
+    "name": "Nalbari",
+    "stateSlug": "assam",
+    "stateName": "Assam",
+    "aqi": 36,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "nandesari",
+    "name": "Nandesari",
+    "stateSlug": "gujarat",
+    "stateName": "Gujarat",
+    "aqi": 143,
+    "aqiLabel": "Unhealthy for Sensitive",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "narnaul",
+    "name": "Narnaul",
+    "stateSlug": "haryana",
+    "stateName": "Haryana",
+    "aqi": 130,
+    "aqiLabel": "Unhealthy for Sensitive",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "nashik",
+    "name": "Nashik",
+    "stateSlug": "maharashtra",
+    "stateName": "Maharashtra",
+    "aqi": 76,
+    "aqiLabel": "Moderate",
+    "stations": 4,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "navi-mumbai",
+    "name": "Navi Mumbai",
+    "stateSlug": "maharashtra",
+    "stateName": "Maharashtra",
+    "aqi": 115,
+    "aqiLabel": "Unhealthy for Sensitive",
+    "stations": 5,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "nayagarh",
+    "name": "Nayagarh",
+    "stateSlug": "odisha",
+    "stateName": "Odisha",
+    "aqi": 91,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "nellore",
+    "name": "Nellore",
+    "stateSlug": "andhra-pradesh",
+    "stateName": "Andhra Pradesh",
+    "aqi": 32,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "pali",
+    "name": "Pali",
+    "stateSlug": "rajasthan",
+    "stateName": "Rajasthan",
+    "aqi": 59,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "palwal",
+    "name": "Palwal",
+    "stateSlug": "haryana",
+    "stateName": "Haryana",
+    "aqi": 80,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "panchgaon",
+    "name": "Panchgaon",
+    "stateSlug": "haryana",
+    "stateName": "Haryana",
+    "aqi": 127,
+    "aqiLabel": "Unhealthy for Sensitive",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "panchkula",
+    "name": "Panchkula",
+    "stateSlug": "haryana",
+    "stateName": "Haryana",
+    "aqi": 92,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "panipat",
+    "name": "Panipat",
+    "stateSlug": "haryana",
+    "stateName": "Haryana",
+    "aqi": 204,
+    "aqiLabel": "Very Unhealthy",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "parbhani",
+    "name": "Parbhani",
+    "stateSlug": "maharashtra",
+    "stateName": "Maharashtra",
+    "aqi": 151,
+    "aqiLabel": "Unhealthy",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "patiala",
+    "name": "Patiala",
+    "stateSlug": "punjab",
+    "stateName": "Punjab",
+    "aqi": 76,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "patna",
+    "name": "Patna",
+    "stateSlug": "bihar",
+    "stateName": "Bihar",
+    "aqi": 91,
+    "aqiLabel": "Moderate",
+    "stations": 6,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "pimpri-chinchwad",
+    "name": "Pimpri-Chinchwad",
+    "stateSlug": "maharashtra",
+    "stateName": "Maharashtra",
+    "aqi": 78,
+    "aqiLabel": "Moderate",
+    "stations": 7,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "pithampur",
+    "name": "Pithampur",
+    "stateSlug": "madhya-pradesh",
+    "stateName": "Madhya Pradesh",
+    "aqi": 68,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "pratapgarh",
+    "name": "Pratapgarh",
+    "stateSlug": "rajasthan",
+    "stateName": "Rajasthan",
+    "aqi": 34,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "puducherry",
+    "name": "Puducherry",
+    "stateSlug": "puducherry",
+    "stateName": "Puducherry",
+    "aqi": 14,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "pune",
+    "name": "Pune",
+    "stateSlug": "maharashtra",
+    "stateName": "Maharashtra",
+    "aqi": 73,
+    "aqiLabel": "Moderate",
+    "stations": 4,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "purnia",
+    "name": "Purnia",
+    "stateSlug": "bihar",
+    "stateName": "Bihar",
+    "aqi": 60,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "raipur",
+    "name": "Raipur",
+    "stateSlug": "chhattisgarh",
+    "stateName": "Chhattisgarh",
+    "aqi": 40,
+    "aqiLabel": "Good",
+    "stations": 2,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "rairangpur",
+    "name": "Rairangpur",
+    "stateSlug": "odisha",
+    "stateName": "Odisha",
+    "aqi": 37,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "rajamahendravaram",
+    "name": "Rajamahendravaram",
+    "stateSlug": "andhra-pradesh",
+    "stateName": "Andhra Pradesh",
+    "aqi": 13,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "rajgir",
+    "name": "Rajgir",
+    "stateSlug": "bihar",
+    "stateName": "Bihar",
+    "aqi": 86,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "rajkot",
+    "name": "Rajkot",
+    "stateSlug": "gujarat",
+    "stateName": "Gujarat",
+    "aqi": 69,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "rajsamand",
+    "name": "Rajsamand",
+    "stateSlug": "rajasthan",
+    "stateName": "Rajasthan",
+    "aqi": 21,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "ramanagara",
+    "name": "Ramanagara",
+    "stateSlug": "karnataka",
+    "stateName": "Karnataka",
+    "aqi": 61,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "ratlam",
+    "name": "Ratlam",
+    "stateSlug": "madhya-pradesh",
+    "stateName": "Madhya Pradesh",
+    "aqi": 41,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "rishikesh",
+    "name": "Rishikesh",
+    "stateSlug": "uttarakhand",
+    "stateName": "Uttarakhand",
+    "aqi": 2,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "rohtak",
+    "name": "Rohtak",
+    "stateSlug": "haryana",
+    "stateName": "Haryana",
+    "aqi": 218,
+    "aqiLabel": "Very Unhealthy",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "rourkela",
+    "name": "Rourkela",
+    "stateSlug": "odisha",
+    "stateName": "Odisha",
+    "aqi": 90,
+    "aqiLabel": "Moderate",
+    "stations": 3,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "rupnagar",
+    "name": "Rupnagar",
+    "stateSlug": "punjab",
+    "stateName": "Punjab",
+    "aqi": 19,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "sagar",
+    "name": "Sagar",
+    "stateSlug": "madhya-pradesh",
+    "stateName": "Madhya Pradesh",
+    "aqi": 88,
+    "aqiLabel": "Moderate",
+    "stations": 2,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "samastipur",
+    "name": "Samastipur",
+    "stateSlug": "bihar",
+    "stateName": "Bihar",
+    "aqi": 52,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "sasaram",
+    "name": "Sasaram",
+    "stateSlug": "bihar",
+    "stateName": "Bihar",
+    "aqi": 37,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "satna",
+    "name": "Satna",
+    "stateSlug": "madhya-pradesh",
+    "stateName": "Madhya Pradesh",
+    "aqi": 50,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "sawai-madhopur",
+    "name": "Sawai Madhopur",
+    "stateSlug": "rajasthan",
+    "stateName": "Rajasthan",
+    "aqi": 41,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "shillong",
+    "name": "Shillong",
+    "stateSlug": "meghalaya",
+    "stateName": "Meghalaya",
+    "aqi": 16,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "shivamogga",
+    "name": "Shivamogga",
+    "stateSlug": "karnataka",
+    "stateName": "Karnataka",
+    "aqi": 61,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "sikar",
+    "name": "Sikar",
+    "stateSlug": "rajasthan",
+    "stateName": "Rajasthan",
+    "aqi": 37,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "silchar",
+    "name": "Silchar",
+    "stateSlug": "assam",
+    "stateName": "Assam",
+    "aqi": 31,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "singrauli",
+    "name": "Singrauli",
+    "stateSlug": "madhya-pradesh",
+    "stateName": "Madhya Pradesh",
+    "aqi": 233,
+    "aqiLabel": "Very Unhealthy",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "sirohi",
+    "name": "Sirohi",
+    "stateSlug": "rajasthan",
+    "stateName": "Rajasthan",
+    "aqi": 25,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "sirsa",
+    "name": "Sirsa",
+    "stateSlug": "haryana",
+    "stateName": "Haryana",
+    "aqi": 144,
+    "aqiLabel": "Unhealthy for Sensitive",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "sivasagar",
+    "name": "Sivasagar",
+    "stateSlug": "assam",
+    "stateName": "Assam",
+    "aqi": 31,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "siwan",
+    "name": "Siwan",
+    "stateSlug": "bihar",
+    "stateName": "Bihar",
+    "aqi": 35,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "solapur",
+    "name": "Solapur",
+    "stateSlug": "maharashtra",
+    "stateName": "Maharashtra",
+    "aqi": 149,
+    "aqiLabel": "Unhealthy for Sensitive",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "sonipat",
+    "name": "Sonipat",
+    "stateSlug": "haryana",
+    "stateName": "Haryana",
+    "aqi": 64,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "sri-ganganagar",
+    "name": "Sri Ganganagar",
+    "stateSlug": "rajasthan",
+    "stateName": "Rajasthan",
+    "aqi": 45,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "srinagar",
+    "name": "Srinagar",
+    "stateSlug": "jammu-kashmir",
+    "stateName": "Jammu & Kashmir",
+    "aqi": 16,
+    "aqiLabel": "Good",
+    "stations": 2,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "suakati",
+    "name": "Suakati",
+    "stateSlug": "odisha",
+    "stateName": "Odisha",
+    "aqi": 121,
+    "aqiLabel": "Unhealthy for Sensitive",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "surat",
+    "name": "Surat",
+    "stateSlug": "gujarat",
+    "stateName": "Gujarat",
+    "aqi": 48,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "talcher",
+    "name": "Talcher",
+    "stateSlug": "odisha",
+    "stateName": "Odisha",
+    "aqi": 47,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "thane",
+    "name": "Thane",
+    "stateSlug": "maharashtra",
+    "stateName": "Maharashtra",
+    "aqi": 38,
+    "aqiLabel": "Good",
+    "stations": 2,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "thrissur",
+    "name": "Thrissur",
+    "stateSlug": "kerala",
+    "stateName": "Kerala",
+    "aqi": 38,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "tirupati",
+    "name": "Tirupati",
+    "stateSlug": "andhra-pradesh",
+    "stateName": "Andhra Pradesh",
+    "aqi": 53,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "tonk",
+    "name": "Tonk",
+    "stateSlug": "rajasthan",
+    "stateName": "Rajasthan",
+    "aqi": 60,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "tumakuru",
+    "name": "Tumakuru",
+    "stateSlug": "karnataka",
+    "stateName": "Karnataka",
+    "aqi": 82,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "tumidih",
+    "name": "Tumidih",
+    "stateSlug": "chhattisgarh",
+    "stateName": "Chhattisgarh",
+    "aqi": 107,
+    "aqiLabel": "Unhealthy for Sensitive",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "udaipur",
+    "name": "Udaipur",
+    "stateSlug": "rajasthan",
+    "stateName": "Rajasthan",
+    "aqi": 76,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "ujjain",
+    "name": "Ujjain",
+    "stateSlug": "madhya-pradesh",
+    "stateName": "Madhya Pradesh",
+    "aqi": 99,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "ulhasnagar",
+    "name": "Ulhasnagar",
+    "stateSlug": "maharashtra",
+    "stateName": "Maharashtra",
+    "aqi": 66,
+    "aqiLabel": "Moderate",
+    "stations": 2,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "vadodara",
+    "name": "Vadodara",
+    "stateSlug": "gujarat",
+    "stateName": "Gujarat",
+    "aqi": 117,
+    "aqiLabel": "Unhealthy for Sensitive",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "vatva",
+    "name": "Vatva",
+    "stateSlug": "gujarat",
+    "stateName": "Gujarat",
+    "aqi": 114,
+    "aqiLabel": "Unhealthy for Sensitive",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "vijayapura",
+    "name": "Vijayapura",
+    "stateSlug": "karnataka",
+    "stateName": "Karnataka",
+    "aqi": 30,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "vijayawada",
+    "name": "Vijayawada",
+    "stateSlug": "andhra-pradesh",
+    "stateName": "Andhra Pradesh",
+    "aqi": 61,
+    "aqiLabel": "Moderate",
+    "stations": 3,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "virar",
+    "name": "Virar",
+    "stateSlug": "maharashtra",
+    "stateName": "Maharashtra",
+    "aqi": 56,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "visakhapatnam",
+    "name": "Visakhapatnam",
+    "stateSlug": "andhra-pradesh",
+    "stateName": "Andhra Pradesh",
+    "aqi": 25,
+    "aqiLabel": "Good",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "yadgir",
+    "name": "Yadgir",
+    "stateSlug": "karnataka",
+    "stateName": "Karnataka",
+    "aqi": 78,
+    "aqiLabel": "Moderate",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  },
+  {
+    "slug": "yamuna-nagar",
+    "name": "Yamuna Nagar",
+    "stateSlug": "haryana",
+    "stateName": "Haryana",
+    "aqi": 208,
+    "aqiLabel": "Very Unhealthy",
+    "stations": 1,
+    "lastUpdate": "2026-04-19"
+  }
+]

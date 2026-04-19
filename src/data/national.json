@@ -1,0 +1,23 @@
+{
+  "imr": 28,
+  "imrSRS2021": 25.5,
+  "imrNFHS5": 35.2,
+  "vaccinationPct": 76.4,
+  "stuntingPct": 35.5,
+  "institutionalBirthsPct": 88.6,
+  "anaemiaPct": 67.1,
+  "under5MR": 32,
+  "under5MR_NFHS5": 41.9,
+  "neonatalMR": 20,
+  "pmjayBeneficiaries": "550M+",
+  "bloodBanks": 3859,
+  "sources": {
+    "imr": "SRS 2020 (RGI, Govt of India)",
+    "imrSRS2021": "SRS 2021 provisional (RGI)",
+    "imrNFHS5": "NFHS-5 2019-21 (IIPS)",
+    "under5MR": "SRS 2020",
+    "neonatalMR": "SRS 2020",
+    "vaccination": "NFHS-5 2019-21",
+    "stunting": "NFHS-5 2019-21"
+  }
+}
