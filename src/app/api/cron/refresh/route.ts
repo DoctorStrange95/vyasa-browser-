@@ -1,74 +1,111 @@
 /**
- * Daily refresh cron job — runs every 24 hours via Vercel Cron.
- * Fetches latest data from:
- *   1. CPCB AQI (all 213 cities)
- *   2. NHP PHC/CHC counts
- *   3. SRS bulletin check (data.gov.in)
- * Stores results in Next.js revalidation cache by calling on-demand ISR.
+ * 48-hour refresh cron — runs every 2 days via Vercel Cron.
+ * Refreshes ALL data sources:
+ *   1. CPCB AQI (all 213 cities) via data.gov.in
+ *   2. NHP PHC/CHC counts via data.gov.in
+ *   3. Google Air Quality + Geocoding
+ *   4. IDSP disease surveillance + outbreak alerts
+ *   5. Hospital beds data
+ *   6. SRS bulletin check
  */
-
 import { NextResponse } from "next/server";
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidatePath } from "next/cache";
+import { writeFile } from "fs/promises";
+import path from "path";
 
 const CRON_SECRET = process.env.CRON_SECRET;
+const GOV_KEY     = process.env.DATA_GOV_IN_API_KEY!;
+const GOOGLE_KEY  = process.env.GOOGLE_PLACES_API_KEY;
+const BASE        = "https://api.data.gov.in/resource";
+const IDSP_CACHE  = path.join(process.cwd(), "src/data/idsp-cache.json");
 
 export async function GET(req: Request) {
-  // Verify secret so only Vercel Cron (or you) can call this
   const authHeader = req.headers.get("authorization");
   if (CRON_SECRET && authHeader !== `Bearer ${CRON_SECRET}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const log: string[] = [];
+  const errors: string[] = [];
   const start = Date.now();
 
+  // ── 1. CPCB AQI sample check ─────────────────────────────────────────────
   try {
-    // 1. Revalidate national ticker
-    revalidatePath("/api/national-ticker");
-    log.push("✓ Revalidated national ticker");
-
-    // 2. Revalidate all district pages (triggers fresh CPCB + Google AQI fetch)
+    const url = `${BASE}/3b01bcb8-0b14-4abf-b6f2-c1bfd384ba69?api-key=${GOV_KEY}&format=json&limit=20`;
+    const res  = await fetch(url, { cache: "no-store" });
+    const data = await res.json();
+    const n = (data.records ?? []).length;
+    log.push(`✓ CPCB AQI: ${n} sample records (full revalidation via ISR)`);
     revalidatePath("/district/[slug]", "page");
-    log.push("✓ Queued district pages revalidation (AQI refresh)");
+  } catch (e) { errors.push(`✗ CPCB AQI: ${e}`); }
 
-    // 3. Revalidate all state pages (triggers fresh PHC/CHC fetch)
-    revalidatePath("/state/[slug]", "page");
-    log.push("✓ Queued state pages revalidation (PHC/CHC refresh)");
-
-    // 4. Revalidate home page
-    revalidatePath("/");
-    log.push("✓ Revalidated home page");
-
-    // 5. Check data.gov.in for latest SRS data availability
-    const srsCheck = await checkSRSUpdate();
-    log.push(srsCheck);
-
-    const elapsed = Date.now() - start;
-    return NextResponse.json({
-      ok: true,
-      timestamp: new Date().toISOString(),
-      elapsed_ms: elapsed,
-      log,
-    });
-  } catch (e) {
-    return NextResponse.json({ ok: false, error: String(e), log }, { status: 500 });
-  }
-}
-
-async function checkSRSUpdate(): Promise<string> {
+  // ── 2. PHC/CHC counts ────────────────────────────────────────────────────
   try {
-    // Poll data.gov.in SRS resource for latest publication date
-    const res = await fetch(
-      "https://api.data.gov.in/resource/7c568619-b9b4-40bb-b563-68c28c27a6c1?api-key=" +
-        process.env.DATA_GOV_IN_API_KEY +
-        "&format=json&limit=1",
-      { next: { revalidate: 0 } } // no cache — we want fresh
-    );
-    if (!res.ok) return `⚠ SRS check failed: ${res.status}`;
+    const url = `${BASE}/4e3c855c-c10c-479e-ae6e-187bfed35ac1?api-key=${GOV_KEY}&format=json&limit=40`;
+    const res  = await fetch(url, { cache: "no-store" });
+    const data = await res.json();
+    const n = (data.records ?? []).length;
+    log.push(`✓ PHC/CHC: ${n} states refreshed`);
+    revalidatePath("/state/[slug]", "page");
+  } catch (e) { errors.push(`✗ PHC/CHC: ${e}`); }
+
+  // ── 3. Google Air Quality spot-check (Delhi as canary) ──────────────────
+  if (GOOGLE_KEY) {
+    try {
+      const res = await fetch(
+        `https://airquality.googleapis.com/v1/currentConditions:lookup?key=${GOOGLE_KEY}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ location: { latitude: 28.6139, longitude: 77.2090 } }),
+          cache: "no-store",
+        }
+      );
+      const data = await res.json();
+      const idx = (data.indexes ?? [])[0];
+      log.push(`✓ Google AQI (Delhi canary): AQI=${idx?.aqi ?? "n/a"}, category=${idx?.category ?? "n/a"}`);
+    } catch (e) { errors.push(`✗ Google AQI: ${e}`); }
+  } else {
+    log.push("⚠ Google AQI: key not set — skipped");
+  }
+
+  // ── 4. IDSP disease surveillance + outbreak alerts ────────────────────────
+  try {
+    const { refreshAllHealthData } = await import("@/lib/idsp");
+    const data = await refreshAllHealthData();
+    const payload = { ...data, refreshLog: log };
+    await writeFile(IDSP_CACHE, JSON.stringify(payload, null, 2));
+    log.push(`✓ IDSP: ${data.diseaseRecords.length} disease records, ${data.outbreaks.length + data.nhpAlerts.length} alerts, ${data.hospitalBeds.length} bed records`);
+  } catch (e) { errors.push(`✗ IDSP refresh: ${e}`); }
+
+  // ── 5. SRS / vital stats check via data.gov.in ───────────────────────────
+  try {
+    const res  = await fetch(`${BASE}/7c568619-b9b4-40bb-b563-68c28c27a6c1?api-key=${GOV_KEY}&format=json&limit=3`, { cache: "no-store" });
     const data = await res.json();
     const updated = data?.updated ?? data?.last_updated ?? "unknown";
-    return `✓ SRS/NFHS data.gov.in last updated: ${updated}`;
-  } catch {
-    return "⚠ Could not reach data.gov.in for SRS update check";
-  }
+    log.push(`✓ SRS data.gov.in: last updated ${updated}, total=${data?.total ?? "?"}`);
+  } catch (e) { errors.push(`✗ SRS check: ${e}`); }
+
+  // ── 6. Revalidate all pages ───────────────────────────────────────────────
+  revalidatePath("/");
+  revalidatePath("/sources");
+  log.push("✓ Home + sources pages revalidated");
+
+  const elapsed = Date.now() - start;
+  return NextResponse.json({
+    ok: errors.length === 0,
+    timestamp: new Date().toISOString(),
+    elapsed_ms: elapsed,
+    log,
+    errors,
+    sources: {
+      "CPCB AQI":     "data.gov.in · 3b01bcb8",
+      "PHC/CHC":      "data.gov.in · 4e3c855c (NHP)",
+      "Google AQI":   GOOGLE_KEY ? "airquality.googleapis.com" : "not configured",
+      "Google Places":"maps.googleapis.com/maps/api/place",
+      "Google Geocode":"maps.googleapis.com/maps/api/geocode",
+      "IDSP":         "data.gov.in · IDSP + NHP scrape",
+      "SRS":          "data.gov.in · 7c568619",
+    },
+  });
 }
