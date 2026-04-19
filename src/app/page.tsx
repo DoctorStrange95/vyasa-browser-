@@ -5,10 +5,10 @@ import states from "@/data/states.json";
 
 const NATIONAL_STATS = [
   { label: "States & UTs",         value: "36",    sub: "all covered",               src: "" },
-  { label: "Cities Monitored",     value: "213",   sub: "CPCB live AQI",             src: "" },
-  { label: "National IMR",         value: "28",    sub: "/1000 LB · SRS 2020",       src: "SRS" },
-  { label: "Under-5 Mortality",    value: "32",    sub: "/1000 LB · SRS 2020",       src: "SRS" },
-  { label: "Neonatal Mortality",   value: "20",    sub: "/1000 LB · SRS 2020",       src: "SRS" },
+  { label: "Cities Monitored",     value: "213",   sub: "CPCB + Google AQI",         src: "" },
+  { label: "National IMR",         value: "25",    sub: "/1000 LB · SRS 2023",       src: "SRS 2023" },
+  { label: "Birth Rate",           value: "18.4",  sub: "/1000 pop · SRS 2023",      src: "SRS 2023" },
+  { label: "Death Rate",           value: "6.4",   sub: "/1000 pop · SRS 2023",      src: "SRS 2023" },
   { label: "Vaccination Coverage", value: "76.4%", sub: "fully immunized · NFHS-5",  src: "NFHS-5" },
   { label: "Child Stunting",       value: "35.5%", sub: "under 5 · NFHS-5",          src: "NFHS-5" },
   { label: "Child Anaemia",        value: "67.1%", sub: "age 6–59 months · NFHS-5",  src: "NFHS-5" },

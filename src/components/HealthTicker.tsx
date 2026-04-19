@@ -24,8 +24,11 @@ export default function HealthTicker() {
       .then((d) => {
         if (d.error) return;
         setLiveItems([
-          { label: "National IMR (SRS 2020)",        value: String(d.imr),                    unit: "/1000 LB", trend: "↓" },
-          { label: "Under-5 MR (SRS 2020)",          value: String(d.under5MR),               unit: "/1000 LB", trend: "↓" },
+          { label: "National IMR (SRS 2023)",        value: String(d.imr),                    unit: "/1000 LB", trend: "↓" },
+          { label: "Rural IMR (SRS 2023)",           value: String(d.imrRural ?? "28"),        unit: "/1000 LB", trend: "↓" },
+          { label: "Urban IMR (SRS 2023)",           value: String(d.imrUrban ?? "18"),        unit: "/1000 LB", trend: "↓" },
+          { label: "Birth Rate (SRS 2023)",          value: String(d.birthRate ?? "18.4"),     unit: "/1000",    trend: "↓" },
+          { label: "Death Rate (SRS 2023)",          value: String(d.deathRate ?? "6.4"),      unit: "/1000",    trend: "↓" },
           { label: "Fully Immunized (NFHS-5)",       value: String(d.vaccinationPct),          unit: "%",        trend: "↑" },
           { label: "Child Stunting (NFHS-5)",        value: String(d.stuntingPct),             unit: "%",        trend: "↓" },
           { label: "Institutional Births (NFHS-5)",  value: String(d.institutionalBirthsPct),  unit: "%",        trend: "↑" },

@@ -33,7 +33,12 @@ export default async function StatePage({ params }: { params: { slug: string } }
   // PHC/CHC is small (36 rows) — safe to fetch live. NFHS uses static states.json.
   const liveHospitals = await fetchHealthCentres(state.phcStateName);
 
-  const imr            = state.imr;
+  const imr            = state.imr;          // SRS 2023 (updated)
+  const imrNFHS5       = state.imrNFHS5;     // NFHS-5 2019-21 for comparison
+  const birthRate      = state.birthRate2023;
+  const deathRate      = state.deathRate2023;
+  const imrRural       = state.imrRural2023;
+  const imrUrban       = state.imrUrban2023;
   const vaccPct        = state.vaccinationPct;
   const stuntingPct    = state.stuntingPct;
   const instBirths     = state.institutionalBirthsPct;
@@ -85,7 +90,10 @@ export default async function StatePage({ params }: { params: { slug: string } }
           Key Health Indicators
         </h2>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "1rem" }}>
-          {imr !== null && <StatCard label="Infant Mortality Rate" value={String(imr)} unit="/1000 LB" color={scoreColor(imr, 20, 40, false)} desc="Deaths per 1000 live births" />}
+          {imr !== null && <StatCard label="IMR (SRS 2023)" value={String(imr)} unit="/1000 LB" color={scoreColor(imr, 15, 35, false)} desc={`SRS 2023 · Rural: ${imrRural ?? "—"} · Urban: ${imrUrban ?? "—"}`} />}
+          {imrNFHS5 !== null && <StatCard label="IMR (NFHS-5 2019–21)" value={String(imrNFHS5)} unit="/1000 LB" color={scoreColor(imrNFHS5, 20, 40, false)} desc="Survey-based estimate, 5-yr recall" />}
+          {birthRate !== null && <StatCard label="Birth Rate (SRS 2023)" value={String(birthRate)} unit="/1000" color={scoreColor(birthRate, 13, 22, false)} desc="Live births per 1000 population" />}
+          {deathRate !== null && <StatCard label="Death Rate (SRS 2023)" value={String(deathRate)} unit="/1000" color={scoreColor(deathRate, 5, 8, false)} desc="Deaths per 1000 population" />}
           {neonatalMR !== null && <StatCard label="Neonatal Mortality" value={String(neonatalMR)} unit="/1000 LB" color={scoreColor(neonatalMR, 15, 30, false)} desc="Deaths in first 28 days" />}
           {state.under5MR !== null && <StatCard label="Under-5 Mortality" value={`${state.under5MR}`} unit="/1000 LB" color={scoreColor(state.under5MR!, 25, 50, false)} desc="Deaths before age 5" />}
           {vaccPct !== null && <StatCard label="Vaccination Coverage" value={`${vaccPct}%`} color={scoreColor(vaccPct, 85, 60, true)} desc="Children fully immunized 12–23 m" />}

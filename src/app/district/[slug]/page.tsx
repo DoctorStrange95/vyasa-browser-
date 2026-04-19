@@ -5,7 +5,7 @@ import states from "@/data/states.json";
 import DistrictCharts from "./DistrictCharts";
 import HealthScoreCard from "@/components/HealthScoreCard";
 import NearbyHealthCentres from "@/components/NearbyHealthCentres";
-import { fetchAQI, fetchHealthCentres } from "@/lib/api";
+import { fetchAQI, fetchGoogleAQI, geocodeCity, fetchHealthCentres } from "@/lib/api";
 
 function aqiColor(label: string): string {
   if (label === "Good") return "#22c55e";
@@ -34,12 +34,16 @@ export default async function DistrictPage({ params }: { params: { slug: string 
 
   const stateData = states.find((s) => s.slug === city.stateSlug);
 
-  // AQI is live (1hr cache). PHC/CHC is live (24hr). NFHS uses static states.json.
-  const [liveAQI, liveHospitals] = await Promise.all([
+  // AQI: CPCB + Google (parallel). PHC/CHC live (24hr). NFHS static.
+  const coords = await geocodeCity(city.name, city.stateName);
+  const [cpcbAQI, googleAQI, liveHospitals] = await Promise.all([
     fetchAQI(city.name),
+    coords ? fetchGoogleAQI(coords.lat, coords.lng) : Promise.resolve(null),
     stateData ? fetchHealthCentres(stateData.phcStateName) : Promise.resolve(null),
   ]);
 
+  // Prefer Google AQI (richer), fall back to CPCB, then static
+  const liveAQI        = googleAQI ?? cpcbAQI;
   const aqi            = liveAQI?.aqi ?? city.aqi;
   const aqi_label      = liveAQI?.label ?? city.aqiLabel;
   const imr            = stateData?.imr ?? 27;
@@ -145,16 +149,36 @@ export default async function DistrictPage({ params }: { params: { slug: string 
           {/* AQI card */}
           <div style={{ backgroundColor: "#0f2040", border: "1px solid #1e3a5f", borderRadius: "12px", padding: "1.5rem" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
-              <div style={{ fontSize: "0.72rem", color: "#64748b", textTransform: "uppercase", letterSpacing: "0.08em" }}>Air Quality (PM2.5)</div>
-              {liveAQI && <LiveBadge label="CPCB Live" small />}
+              <div style={{ fontSize: "0.72rem", color: "#64748b", textTransform: "uppercase", letterSpacing: "0.08em" }}>Air Quality Index</div>
+              {liveAQI && (
+                <LiveBadge label={liveAQI.source === "google" ? "Google AQI" : "CPCB Live"} small />
+              )}
             </div>
-            <div className="font-data" style={{ fontSize: "2rem", fontWeight: 600, color: aqiCol, marginBottom: "0.25rem" }}>{aqi}</div>
+            <div className="font-data" style={{ fontSize: "2rem", fontWeight: 600, color: aqiCol, marginBottom: "0.15rem" }}>{aqi}</div>
             <div style={{ fontSize: "0.78rem", color: aqiCol, backgroundColor: `${aqiCol}22`, display: "inline-block", padding: "0.15rem 0.6rem", borderRadius: "4px", marginBottom: "0.5rem" }}>
               {aqi_label}
             </div>
-            <div style={{ fontSize: "0.72rem", color: "#475569" }}>
-              µg/m³{liveAQI && ` · ${liveAQI.stationCount} stations avg`}
-            </div>
+            {/* Pollutant breakdown from Google AQI */}
+            {googleAQI?.pollutants && Object.keys(googleAQI.pollutants).length > 0 && (
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "0.35rem", marginBottom: "0.5rem" }}>
+                {Object.entries(googleAQI.pollutants).slice(0, 4).map(([k, v]) => (
+                  <span key={k} style={{ fontSize: "0.65rem", color: "#64748b", backgroundColor: "#1e3a5f40", borderRadius: "3px", padding: "0.1rem 0.35rem" }}>
+                    {k.toUpperCase()}: {v}
+                  </span>
+                ))}
+              </div>
+            )}
+            {/* Health recommendation */}
+            {googleAQI?.healthRecommendation && (
+              <div style={{ fontSize: "0.7rem", color: "#64748b", lineHeight: 1.45, marginTop: "0.3rem", borderTop: "1px solid #1e3a5f", paddingTop: "0.5rem" }}>
+                {googleAQI.healthRecommendation.slice(0, 120)}{googleAQI.healthRecommendation.length > 120 ? "…" : ""}
+              </div>
+            )}
+            {!googleAQI && (
+              <div style={{ fontSize: "0.72rem", color: "#475569" }}>
+                PM2.5 µg/m³{liveAQI && ` · ${liveAQI.stationCount} stations`}
+              </div>
+            )}
           </div>
 
           <MetricCard label="Infant Mortality Rate" value={String(imr)} unit="/1000 LB" sub="Deaths per 1000 live births · state" score={imrScore} live={!!stateData} />
