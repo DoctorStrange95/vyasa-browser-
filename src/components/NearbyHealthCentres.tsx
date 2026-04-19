@@ -16,7 +16,7 @@ interface Place {
   geometry: { location: { lat: number; lng: number } };
 }
 
-type FilterType = "all" | "phc" | "chc";
+type FilterType = "all" | "phc" | "chc" | "bloodbank";
 
 function facilityType(place: Place): string {
   const name = place.name.toLowerCase();
@@ -88,7 +88,7 @@ export default function NearbyHealthCentres({ stateName, defaultCity }: { stateN
   }
 
   const visible = places.filter((p) => {
-    if (filter === "all") return true;
+    if (filter === "all" || filter === "bloodbank") return true;
     const type = facilityType(p);
     if (filter === "phc") return type === "PHC" || type === "Sub-Centre";
     if (filter === "chc") return type === "CHC" || type === "District Hospital";
@@ -213,19 +213,24 @@ export default function NearbyHealthCentres({ stateName, defaultCity }: { stateN
         <div>
           {/* Filter bar */}
           <div style={{ display: "flex", flexWrap: "wrap", gap: "0.6rem", alignItems: "center", marginBottom: "1.25rem" }}>
-            {(["all", "phc", "chc"] as FilterType[]).map((f) => (
+            {([
+              { v: "all", label: "All Facilities" },
+              { v: "phc", label: "PHC / Sub-Centre" },
+              { v: "chc", label: "CHC / Hospital" },
+              { v: "bloodbank", label: "🩸 Blood Bank" },
+            ] as { v: FilterType; label: string }[]).map(({ v, label }) => (
               <button
-                key={f}
-                onClick={() => applyFilter(f)}
+                key={v}
+                onClick={() => applyFilter(v)}
                 style={{
-                  backgroundColor: filter === f ? "#0d9488" : "#0f2040",
-                  border: `1px solid ${filter === f ? "#0d9488" : "#1e3a5f"}`,
+                  backgroundColor: filter === v ? "#0d9488" : "#0f2040",
+                  border: `1px solid ${filter === v ? "#0d9488" : "#1e3a5f"}`,
                   borderRadius: "6px", padding: "0.35rem 0.85rem",
-                  color: filter === f ? "#fff" : "#94a3b8",
-                  fontSize: "0.8rem", cursor: "pointer", fontFamily: "inherit", fontWeight: filter === f ? 600 : 400,
+                  color: filter === v ? "#fff" : "#94a3b8",
+                  fontSize: "0.8rem", cursor: "pointer", fontFamily: "inherit", fontWeight: filter === v ? 600 : 400,
                 }}
               >
-                {f === "all" ? "All Facilities" : f === "phc" ? "PHC / Sub-Centre" : "CHC / Hospital"}
+                {label}
               </button>
             ))}
             <select
@@ -248,7 +253,7 @@ export default function NearbyHealthCentres({ stateName, defaultCity }: { stateN
 
           {visible.length === 0 ? (
             <div style={{ textAlign: "center", padding: "2rem", color: "#475569", backgroundColor: "#0f2040", borderRadius: "10px" }}>
-              No {filter === "phc" ? "PHCs" : filter === "chc" ? "CHCs" : "health centres"} found within {Number(radius) / 1000} km. Try increasing the radius.
+              No {filter === "phc" ? "PHCs" : filter === "chc" ? "CHCs" : filter === "bloodbank" ? "blood banks" : "health centres"} found within {Number(radius) / 1000} km. Try increasing the radius.
             </div>
           ) : (
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1rem" }}>

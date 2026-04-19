@@ -23,7 +23,7 @@ export async function GET(req: Request) {
   const lat    = searchParams.get("lat");
   const lng    = searchParams.get("lng");
   const radius = searchParams.get("radius") ?? "10000";
-  const type   = searchParams.get("type") ?? "all"; // phc | chc | all
+  const type   = searchParams.get("type") ?? "all"; // phc | chc | bloodbank | all
 
   if (!lat || !lng) {
     return NextResponse.json({ error: "lat and lng required" }, { status: 400 });
@@ -34,17 +34,20 @@ export async function GET(req: Request) {
   }
 
   try {
+    const isBloodBank = type === "bloodbank";
     const keywords = type === "phc"
       ? "primary health centre"
       : type === "chc"
       ? "community health centre"
+      : isBloodBank
+      ? "blood bank"
       : "primary health centre OR community health centre OR government hospital";
 
     const url = new URL("https://maps.googleapis.com/maps/api/place/nearbysearch/json");
     url.searchParams.set("location", `${lat},${lng}`);
     url.searchParams.set("radius", radius);
     url.searchParams.set("keyword", keywords);
-    url.searchParams.set("type", "health");
+    url.searchParams.set("type", isBloodBank ? "establishment" : "health");
     url.searchParams.set("key", GOOGLE_KEY);
 
     const res  = await fetch(url.toString(), { next: { revalidate: 3600 } });
