@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import VyasaLogo from "@/components/VyasaLogo";
 
 export default function AdminLogin() {
   const [password, setPassword] = useState("");
@@ -31,8 +32,8 @@ export default function AdminLogin() {
       <div style={{ backgroundColor: "#0f2040", border: "1px solid #1e3a5f", borderRadius: "16px", padding: "2.5rem", width: "100%", maxWidth: "420px" }}>
         {/* Logo */}
         <div style={{ textAlign: "center", marginBottom: "2rem" }}>
-          <div style={{ width: "52px", height: "52px", backgroundColor: "#0d9488", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 1rem", fontFamily: "'IBM Plex Mono', monospace", fontWeight: 700, fontSize: "20px", color: "#fff" }}>
-            V
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: "1rem" }}>
+            <VyasaLogo size={52} />
           </div>
           <h1 className="font-display" style={{ fontSize: "1.5rem", fontWeight: 700, color: "#fff", marginBottom: "0.25rem" }}>
             Admin Panel

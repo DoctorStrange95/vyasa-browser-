@@ -2,6 +2,7 @@ import { getAdminSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import AdminLogout from "./AdminLogout";
+import VyasaLogo from "@/components/VyasaLogo";
 
 const MENU = [
   { href: "/admin/feedback",     icon: "💬", label: "Feedback & Reports",    desc: "View data correction requests and user reports" },
@@ -21,7 +22,7 @@ export default async function AdminDashboard() {
       {/* Top bar */}
       <div style={{ backgroundColor: "#0a1628", borderBottom: "1px solid #1e3a5f", padding: "0 2rem", height: "60px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-          <div style={{ width: "32px", height: "32px", backgroundColor: "#0d9488", borderRadius: "7px", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'IBM Plex Mono', monospace", fontWeight: 700, fontSize: "13px", color: "#fff" }}>V</div>
+          <VyasaLogo size={32} />
           <span className="font-display" style={{ color: "#fff", fontWeight: 700, fontSize: "1rem" }}>Admin Panel</span>
           <span style={{ backgroundColor: "#0d948820", border: "1px solid #0d948840", borderRadius: "4px", padding: "0.1rem 0.5rem", fontSize: "0.65rem", color: "#2dd4bf", fontFamily: "'IBM Plex Mono', monospace" }}>MASTER</span>
         </div>

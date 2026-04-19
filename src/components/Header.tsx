@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
+import VyasaLogo from "./VyasaLogo";
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -22,29 +23,9 @@ export default function Header() {
       >
         {/* Logo */}
         <Link href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: "0.75rem" }}>
-          <div
-            style={{
-              width: "36px",
-              height: "36px",
-              backgroundColor: "#0d9488",
-              borderRadius: "8px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontFamily: "'IBM Plex Mono', monospace",
-              fontWeight: 600,
-              fontSize: "14px",
-              color: "#fff",
-              flexShrink: 0,
-            }}
-          >
-            V
-          </div>
+          <VyasaLogo size={36} />
           <div>
-            <div
-              className="font-display"
-              style={{ fontSize: "1.1rem", fontWeight: 700, color: "#fff", lineHeight: 1.2 }}
-            >
+            <div className="font-display" style={{ fontSize: "1.1rem", fontWeight: 700, color: "#fff", lineHeight: 1.2 }}>
               HealthForIndia
             </div>
             <div style={{ fontSize: "0.65rem", color: "#2dd4bf", letterSpacing: "0.12em", textTransform: "uppercase" }}>

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import VyasaLogo from "./VyasaLogo";
 
 export default function Footer() {
   return (
@@ -21,11 +22,16 @@ export default function Footer() {
         >
           {/* Brand */}
           <div>
-            <div className="font-display" style={{ fontSize: "1.25rem", fontWeight: 700, color: "#fff", marginBottom: "0.5rem" }}>
-              HealthForIndia
-            </div>
-            <div style={{ fontSize: "0.75rem", color: "#2dd4bf", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: "1rem" }}>
-              by Vyasa
+            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.75rem" }}>
+              <VyasaLogo size={32} />
+              <div>
+                <div className="font-display" style={{ fontSize: "1.1rem", fontWeight: 700, color: "#fff", lineHeight: 1.2 }}>
+                  HealthForIndia
+                </div>
+                <div style={{ fontSize: "0.65rem", color: "#2dd4bf", letterSpacing: "0.1em", textTransform: "uppercase" }}>
+                  by Vyasa
+                </div>
+              </div>
             </div>
             <p style={{ fontSize: "0.85rem", color: "#64748b", lineHeight: 1.7, maxWidth: "260px" }}>
               Bringing public health transparency to every district in India. Powered by Vyasa — intelligent hospital &amp; patient management.
