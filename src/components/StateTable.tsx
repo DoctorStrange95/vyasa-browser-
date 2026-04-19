@@ -115,9 +115,7 @@ export default function StateTable({ states }: { states: State[] }) {
       {/* Table */}
       <div style={{ border: "1px solid #1e3a5f", borderRadius: "12px", overflow: "hidden" }}>
         {/* Column headers */}
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "2fr repeat(5, 1fr) 80px 52px",
+        <div className="state-table-header" style={{
           backgroundColor: "#060e1c",
           borderBottom: "1px solid #1e3a5f",
           padding: "0 0",
@@ -199,10 +197,9 @@ function StateRow({ state, rank, isExpanded, onToggle, cityCount: count, topCiti
     <div style={{ borderBottom: "1px solid #1e3a5f" }}>
       {/* Main row */}
       <div
+        className="state-table-row state-row-wrap"
         onClick={onToggle}
         style={{
-          display: "grid",
-          gridTemplateColumns: "2fr repeat(5, 1fr) 80px 52px",
           alignItems: "center",
           padding: "0",
           cursor: "pointer",
@@ -213,40 +210,50 @@ function StateRow({ state, rank, isExpanded, onToggle, cityCount: count, topCiti
         onMouseLeave={(e) => { if (!isExpanded) e.currentTarget.style.backgroundColor = "transparent"; }}
       >
         {/* State name */}
-        <div style={{ padding: "1rem 1.25rem", display: "flex", alignItems: "center", gap: "0.75rem" }}>
+        <div className="state-row-name" style={{ padding: "1rem 1.25rem", display: "flex", alignItems: "center", gap: "0.75rem" }}>
           <span style={{ fontSize: "0.65rem", color: "#334155", fontFamily: "'IBM Plex Mono', monospace", minWidth: "18px" }}>{rank}</span>
           <span style={{ fontWeight: 600, color: "#e2e8f0", fontSize: "0.92rem" }}>{state.name}</span>
         </div>
 
-        {/* Metric chips */}
-        <div style={{ textAlign: "center", padding: "0.5rem" }}>
-          <Chip value={state.imr} best={20} worst={40} higher={false} />
-        </div>
-        <div style={{ textAlign: "center", padding: "0.5rem" }}>
-          <Chip value={state.vaccinationPct} best={85} worst={60} higher unit="%" />
-        </div>
-        <div style={{ textAlign: "center", padding: "0.5rem" }}>
-          <Chip value={state.stuntingPct} best={20} worst={40} higher={false} unit="%" />
-        </div>
-        <div style={{ textAlign: "center", padding: "0.5rem" }}>
-          <Chip value={state.under5MR} best={25} worst={50} higher={false} />
-        </div>
-        <div style={{ textAlign: "center", padding: "0.5rem" }}>
-          <Chip value={state.institutionalBirthsPct} best={90} worst={70} higher unit="%" />
+        {/* Metric chips — desktop: individual cells; mobile: inline labeled row */}
+        <div className="desktop-chips" style={{ display: "contents" }}>
+          <div style={{ textAlign: "center", padding: "0.5rem" }}>
+            <Chip value={state.imr} best={20} worst={40} higher={false} />
+          </div>
+          <div style={{ textAlign: "center", padding: "0.5rem" }}>
+            <Chip value={state.vaccinationPct} best={85} worst={60} higher unit="%" />
+          </div>
+          <div style={{ textAlign: "center", padding: "0.5rem" }}>
+            <Chip value={state.stuntingPct} best={20} worst={40} higher={false} unit="%" />
+          </div>
+          <div style={{ textAlign: "center", padding: "0.5rem" }}>
+            <Chip value={state.under5MR} best={25} worst={50} higher={false} />
+          </div>
+          <div style={{ textAlign: "center", padding: "0.5rem" }}>
+            <Chip value={state.institutionalBirthsPct} best={90} worst={70} higher unit="%" />
+          </div>
         </div>
 
         {/* City count */}
-        <div style={{ textAlign: "center", padding: "0.5rem" }}>
+        <div className="state-row-cities" style={{ textAlign: "center", padding: "0.5rem" }}>
           <span style={{ fontSize: "0.82rem", color: count > 0 ? "#2dd4bf" : "#334155", fontFamily: "'IBM Plex Mono', monospace" }}>
             {count > 0 ? count : "—"}
           </span>
         </div>
 
         {/* Expand toggle */}
-        <div style={{ textAlign: "center", padding: "0.5rem" }}>
+        <div className="state-row-toggle" style={{ textAlign: "center", padding: "0.5rem" }}>
           <span style={{ fontSize: "0.75rem", color: "#2dd4bf", transition: "transform 0.2s", display: "inline-block", transform: isExpanded ? "rotate(90deg)" : "rotate(0deg)" }}>▶</span>
         </div>
       </div>
+
+      {/* Mobile-only chips row */}
+      <style>{`
+        @media (max-width: 768px) {
+          .desktop-chips { display: flex !important; flex-wrap: wrap; gap: 0.4rem; padding: 0 1rem 0.75rem; }
+          .desktop-chips > div { padding: 0 !important; text-align: left !important; }
+        }
+      `}</style>
 
       {/* Expanded accordion */}
       {isExpanded && (

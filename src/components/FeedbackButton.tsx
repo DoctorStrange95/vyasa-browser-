@@ -43,7 +43,7 @@ export default function FeedbackButton() {
       <button
         onClick={() => setOpen(true)}
         title="Report an issue or suggest a correction"
-        style={{ position: "fixed", bottom: "1.5rem", right: "1.5rem", zIndex: 40, backgroundColor: "#0d9488", border: "none", borderRadius: "50px", padding: "0.6rem 1.1rem", color: "#fff", fontSize: "0.8rem", fontWeight: 600, cursor: "pointer", boxShadow: "0 4px 20px #0d948860", display: "flex", alignItems: "center", gap: "0.4rem", fontFamily: "inherit" }}
+        style={{ position: "fixed", bottom: "5rem", right: "1rem", zIndex: 40, backgroundColor: "#0d9488", border: "none", borderRadius: "50px", padding: "0.55rem 1rem", color: "#fff", fontSize: "0.78rem", fontWeight: 600, cursor: "pointer", boxShadow: "0 4px 20px #0d948860", display: "flex", alignItems: "center", gap: "0.4rem", fontFamily: "inherit" }}
       >
         <span style={{ fontSize: "1rem" }}>✏</span> Report Issue
       </button>
@@ -52,7 +52,7 @@ export default function FeedbackButton() {
       {open && (
         <div style={{ position: "fixed", inset: 0, backgroundColor: "#00000080", zIndex: 50, display: "flex", alignItems: "flex-end", justifyContent: "center", padding: "0" }} onClick={() => setOpen(false)}>
           <div
-            style={{ backgroundColor: "#0f2040", border: "1px solid #1e3a5f", borderRadius: "16px 16px 0 0", padding: "2rem", width: "100%", maxWidth: "540px", maxHeight: "90vh", overflowY: "auto" }}
+            style={{ backgroundColor: "#0f2040", border: "1px solid #1e3a5f", borderRadius: "16px 16px 0 0", padding: "1.5rem", width: "100%", maxWidth: "600px", maxHeight: "92dvh", overflowY: "auto" }}
             onClick={e => e.stopPropagation()}
           >
             {sent ? (

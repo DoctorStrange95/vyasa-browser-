@@ -22,3 +22,67 @@ body {
 .ticker-track:hover { animation-play-state: paused; }
 
 a { color: inherit; }
+
+/* ── Responsive utilities ── */
+
+/* State table: desktop grid → mobile cards */
+.state-table-header { display: grid; grid-template-columns: 2fr repeat(5, 1fr) 80px 52px; }
+.state-table-row    { display: grid; grid-template-columns: 2fr repeat(5, 1fr) 80px 52px; }
+
+@media (max-width: 768px) {
+  .state-table-header { display: none !important; }
+  .state-table-row {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.5rem;
+    padding: 1rem !important;
+  }
+  .state-row-name    { padding: 0 !important; }
+  .state-row-chip    { display: flex !important; flex-wrap: wrap; gap: 0.4rem; }
+  .state-row-cities  { display: none; }
+  .state-row-toggle  { position: absolute; top: 1rem; right: 1rem; }
+  .state-row-wrap    { position: relative; }
+}
+
+/* Scrollable horizontal on very small */
+.hscroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+/* National stats bar: scrollable on mobile */
+.national-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(130px, 1fr));
+}
+@media (max-width: 900px) {
+  .national-stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+@media (max-width: 500px) {
+  .national-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Hero section */
+@media (max-width: 600px) {
+  .hero-section {
+    padding: 3rem 1rem 2rem !important;
+  }
+  .hero-cta { flex-direction: column !important; }
+  .hero-cta a { text-align: center; }
+}
+
+/* Cards / metric grids */
+@media (max-width: 640px) {
+  .metrics-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+  .section-pad { padding-left: 1rem !important; padding-right: 1rem !important; }
+}
+
+/* Admin pages */
+@media (max-width: 640px) {
+  .admin-form-grid {
+    grid-template-columns: 1fr !important;
+  }
+}

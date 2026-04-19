@@ -20,7 +20,7 @@ export default function HomePage() {
       <HealthTicker />
 
       {/* Hero */}
-      <section style={{ maxWidth: "1280px", margin: "0 auto", padding: "5rem 1.5rem 3rem" }}>
+      <section className="hero-section" style={{ maxWidth: "1280px", margin: "0 auto", padding: "5rem 1.5rem 3rem" }}>
         <div style={{ maxWidth: "700px" }}>
           <div style={{
             display: "inline-flex", alignItems: "center", gap: "0.5rem",
@@ -43,7 +43,7 @@ export default function HomePage() {
             across all 36 states &amp; UTs and 213 cities — sourced live from NFHS-5, CPCB and NHP.
           </p>
 
-          <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
+          <div className="hero-cta" style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
             <a href="#states" style={{ backgroundColor: "#0d9488", color: "#fff", padding: "0.65rem 1.5rem", borderRadius: "8px", textDecoration: "none", fontWeight: 600, fontSize: "0.9rem" }}>
               Explore States
             </a>
@@ -56,9 +56,9 @@ export default function HomePage() {
 
       {/* National Stats Bar */}
       <section style={{ backgroundColor: "#060e1c", borderTop: "1px solid #1e3a5f", borderBottom: "1px solid #1e3a5f" }}>
-        <div style={{ maxWidth: "1280px", margin: "0 auto", padding: "1.5rem", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px,1fr))" }}>
+        <div className="national-stats-grid" style={{ maxWidth: "1280px", margin: "0 auto", padding: "1.5rem" }}>
           {NATIONAL_STATS.map((stat, i) => (
-            <div key={i} style={{ padding: "1.25rem 1rem", borderRight: i < NATIONAL_STATS.length - 1 ? "1px solid #1e3a5f" : "none", textAlign: "center" }}>
+            <div key={i} style={{ padding: "1.25rem 1rem", textAlign: "center", borderBottom: "1px solid #1e3a5f10" }}>
               <div className="font-data" style={{ fontSize: "1.75rem", fontWeight: 600, color: "#2dd4bf", marginBottom: "0.2rem" }}>{stat.value}</div>
               <div style={{ fontSize: "0.8rem", color: "#94a3b8", marginBottom: "0.2rem" }}>{stat.label}</div>
               <div style={{ fontSize: "0.68rem", color: "#475569" }}>{stat.sub}</div>

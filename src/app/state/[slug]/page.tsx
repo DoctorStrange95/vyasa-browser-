@@ -48,7 +48,7 @@ export default async function StatePage({ params }: { params: { slug: string } }
   const wastingPct     = state.wastingPct;
 
   return (
-    <div style={{ maxWidth: "1280px", margin: "0 auto", padding: "2rem 1.5rem 5rem" }}>
+    <div className="section-pad" style={{ maxWidth: "1280px", margin: "0 auto", padding: "2rem 1.5rem 5rem" }}>
       {/* Breadcrumb */}
       <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", marginBottom: "2rem", fontSize: "0.85rem", color: "#64748b" }}>
         <Link href="/" style={{ color: "#0d9488", textDecoration: "none" }}>States</Link>
