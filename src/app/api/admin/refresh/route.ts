@@ -92,7 +92,7 @@ export async function POST(req: Request) {
     try {
       const { collectPHIntelligence } = await import("@/lib/phIntelligence");
       const data = await collectPHIntelligence();
-      const payload = { refreshedAt: new Date().toISOString(), ...data };
+      const payload = { ...data, refreshedAt: new Date().toISOString() };
       await writeFile(PHI_CACHE, JSON.stringify(payload, null, 2));
       results["ph-intelligence"] = { ok: true, items: data.items.length, sources: data.sources.length };
       log.push(`✓ PH Intelligence: ${data.items.length} items from ${data.sources.length} sources`);
