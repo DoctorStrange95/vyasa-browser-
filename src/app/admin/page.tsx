@@ -5,6 +5,7 @@ import AdminLogout from "./AdminLogout";
 import VyasaLogo from "@/components/VyasaLogo";
 
 const MENU = [
+  { href: "/admin/intelligence",  icon: "🛰", label: "Intelligence Review",    desc: "Approve or reject scraped PH alerts before they go live" },
   { href: "/admin/feedback",     icon: "💬", label: "Feedback & Reports",    desc: "View data correction requests and user reports" },
   { href: "/admin/hospitals",    icon: "🏥", label: "Manage Health Centres", desc: "Add PHCs, CHCs, hospitals with address & services" },
   { href: "/admin/data",         icon: "📊", label: "Upload Health Data",     desc: "Update state/district statistics before going live" },

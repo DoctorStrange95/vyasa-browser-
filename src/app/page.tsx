@@ -1,6 +1,8 @@
 import HealthTicker from "@/components/HealthTicker";
 import StateTable from "@/components/StateTable";
 import VyasaPlatformSection from "@/components/VyasaPlatformSection";
+import PHIntelligenceFeed from "@/components/PHIntelligenceFeed";
+import OutbreakAlerts from "@/components/OutbreakAlerts";
 import states from "@/data/states.json";
 
 const NATIONAL_STATS = [
@@ -72,8 +74,16 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Live Outbreak Alerts */}
+      <OutbreakAlerts />
+
       {/* State Table */}
       <StateTable states={states} />
+
+      {/* Public Health Intelligence Feed */}
+      <div style={{ borderTop: "1px solid #1e3a5f" }}>
+        <PHIntelligenceFeed />
+      </div>
 
       {/* Vyasa Platform Section */}
       <VyasaPlatformSection />

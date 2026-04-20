@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 
 type Section = "states" | "national" | "cities";
-type Source  = "aqi" | "phc" | "idsp" | "srs" | "all";
+type Source  = "aqi" | "phc" | "idsp" | "srs" | "ph-intelligence" | "all";
 
 interface RefreshResult {
   ok: boolean;
@@ -30,6 +30,7 @@ const SOURCES: { id: Source; label: string; desc: string; icon: string; color: s
   { id: "phc",  label: "PHC/CHC Counts",            desc: "Primary & Community Health Centres via NHP API",   icon: "🏥", color: "#2dd4bf" },
   { id: "idsp", label: "IDSP Disease Surveillance", desc: "Outbreak alerts, disease burden via IDSP/NHP",     icon: "🦠", color: "#eab308" },
   { id: "srs",  label: "SRS Vital Statistics",      desc: "SRS 2023 update check via data.gov.in",            icon: "📊", color: "#6366f1" },
+  { id: "ph-intelligence", label: "PH Intelligence Feed", desc: "Outbreak alerts & program updates via PIB, MoHFW, NHP, IDSP", icon: "🛰", color: "#818cf8" },
   { id: "all",  label: "Refresh All Sources",       desc: "Run all refreshes + revalidate all pages",         icon: "🔄", color: "#22c55e" },
 ];
 

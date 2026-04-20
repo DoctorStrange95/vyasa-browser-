@@ -13,6 +13,7 @@ const GOV_KEY = process.env.DATA_GOV_IN_API_KEY!;
 const BASE    = "https://api.data.gov.in/resource";
 
 const IDSP_CACHE = path.join(process.cwd(), "src/data/idsp-cache.json");
+const PHI_CACHE  = path.join(process.cwd(), "src/data/ph-intelligence-cache.json");
 
 export async function POST(req: Request) {
   const isAdmin = await getAdminSession();
@@ -27,6 +28,7 @@ export async function POST(req: Request) {
   const doPHC = source === "phc"  || source === "all";
   const doIDP = source === "idsp" || source === "all";
   const doSRS = source === "srs"  || source === "all";
+  const doPHI = source === "ph-intelligence" || source === "all";
   const doPages = source === "all";
 
   // ── 1. AQI refresh ──────────────────────────────────────────────────────────
@@ -85,7 +87,20 @@ export async function POST(req: Request) {
     } catch (e) { log.push(`✗ SRS check failed: ${e}`); results.srs = { ok: false }; }
   }
 
-  // ── 5. Revalidate all pages ──────────────────────────────────────────────────
+  // ── 5. Public Health Intelligence refresh ──────────────────────────────────
+  if (doPHI) {
+    try {
+      const { collectPHIntelligence } = await import("@/lib/phIntelligence");
+      const data = await collectPHIntelligence();
+      const payload = { refreshedAt: new Date().toISOString(), ...data };
+      await writeFile(PHI_CACHE, JSON.stringify(payload, null, 2));
+      results["ph-intelligence"] = { ok: true, items: data.items.length, sources: data.sources.length };
+      log.push(`✓ PH Intelligence: ${data.items.length} items from ${data.sources.length} sources`);
+      revalidatePath("/");
+    } catch (e) { log.push(`✗ PH Intelligence refresh failed: ${e}`); results["ph-intelligence"] = { ok: false }; }
+  }
+
+  // ── 6. Revalidate all pages ──────────────────────────────────────────────────
   if (doPages) {
     revalidatePath("/");
     revalidatePath("/district/[slug]", "page");
