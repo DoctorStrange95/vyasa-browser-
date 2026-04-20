@@ -182,10 +182,10 @@ export default function DataAdmin() {
                   <span style={{ fontSize: "0.7rem", color: "#334155" }}>{new Date(lastResult.timestamp).toLocaleTimeString("en-IN")}</span>
                 </div>
                 <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: "0.72rem", display: "flex", flexDirection: "column", gap: "0.25rem" }}>
-                  {lastResult.log.map((l, i) => (
+                  {(lastResult.log ?? []).map((l, i) => (
                     <div key={i} style={{ color: l.startsWith("✓") ? "#22c55e" : l.startsWith("⚠") ? "#eab308" : "#94a3b8" }}>{l}</div>
                   ))}
-                  {lastResult.errors.map((e, i) => (
+                  {(lastResult.errors ?? []).map((e, i) => (
                     <div key={`e${i}`} style={{ color: "#ef4444" }}>{e}</div>
                   ))}
                 </div>
