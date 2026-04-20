@@ -59,10 +59,7 @@ export default async function AdminDashboard() {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1.25rem" }}>
           {MENU.map((item) => (
             <Link key={item.href} href={item.href} style={{ textDecoration: "none" }}>
-              <div style={{ backgroundColor: "#0f2040", border: "1px solid #1e3a5f", borderRadius: "12px", padding: "1.5rem", cursor: "pointer", transition: "border-color 0.2s" }}
-                onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => e.currentTarget.style.borderColor = "#0d9488"}
-                onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => e.currentTarget.style.borderColor = "#1e3a5f"}
-              >
+              <div className="admin-menu-card">
                 <div style={{ fontSize: "1.75rem", marginBottom: "0.75rem" }}>{item.icon}</div>
                 <div style={{ fontWeight: 700, color: "#e2e8f0", fontSize: "1rem", marginBottom: "0.3rem" }}>{item.label}</div>
                 <div style={{ fontSize: "0.8rem", color: "#64748b", lineHeight: 1.5 }}>{item.desc}</div>
