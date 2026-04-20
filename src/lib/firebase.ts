@@ -1,30 +1,23 @@
-import { initializeApp, getApps, cert } from "firebase-admin/app";
-import { getFirestore } from "firebase-admin/firestore";
+import { initializeApp, getApps } from "firebase/app";
+import { getFirestore } from "firebase/firestore";
 
-let initialized = false;
-
-function init() {
-  if (initialized || getApps().length > 0) { initialized = true; return; }
-  const projectId   = process.env.FIREBASE_PROJECT_ID;
-  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-  const privateKey  = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n");
-  if (!projectId || !clientEmail || !privateKey) return;
-  initializeApp({ credential: cert({ projectId, clientEmail, privateKey }) });
-  initialized = true;
-}
+// Public web config — safe to commit (security enforced by Firestore rules)
+const config = {
+  apiKey:            "REMOVED_ROTATE_THIS_KEY",
+  authDomain:        "vyasa-2b84a.firebaseapp.com",
+  projectId:         "vyasa-2b84a",
+  storageBucket:     "vyasa-2b84a.firebasestorage.app",
+  messagingSenderId: "159542704035",
+  appId:             "1:159542704050:web:e32543ae54511b2b634c16",
+};
 
 export function getDb() {
   try {
-    init();
-    if (!getApps().length) return null;
-    return getFirestore();
+    const app = getApps().length > 0 ? getApps()[0] : initializeApp(config);
+    return getFirestore(app);
   } catch {
     return null;
   }
 }
 
-export const FIREBASE_AVAILABLE = !!(
-  process.env.FIREBASE_PROJECT_ID &&
-  process.env.FIREBASE_CLIENT_EMAIL &&
-  process.env.FIREBASE_PRIVATE_KEY
-);
+export const FIREBASE_AVAILABLE = true;
