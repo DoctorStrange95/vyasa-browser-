@@ -1,4 +1,2 @@
-// Firebase project config (public — security enforced by Firestore rules)
-// Server-side Firestore access uses the REST API in src/lib/firestore.ts
-export const FIREBASE_PROJECT_ID = "vyasa-2b84a";
-export const FIREBASE_AVAILABLE  = true;
+export const FIREBASE_PROJECT_ID = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID ?? "";
+export const FIREBASE_AVAILABLE  = !!process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;

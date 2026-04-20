@@ -3,7 +3,7 @@
  * Requires Firestore rules: allow read, write: if true;
  */
 
-const PROJECT = "vyasa-2b84a";
+const PROJECT = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID ?? process.env.FIREBASE_PROJECT_ID ?? "";
 const BASE = `https://firestore.googleapis.com/v1/projects/${PROJECT}/databases/(default)/documents`;
 
 // ── Value encoding / decoding ─────────────────────────────────────────────────
