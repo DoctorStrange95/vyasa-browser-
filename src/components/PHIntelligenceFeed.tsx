@@ -89,6 +89,8 @@ function SummaryModal({ item, onClose }: { item: PHItem; onClose: () => void }) 
             deaths:    item.deaths,
             location:  item.location,
             category:  item.category,
+            date:      item.date,
+            priority:  item.confidence === "High" ? "High" : item.confidence === "Medium" ? "Standard" : "Low",
           }),
           signal: ctrl.signal,
         });

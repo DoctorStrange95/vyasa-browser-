@@ -57,54 +57,142 @@ export async function POST(req: NextRequest) {
   const {
     title = "", summary = "", disease = "", program = "", source = "",
     sourceUrl = "", cases = "", deaths = "", location = {}, category = "",
+    priority = "", date = "",
   } = body;
 
   const articleText = await fetchArticleText(sourceUrl);
 
-  const locationStr =
-    [location.state, location.district, location.village].filter(Boolean).join(", ") || "India";
+  const state    = location.state    || "India";
+  const district = location.district || "";
+  const locationStr = [state, district, location.village].filter(Boolean).join(", ");
 
-  const contextBlock = articleText
-    ? `Article content (extracted):\n${articleText}`
-    : `Available metadata only — article content could not be fetched.`;
+  const topic    = disease || program || title || "Not specified";
+  const catNorm  = category.toLowerCase();
+  const catLabel = catNorm === "ncd" ? "NCD"
+                 : catNorm === "outbreak" || catNorm === "communicable" ? "OUTBREAK"
+                 : catNorm === "program" || catNorm === "programme" ? "PROGRAM"
+                 : catNorm === "policy" || catNorm === "guideline" ? "POLICY"
+                 : "OUTBREAK";
 
-  const prompt = `You are a public health intelligence analyst for India. Analyse the following ${
-    category === "ncd" ? "non-communicable disease (NCD)" : "communicable disease / outbreak"
-  } news item and provide a concise, structured briefing.
+  const articleBlock = articleText
+    ? `\nARTICLE CONTENT (extracted):\n${articleText}`
+    : `\nNote: Article content could not be fetched — use metadata only.`;
+
+  /* ── Category-specific format blocks ─────────────────────────────── */
+  const formatByCategory: Record<string, string> = {
+
+    OUTBREAK: `FORMAT YOUR RESPONSE AS:
+**${state}${district ? ", " + district : ""}** — ${topic} outbreak update
+
+KEY FACTS:
+- Confirmed cases: [number from source, or "Case count not disclosed in source"]
+- Deaths: [number] | CFR: [calculate as (deaths/cases)×100 if both available]
+- Affected area: [specific districts/blocks/radius if mentioned]
+- Response measures: [culling, quarantine, vaccination campaign, contact tracing, etc.]
+- Timeline: [first detection date, spread pattern if known]
+
+CONTEXT:
+Compare to baseline or flag if unusual timing/location (e.g., "First human case in this district in 5 years"). If no baseline available, state that.
+
+PUBLIC HEALTH ACTIONS:
+- Surveillance: [contact tracing priorities, sentinel sites, lab testing required]
+- Prevention: [vaccination, vector control, food safety, water safety advisories]
+- Resources: [PPE requirements, drugs needed, diagnostic kits]
+
+AVOID vague statements. Use numbers. Only report confirmed data.`,
+
+    NCD: `FORMAT YOUR RESPONSE AS:
+${topic} burden update — ${locationStr}
+
+EPIDEMIOLOGICAL DATA:
+- Prevalence: [% in which population]
+- Absolute numbers: [if available in source]
+- High-risk groups: [age, gender, urban/rural, socioeconomic profile]
+- Trend: ↑ ↓ → vs [previous year/national average — state the baseline used]
+
+CLINICAL SIGNIFICANCE:
+What does this mean for frontline doctors? Give a specific, actionable statement (e.g., "Screen all adults >40 for CKD in coastal Karnataka").
+
+POLICY IMPLICATIONS:
+- Screening program gaps identified
+- Treatment access barriers
+- Prevention opportunities (diet, exercise, awareness, early detection)
+
+AVOID generic statements. Give specific, actionable insights only.`,
+
+    PROGRAM: `FORMAT YOUR RESPONSE AS:
+${topic} — ${source}
+
+WHAT IT IS:
+One sentence: what this program/initiative does.
+
+RELEVANCE TO PUBLIC HEALTH:
+- Problem addressed: [specific disease burden, surveillance gap, or infrastructure issue]
+- Target population: [patients / health workers / researchers / administrators]
+- Expected impact: [measurable outcomes if stated in source]
+
+KEY DATES & ACTIONS:
+- Application/registration deadline: [date or "not specified"]
+- Implementation timeline: [start–end dates]
+- Eligibility: [who can apply or participate]
+
+FRONTLINE UTILITY:
+Does this affect clinical practice, surveillance reporting, or resource availability?
+If NO → state: "Administrative update — no immediate clinical impact."
+If YES → state exactly what changes for PHC/district hospital staff.`,
+
+    POLICY: `FORMAT YOUR RESPONSE AS:
+${topic} — ${source}
+
+WHAT CHANGED:
+- Previous policy/guideline: [brief description, or "New guideline — no previous version"]
+- New policy: [brief description of what changed]
+- Effective date: [when it takes effect, or "not specified"]
+
+IMPACT ON GROUND-LEVEL HEALTH WORKERS:
+- Reporting requirements: [new forms, timelines, platforms affected]
+- Treatment protocols: [drug changes, dosage updates, referral criteria]
+- Surveillance obligations: [new diseases to report, notification timelines]
+
+COMPLIANCE DEADLINES:
+[When must hospitals/PHCs/doctors comply — or "No compliance deadline stated"]
+
+AVOID quoting full policy text. Extract only what changes day-to-day practice.`,
+  };
+
+  const formatBlock = formatByCategory[catLabel] ?? formatByCategory.OUTBREAK;
+
+  const prompt = `You are a public health intelligence analyst providing actionable briefings for Indian health officials.
+
+ITEM METADATA:
+Category: ${catLabel}
+Disease/Topic: ${topic}
+Title: ${title}
+Source: ${source}
+Location: ${locationStr}
+Date: ${date || "Not specified"}
+Priority: ${priority || "Standard"}
+Reported cases: ${cases || "not disclosed"}
+Reported deaths: ${deaths || "not disclosed"}
+Existing summary: ${summary || "—"}
+${articleBlock}
 
 ---
-**Title:** ${title}
-**Source:** ${source}
-**Disease / Condition:** ${disease || program || "Not specified"}
-**Location:** ${locationStr}
-**Reported cases:** ${cases || "not specified"}
-**Reported deaths:** ${deaths || "not specified"}
-**Existing summary:** ${summary || "—"}
 
-${contextBlock}
----
+INSTRUCTIONS:
+${formatBlock}
 
-Provide your briefing in this exact structure (use markdown):
+GENERAL RULES (apply to all categories):
+1. Lead with location for outbreaks: **Kerala, Kozhikode** — H5N1 detected...
+2. Use numbers, not adjectives: "450 cases" not "significant outbreak"
+3. Calculate rates when possible: CFR = (deaths/cases) × 100
+4. Flag data gaps explicitly: "Case count not disclosed in source"
+5. No speculation — only report confirmed data from the source
+6. Action-oriented language: "Screen all contacts" not "screening may be considered"
+7. Compare to baselines when possible: "23% above 5-year average"
+8. District-level specificity whenever the source provides it
 
-## 🔍 Intelligence Summary
-[2–3 sentence plain-language summary of what happened / what this means]
-
-## 🦠 Disease / Condition
-[Name, category (communicable / NCD), and a one-line clinical note]
-
-## 📍 Geographic Spread
-[Specific states, districts, or cities affected — with severity if known]
-
-## 📊 Epidemiological Figures
-[Cases, deaths, CFR if calculable, trend direction if inferable]
-
-## ⚠️ Public Health Significance
-[Why this matters — risk level (High / Medium / Low / Monitoring), population at risk, any concerning signals]
-
-## ✅ Recommended Actions
-[Bullet list: surveillance steps, preventive measures, or next-watch items relevant to India's health system]
-
-Keep the entire response under 350 words. Be factual — do not speculate beyond what the article supports.`;
+Keep response under 400 words. Be factual, specific, and actionable.`;
 
   const client = new Groq({ apiKey });
 
@@ -114,7 +202,7 @@ Keep the entire response under 350 words. Be factual — do not speculate beyond
       try {
         const groqStream = await client.chat.completions.create({
           model: "llama-3.3-70b-versatile",
-          max_tokens: 1024,
+          max_tokens: 1500,
           stream: true,
           messages: [{ role: "user", content: prompt }],
         });
