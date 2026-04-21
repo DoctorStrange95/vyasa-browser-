@@ -152,10 +152,10 @@ export default function HealthCategories({
     : "#a855f7";
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "2.5rem" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
 
       {/* ── I. MORTALITY ─────────────────────────────────────────────────── */}
-      <section>
+      <section id="mortality" style={{ scrollMarginTop: "90px" }}>
         <CategoryHeader roman="I" title="Mortality Indicators" icon="📉" />
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(190px, 1fr))", gap: "0.85rem" }}>
           {primaryIMR != null && (
@@ -175,7 +175,7 @@ export default function HealthCategories({
 
       {/* ── II. MORBIDITY & INFECTIOUS DISEASE ──────────────────────────── */}
       {hasMorbidity && (
-        <section>
+        <section id="disease" style={{ scrollMarginTop: "90px" }}>
           <CategoryHeader roman="II" title="Morbidity & Infectious Disease" icon="🦠" />
 
           {allOutbreaks.length > 0 ? (
@@ -209,7 +209,7 @@ export default function HealthCategories({
 
       {/* ── III. VACCINATION ────────────────────────────────────────────── */}
       {hasVaccination && (
-        <section>
+        <section id="vaccination" style={{ scrollMarginTop: "90px" }}>
           <CategoryHeader roman="III" title="Vaccination Coverage" icon="💉" />
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(190px, 1fr))", gap: "0.85rem" }}>
             <MetricCard label="Full Immunization" value={`${vaccinationPct}%`} sub="Children fully immunized 12–23 months" best={85} worst={60} higher srcBadge="NFHS-5" />
@@ -234,7 +234,7 @@ export default function HealthCategories({
 
       {/* ── IV. NUTRITIONAL STATUS ───────────────────────────────────────── */}
       {hasNutrition && (
-        <section>
+        <section id="nutrition" style={{ scrollMarginTop: "90px" }}>
           <CategoryHeader roman="IV" title="Nutritional Status" icon="🥗" />
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(190px, 1fr))", gap: "0.85rem" }}>
             {stuntingPct != null && <MetricCard label="Child Stunting" value={`${stuntingPct}%`} sub="Height-for-age below -2 SD (under 5)" best={20} worst={40} srcBadge="NFHS-5" />}
@@ -246,7 +246,7 @@ export default function HealthCategories({
 
       {/* ── V. HEALTHCARE INFRASTRUCTURE ────────────────────────────────── */}
       {hasInfrastructure && (
-        <section>
+        <section id="infrastructure" style={{ scrollMarginTop: "90px" }}>
           <CategoryHeader roman="V" title="Healthcare Infrastructure & Resources" icon="🏥" />
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(190px, 1fr))", gap: "0.85rem" }}>
             {phcTotal != null && phcTotal > 0 && (
@@ -273,7 +273,7 @@ export default function HealthCategories({
 
       {/* ── VI. ENVIRONMENTAL HEALTH ─────────────────────────────────────── */}
       {hasEnvironment && aqi != null && (
-        <section>
+        <section id="environment" style={{ scrollMarginTop: "90px" }}>
           <CategoryHeader roman="VI" title="Environmental Health" icon="🌫" />
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(190px, 1fr))", gap: "0.85rem" }}>
             {/* AQI main card */}

@@ -1,6 +1,617 @@
 {
-  "refreshedAt": null,
-  "items": [],
-  "sources": [],
+  "refreshedAt": "2026-04-21T11:21:12.538Z",
+  "items": [
+    {
+      "type": "NCD",
+      "category": "ncd",
+      "title": "EoI on \"Secondary analysis on Effect of Interventions on prevention and management of overweight and obesity in children, adolesce",
+      "disease": "Obesity",
+      "location": {
+        "state": "",
+        "district": "",
+        "village": ""
+      },
+      "summary": "EoI on \"Secondary analysis on Effect of Interventions on prevention and management of overweight and obesity in children, adolescents and adults\" Last Date: April 30, 2026",
+      "cases": "",
+      "deaths": "",
+      "date": "2026-04-21",
+      "source": "ICMR (Indian Council of Medical Research)",
+      "sourceUrl": "https://www.icmr.gov.in/icmrobject/uploads/Call/1774422524_obesityeoifinal1.pdf",
+      "confidence": "High"
+    },
+    {
+      "type": "Program",
+      "category": "ncd",
+      "title": "ICMR Medical Innovations Patent Mitra: Innovators-to-Industry Connect (I2I Connect)” conclave on 23 April 2026 at Bharat Mandapam,",
+      "program": "ICMR Research",
+      "location": {
+        "state": "Delhi",
+        "district": "New Delhi",
+        "village": ""
+      },
+      "summary": "ICMR Medical Innovations Patent Mitra: Innovators-to-Industry Connect (I2I Connect)” conclave on 23 April 2026 at Bharat Mandapam, New Delhi.",
+      "cases": "",
+      "deaths": "",
+      "date": "2026-04-21",
+      "source": "ICMR (Indian Council of Medical Research)",
+      "sourceUrl": "https://www.icmr.gov.in/icmrobject/uploads/Events/1776418695_finalflyer.pdf",
+      "confidence": "High"
+    },
+    {
+      "type": "Program",
+      "category": "ncd",
+      "title": "Workshop on Systematic Review and Networking Support in Health- Saransh 2.0. at ICMR-NIRT, Chennai (Date: September 1, 2025- March",
+      "program": "ICMR Research",
+      "location": {
+        "state": "Tamil Nadu",
+        "district": "Chennai",
+        "village": ""
+      },
+      "summary": "Workshop on Systematic Review and Networking Support in Health- Saransh 2.0. at ICMR-NIRT, Chennai (Date: September 1, 2025- March 31, 2026) (PDF File Size - 853.01 KB)",
+      "cases": "",
+      "deaths": "",
+      "date": "2026-04-21",
+      "source": "ICMR (Indian Council of Medical Research)",
+      "sourceUrl": "https://www.icmr.gov.in/icmrobject/uploads/WhatsNew/1753860443_saransh20metabrochure.pdf",
+      "confidence": "High"
+    },
+    {
+      "type": "Program",
+      "category": "ncd",
+      "title": "ICMR, DBT SNSF Joint Research Projects: Call for Proposals 2026: Indo-Swiss Joint Research Programme (ISJRP) Last Date: May 5, 202",
+      "program": "ICMR Research",
+      "location": {
+        "state": "",
+        "district": "",
+        "village": ""
+      },
+      "summary": "ICMR, DBT SNSF Joint Research Projects: Call for Proposals 2026: Indo-Swiss Joint Research Programme (ISJRP) Last Date: May 5, 2026 (PDF File Size - 240.43 KB)",
+      "cases": "",
+      "deaths": "",
+      "date": "2026-04-21",
+      "source": "ICMR (Indian Council of Medical Research)",
+      "sourceUrl": "https://www.icmr.gov.in/icmrobject/uploads/Documents/1773730580_1770032218_calldocumentonehealth_02feb2026.pdf",
+      "confidence": "High"
+    },
+    {
+      "type": "Program",
+      "category": "ncd",
+      "title": "ICMR Collaborating Centre of Excellence (ICMR-CCoE)",
+      "program": "ICMR Research",
+      "location": {
+        "state": "",
+        "district": "",
+        "village": ""
+      },
+      "summary": "ICMR Collaborating Centre of Excellence (ICMR-CCoE)",
+      "cases": "",
+      "deaths": "",
+      "date": "2026-04-21",
+      "source": "ICMR (Indian Council of Medical Research)",
+      "sourceUrl": "https://www.icmr.gov.in/icmr-collaborating-centre-of-excellence-icmr-ccoe",
+      "confidence": "High"
+    },
+    {
+      "type": "Program",
+      "category": "ncd",
+      "title": "International Collaboration of ICMR",
+      "program": "ICMR Research",
+      "location": {
+        "state": "",
+        "district": "",
+        "village": ""
+      },
+      "summary": "International Collaboration of ICMR",
+      "cases": "",
+      "deaths": "",
+      "date": "2026-04-21",
+      "source": "ICMR (Indian Council of Medical Research)",
+      "sourceUrl": "https://www.icmr.gov.in/international-collaboration-of-icmr",
+      "confidence": "High"
+    },
+    {
+      "type": "Program",
+      "category": "ncd",
+      "title": "Consolidated List Of International Scientists Visited ICMR Hqrs/Divisons",
+      "program": "ICMR Research",
+      "location": {
+        "state": "",
+        "district": "",
+        "village": ""
+      },
+      "summary": "Consolidated List Of International Scientists Visited ICMR Hqrs/Divisons",
+      "cases": "",
+      "deaths": "",
+      "date": "2026-04-21",
+      "source": "ICMR (Indian Council of Medical Research)",
+      "sourceUrl": "https://www.icmr.gov.in/list-of-international-scientists-visited-icmr-headquarters-divisions",
+      "confidence": "High"
+    },
+    {
+      "type": "Program",
+      "category": "ncd",
+      "title": "Hindi Publication ICMR Patrika",
+      "program": "ICMR Research",
+      "location": {
+        "state": "",
+        "district": "",
+        "village": ""
+      },
+      "summary": "Hindi Publication ICMR Patrika",
+      "cases": "",
+      "deaths": "",
+      "date": "2026-04-21",
+      "source": "ICMR (Indian Council of Medical Research)",
+      "sourceUrl": "https://www.icmr.gov.in/hindi-publication-icmr-patrika",
+      "confidence": "High"
+    },
+    {
+      "type": "Outbreak",
+      "category": "communicable",
+      "title": "India: H5N1 Reported in Five Kozhikode Local Bodies; Culling To Follow",
+      "disease": "Influenza",
+      "location": {
+        "state": "Kerala",
+        "district": "Kozhikode",
+        "village": ""
+      },
+      "summary": "H5N1 has been reported in five local bodies in Kozhikode district, with culling operations set to follow, according to PTI and local media reports published on March 18 and 19.",
+      "cases": "",
+      "deaths": "",
+      "date": "2026-03-19",
+      "source": "Outbreak News Today",
+      "sourceUrl": "https://outbreaknewstoday.com/india-h5n1-reported-in-five-kozhikode-local-bodies-culling-to-follow-629/",
+      "confidence": "Medium"
+    },
+    {
+      "type": "Outbreak",
+      "category": "communicable",
+      "title": "India: Kerala To Cull 5,961 Birds in Alappuzha After Bird Flu Confirmation",
+      "disease": "Influenza",
+      "location": {
+        "state": "Kerala",
+        "district": "",
+        "village": ""
+      },
+      "summary": "The cull order in Alappuzha district follows reported H5N1 confirmation in Muhamma and will cover a 1-km radius around the outbreak center.",
+      "cases": "",
+      "deaths": "",
+      "date": "2026-03-19",
+      "source": "Outbreak News Today",
+      "sourceUrl": "https://outbreaknewstoday.com/india-kerala-to-cull-5961-birds-in-muhamma-after-bird-flu-confirmation-613/",
+      "confidence": "Medium"
+    },
+    {
+      "type": "Outbreak",
+      "category": "communicable",
+      "title": "Dozens of Dead Swans in London Docklands Trigger Bird Flu Investigation",
+      "disease": "Avian Influenza",
+      "location": {
+        "state": "",
+        "district": "",
+        "village": ""
+      },
+      "summary": "A specialist contractor has collected 30 dead swans from waterways near Canary Wharf. Officials say tests are under way and are urging people not to touch carcasses.",
+      "cases": "",
+      "deaths": "",
+      "date": "2026-02-24",
+      "source": "Outbreak News Today",
+      "sourceUrl": "https://outbreaknewstoday.com/dozens-of-dead-swans-in-london-docklands-trigger-bird-flu-investigation-520/",
+      "confidence": "Medium"
+    },
+    {
+      "type": "Outbreak",
+      "category": "communicable",
+      "title": "Now, you can report disease outbreaks from your phone: NCDC’s new community reporting system seeks citize - The Times of India",
+      "disease": "Dengue Haemorrhagic Fever",
+      "program": "NCDC Surveillance",
+      "location": {
+        "state": "",
+        "district": "",
+        "village": ""
+      },
+      "summary": "a href=\"https://news.google.com/rss/articles/CBMingJBVV95cUxQZURxOXQ1VFB5c2dfM2dicmtzdHRWUTFMQkJBcnR6bGRHV0JxbTF2QTlpR05KUmhJa0EzVDZpdFlEOXFOTnpCRm54VEhuVWdncWYzWGVKRHJ6UHJqMGVka3NWa25UUTNiTTd0aHltOHBseUtIZndxRnlYZG8xSTg2N3IzbTVrUloyUm9aNmkxMEpSOFJQRlU2RmZlWXBicDB6SEVlR0hEWnNIUVJ…",
+      "cases": "",
+      "deaths": "",
+      "date": "2025-12-02",
+      "source": "Google News (India Health)",
+      "sourceUrl": "https://news.google.com/rss/articles/CBMingJBVV95cUxQZURxOXQ1VFB5c2dfM2dicmtzdHRWUTFMQkJBcnR6bGRHV0JxbTF2QTlpR05KUmhJa0EzVDZpdFlEOXFOTnpCRm54VEhuVWdncWYzWGVKRHJ6UHJqMGVka3NWa25UUTNiTTd0aHltOHBseUtIZndxRnlYZG8xSTg2N3IzbTVrUloyUm9aNmkxMEpSOFJQRlU2RmZlWXBicDB6SEVlR0hEWnNIUVJfb0dzZ1Q0YkpyajhJOGNLY3hVbU8xWGRoZ25xMlAzTmtVQVI5bjVlNTFBdE9DSExUUlAwM1pOU3B3X2xaMldvSUtTRlN4M3ZiVmx2dzZMQXZSdldYVFFpcXp3V052WGtkdmhMeFdXZGVJNHpJd2JJenpB0gGjAkFVX3lxTE9SS0pmUV80WGNoWTJrZ01uWlpOUmVBOXVTMFEwSVdjYi1RYXZldXhqeWdrcV9XdUtpc3dOd0pCS3lEWkhlZ19pQzFTREpwV0toVmdQeG1tU0QwTklCTFRkYmFNVmd5NHl4b2dWVE1CRDgzanlZZTFsR3VDQUVDSHMtZ01rMVJjMFVxaGpTR29MZzVHbWRVOTM4cG5fMkFiYUwxYzRvWUxhZ3NQR3NuTEphM0pnZ3F2cTM3ZUxEeEd6SHYxVTRNdVczRVRlUHoyWVNJekJsMzZmekdsMU04UGVvU3ZqY1VWMUVZVzRBM09TeDhFdzhZdzdRVkJjUTJmNHk2LWFiX1JPM0gyblZFcnZoMkczUWRLM0RGUnpfeDBqLXdqaw?oc=5",
+      "confidence": "Medium"
+    },
+    {
+      "type": "Outbreak",
+      "category": "communicable",
+      "title": "Geographic Distribution and Temporal Trends of Zika Virus Outbreaks in India (2016–2023): Insights From the Integrated Disease Sur",
+      "disease": "Zika",
+      "location": {
+        "state": "",
+        "district": "",
+        "village": ""
+      },
+      "summary": "a href=\"https://news.google.com/rss/articles/CBMimgJBVV95cUxOVXZiajdlclRia3BSWUcxbkg2YUFNdHdfR2t5dWZud0xTNDB4LW1TYW85TUotVU1ZbUoteTlTYWlJc0w3V3dLMFlxMWVsT0xtbWNrVXRZZmdJQ3FjcUQwMmZKbFpGSUdETW9uaFE0akpXWjVhU1JSdTdMZ0tyVThnemgwbDIzai1kUEVnMktSZ3ZCR24yeFp3ZVFKMGRJOFdJcWhqd1Z2Vmx0T3Z…",
+      "cases": "",
+      "deaths": "",
+      "date": "2024-08-17",
+      "source": "Google News (India Health)",
+      "sourceUrl": "https://news.google.com/rss/articles/CBMimgJBVV95cUxOVXZiajdlclRia3BSWUcxbkg2YUFNdHdfR2t5dWZud0xTNDB4LW1TYW85TUotVU1ZbUoteTlTYWlJc0w3V3dLMFlxMWVsT0xtbWNrVXRZZmdJQ3FjcUQwMmZKbFpGSUdETW9uaFE0akpXWjVhU1JSdTdMZ0tyVThnemgwbDIzai1kUEVnMktSZ3ZCR24yeFp3ZVFKMGRJOFdJcWhqd1Z2Vmx0T3ZncW9wRGE0MmhpdFlfNUd6R1BqOFBqV0ZiNThOakpSaVhCdlpMa2ljVl9iWVhWa0pLQklHOE9tY2VPT0JjNXlZdWpfd3dJSWk4eG44Zm1nZHFYVFF3Q2NqeU5JTF9hLWFfZ3VaRU5fQkZoSmtSamc?oc=5",
+      "confidence": "Medium"
+    },
+    {
+      "type": "Outbreak",
+      "category": "communicable",
+      "title": "Next-gen digital platform launched pan India to accelerate outbreak response - World Health Organization (WHO)",
+      "disease": "Acute Encephalitis Syndrome",
+      "location": {
+        "state": "",
+        "district": "",
+        "village": ""
+      },
+      "summary": "a href=\"https://news.google.com/rss/articles/CBMiygFBVV95cUxNMmxWMmViY1BCZzlIWkJNZUt6Mi0zVTQ3dnB1aWlWWXRkTzRGcHVncEtENWJ2N09YamVvVWVTYXU1WUR2QV9ESzJTTnBDRFE2TjgzbWZGX2JWYTI0TnphT0hWT2NPVzFzd0ZUengwVzF5d0J4WlFzSURRUHFCVW9BaEs0aXJUX25PNlEzMmpmaW5odExYZWllaHhnUFloc3VKSTVfQ005QWxQakh…",
+      "cases": "",
+      "deaths": "",
+      "date": "2021-04-14",
+      "source": "Google News (India Health)",
+      "sourceUrl": "https://news.google.com/rss/articles/CBMiygFBVV95cUxNMmxWMmViY1BCZzlIWkJNZUt6Mi0zVTQ3dnB1aWlWWXRkTzRGcHVncEtENWJ2N09YamVvVWVTYXU1WUR2QV9ESzJTTnBDRFE2TjgzbWZGX2JWYTI0TnphT0hWT2NPVzFzd0ZUengwVzF5d0J4WlFzSURRUHFCVW9BaEs0aXJUX25PNlEzMmpmaW5odExYZWllaHhnUFloc3VKSTVfQ005QWxQakh4elRmRWZTQ3c2VE1tazdPelBsUTJEVi1QdTdwaDdR?oc=5",
+      "confidence": "Medium"
+    },
+    {
+      "type": "Outbreak",
+      "category": "communicable",
+      "title": "Epidemiologists say India’s centre for disease control withheld COVID-19 data since pandemic began - The Caravan",
+      "disease": "COVID-19",
+      "location": {
+        "state": "",
+        "district": "",
+        "village": ""
+      },
+      "summary": "a href=\"https://news.google.com/rss/articles/CBMixAFBVV95cUxNcXVfQ3F5X2cwRWJCNnlWeHVCMXk2S01CVllTXzdwdUJTLVVBd0VpWmdlbGdTdEZBeGQ5RXMwSHF6cjhFY3JVc1NiaC1LM2dEaFo2Y1pXUVd6bHpZMUdISUJDZ3FGTE1MaG9OT0lZbzVNS3ZPVWJXN1kwM1NYdEE4b292Y05kMDhGbVZnaktfMEdvamk4N1QtQ2tEVVpUdDFSb3VMN2lZQ2Q3b3d…",
+      "cases": "",
+      "deaths": "",
+      "date": "2020-05-11",
+      "source": "Google News (India Health)",
+      "sourceUrl": "https://news.google.com/rss/articles/CBMixAFBVV95cUxNcXVfQ3F5X2cwRWJCNnlWeHVCMXk2S01CVllTXzdwdUJTLVVBd0VpWmdlbGdTdEZBeGQ5RXMwSHF6cjhFY3JVc1NiaC1LM2dEaFo2Y1pXUVd6bHpZMUdISUJDZ3FGTE1MaG9OT0lZbzVNS3ZPVWJXN1kwM1NYdEE4b292Y05kMDhGbVZnaktfMEdvamk4N1QtQ2tEVVpUdDFSb3VMN2lZQ2Q3b3dfSnNjOWpsV3ZNRXBmblhPVUxZcVNSdlpD?oc=5",
+      "confidence": "Medium"
+    },
+    {
+      "type": "NCD",
+      "category": "ncd",
+      "title": "India Accounts For 20% Of Global Heart Attack Deaths, Says New Indian Report - NDTV",
+      "disease": "Heart Attack (MI)",
+      "location": {
+        "state": "",
+        "district": "",
+        "village": ""
+      },
+      "summary": "a href=\"https://news.google.com/rss/articles/CBMisAFBVV95cUxNLUxDZmt3NkRjVkotZUpNWEVQVG9HREpJZERRTkp5Y1pLSzVDaUVvd213cnJPbU1PMnRkNmRNM2NEVTMwRUZqWXZaOGFQVDg1NDFjeVFJbFJDLUxMLU9GSlhaaXdlc3pGdkNIbGV1ZzB1NkJGRkdKUVBNWFh6Y0IyNUVDcXljYnRrYkI0T3FWNzhHWUdkRFI3YzM0OHgxLW05Zlpkb0I2RVlLZld…",
+      "cases": "",
+      "deaths": "",
+      "date": "2026-02-21",
+      "source": "Google News (India NCD)",
+      "sourceUrl": "https://news.google.com/rss/articles/CBMisAFBVV95cUxNLUxDZmt3NkRjVkotZUpNWEVQVG9HREpJZERRTkp5Y1pLSzVDaUVvd213cnJPbU1PMnRkNmRNM2NEVTMwRUZqWXZaOGFQVDg1NDFjeVFJbFJDLUxMLU9GSlhaaXdlc3pGdkNIbGV1ZzB1NkJGRkdKUVBNWFh6Y0IyNUVDcXljYnRrYkI0T3FWNzhHWUdkRFI3YzM0OHgxLW05Zlpkb0I2RVlLZldjT3JoWtIBuAFBVV95cUxPLXVkSGZIM0JVSUJXd2hTS3MxWFZOY1kwOE1JRU5HSTVvQ3dxY3NDVldBV1dMdGhEVEpHaHZnSmZWcVUzVndhRE1sdXBnYllwNmZBdzNOeUtObEk0UERxam1BUlpYZmdBTjk1dVA1R3A2eV9TV2kwMWE2bGFYcWtlaksybFN0VnJmOGdzYnBsWHlmU1RCSEFFZDJUQW9lVWJ4emRYczhZaVZUdmMxT2xmYVY2MVNobkVD?oc=5",
+      "confidence": "Medium"
+    },
+    {
+      "type": "NCD",
+      "category": "ncd",
+      "title": "India accounts for 20% of heart attack deaths worldwide, finds report - Business Standard",
+      "disease": "Heart Attack (MI)",
+      "location": {
+        "state": "",
+        "district": "",
+        "village": ""
+      },
+      "summary": "a href=\"https://news.google.com/rss/articles/CBMisAFBVV95cUxQMmFRNVRKeFIxTzFNTk5pRDJZRllZaUNKdDViLTd6YkNGcnlXaU1GOXJBSnB1M3B2eEZVcHAtVndhdWZBMXBoUHJvaEVibVYxdTRuZlNyTjI2LThUNHFjZEFqMmprWDhqVlg4aFREYko5eFE1TkZFUjBiVWhaT2Zrc0Z5Z1U4RTctQ29JbEJIeTZEemloQ0c0dWtwM09Hc2F3YVpBdWR2LUJMOW9…",
+      "cases": "",
+      "deaths": "",
+      "date": "2026-02-19",
+      "source": "Google News (India NCD)",
+      "sourceUrl": "https://news.google.com/rss/articles/CBMisAFBVV95cUxQMmFRNVRKeFIxTzFNTk5pRDJZRllZaUNKdDViLTd6YkNGcnlXaU1GOXJBSnB1M3B2eEZVcHAtVndhdWZBMXBoUHJvaEVibVYxdTRuZlNyTjI2LThUNHFjZEFqMmprWDhqVlg4aFREYko5eFE1TkZFUjBiVWhaT2Zrc0Z5Z1U4RTctQ29JbEJIeTZEemloQ0c0dWtwM09Hc2F3YVpBdWR2LUJMOW9LZzZYZdIBtgFBVV95cUxNQnQ4RHFnRVEycE41MXpoVVZ1Y3ExbFpEUmF4cWVGcW1ZN216SDBhcGFOaDVyV0pxWXpBSFg4Nm5GckltVEVVNWh4UWI3aW42eDZGRXZsWDJJTm9JeXFXNzNPaGFXUF9jM0x3OEZJUEo5NkNNLXpjY0ZjY0NvSlozOWhnUFdXd1dubElDQ0hvS1dCTm03Tll3RXY2QmhHNmFRVUgxYl84U2xtWThuVEcyRHBaUnN6UQ?oc=5",
+      "confidence": "Medium"
+    },
+    {
+      "type": "NCD",
+      "category": "ncd",
+      "title": "99% of heart attacks in India are linked to these 4 hidden risk factors: Know warning signs and proven pr - The Times of India",
+      "disease": "Heart Attack (MI)",
+      "location": {
+        "state": "",
+        "district": "",
+        "village": ""
+      },
+      "summary": "a href=\"https://news.google.com/rss/articles/CBMivAJBVV95cUxQRTNKdzRRWlppUUxfalJIZDhwVzZsYy1KUjlHTjJ4b0tyZDFPZlg5ejh1LVhyenBXS2V4ZzdMUTRJMk1GaHh1V1FETklMZTB5VzJBWjBkRzNlMmRLU1RFNm05MzQzWWVRRW1KR1FjNnJjTWxTSGdlVTdCNmcxQVFrQmlBbkM1X0t4cGUxckt2SkdvcjNIdHhpeGJfVmZHb0ZGZkRheklKZU9vNC1…",
+      "cases": "",
+      "deaths": "",
+      "date": "2025-11-09",
+      "source": "Google News (India NCD)",
+      "sourceUrl": "https://news.google.com/rss/articles/CBMivAJBVV95cUxQRTNKdzRRWlppUUxfalJIZDhwVzZsYy1KUjlHTjJ4b0tyZDFPZlg5ejh1LVhyenBXS2V4ZzdMUTRJMk1GaHh1V1FETklMZTB5VzJBWjBkRzNlMmRLU1RFNm05MzQzWWVRRW1KR1FjNnJjTWxTSGdlVTdCNmcxQVFrQmlBbkM1X0t4cGUxckt2SkdvcjNIdHhpeGJfVmZHb0ZGZkRheklKZU9vNC12MXRvZXJPNk5SbHQtUk92MlRWR0NfM3JIX0NOdVRIc1otQ2VudFQ5aGIxNVM2UTZSclNiQWNjUlpsTUFRQURqT05WMkxNZGhYSDR2MTZiQXNsUjVqb2dpLVhlMTVGNU9yelBPaXpUZEhYSDE0TEpRdkdxMHViaDhPMjNBR2RULXFUR0ZPSVQ3T2Eyamp3THl50gHCAkFVX3lxTFBmNHdhTC1CajFrRlNCQlp4dXNveXVpY3Vsb3pLRU9WLW9ESjRfbEs5TjlKdURrZ3I5UWM4OTliV3B1TG9JVGFhMW5UZXgyNHVxbElibmNraS1jeXhIbW9hNHNWX0RmV0t4X3FveXpVUGVrMDVGbmJFTFh5T3dzcDlSZ0IwVzlWTTBjay1lelBQbTBpSTJNYWRtWUJ6blFSYVkzSDJaMVN6OUxuamxoV19PN3paVnFway1BRkl4OE9vaVFqNDdTbHVHY01UNHpkOFlteURFLV9pZVM4UnNwX1ZOX25WaEt5VEhQWElEZVJHN1hsV1VQMU5Ed1Bjc2txaWV0NF9vOF81LUVJVkRuZlJMaERxenRtNHo0b3BGRE9nTURNVDZja0plazNMcGRXWjZrZTQzU2tIclBVQVZnaTFOaHc?oc=5",
+      "confidence": "Medium"
+    },
+    {
+      "type": "NCD",
+      "category": "ncd",
+      "title": "FDA approves pill which can prevent heart attack, stroke by reducing inflammation: How it works - The Times of India",
+      "disease": "Heart Attack (MI)",
+      "location": {
+        "state": "",
+        "district": "",
+        "village": ""
+      },
+      "summary": "a href=\"https://news.google.com/rss/articles/CBMingJBVV95cUxNd2J6YmU4QjZMbEdBSDZpZGZJX0ZjbmloZ19Sd19nU2tRSUhFbGxzYTRwMFhsMnVjcTB1ZmNodG9xT0lhTmJweEpqVGxuMExpWWpQOWdKcVVjc2YyOUx6ME1VYzllVFA4NGx3NU56U1VsTE1YZWVGZmZISjVPY0p0Rm0zQnMxdWZpdExQWFR3RTVZR0h2N3ZrdkxEeDAzdlY1TnByTlVyQ2s5VVV…",
+      "cases": "",
+      "deaths": "",
+      "date": "2025-11-06",
+      "source": "Google News (India NCD)",
+      "sourceUrl": "https://news.google.com/rss/articles/CBMingJBVV95cUxNd2J6YmU4QjZMbEdBSDZpZGZJX0ZjbmloZ19Sd19nU2tRSUhFbGxzYTRwMFhsMnVjcTB1ZmNodG9xT0lhTmJweEpqVGxuMExpWWpQOWdKcVVjc2YyOUx6ME1VYzllVFA4NGx3NU56U1VsTE1YZWVGZmZISjVPY0p0Rm0zQnMxdWZpdExQWFR3RTVZR0h2N3ZrdkxEeDAzdlY1TnByTlVyQ2s5VVV3LWpSZWtzTTRxR3QwWmFQQU1hd29DS1NzbXBIM0VmeUdqTHpXdjJPdWpMVlZUSjAxelQySk5aOWgtclM0Y2U4RHJhZjdPU2NHUFF4bVJIZ0pvZkNrUy1RTFgzbVlGXzd1eDdDSUVCT25IS0RXU005M0N30gGjAkFVX3lxTE9ZQ0NOeDFmM284STdQQTVsejJoQkRCdGNBeHdmLWZ2Z0Rlc1BUZ1l2cTg5Z3lFX01ycEhTRnVPalR6NW15bEdUQWhWbVVCRERiS2otTXNmbmd0cnRhd2dseGJVd1lyeFR4Y3ZuV3hTQ2VsenhZbU9zWFlPUWowdld5a3BtLV90YVgyd3NEVURQYURtQ3VvencwMk5LLVlfSWcySzBIWkZhTnNROHQ2aW9oNklkQXR3Tng2SWlFQTRjZWpwU1I5QVdqOTlfTlZpR0wydUZ5UWlvdS1XQzJpZU1LLWp4dGVZOENhNGZqeUNELWZZZnZ1NnhaVWhsNnJOd1l2OGZYYml1MEgzNXkzMWpEQk9IRjJFaHFpY2dQNnZxUWJ6RQ?oc=5",
+      "confidence": "Medium"
+    },
+    {
+      "type": "NCD",
+      "category": "ncd",
+      "title": "First GLP-1 drug approved to protect against heart attacks, stroke - India Today",
+      "disease": "Heart Attack (MI)",
+      "location": {
+        "state": "",
+        "district": "",
+        "village": ""
+      },
+      "summary": "a href=\"https://news.google.com/rss/articles/CBMi1gFBVV95cUxPUm5Zak5tRmVDU1NHRU55YkhuZ204TUY0cU1zUXJMbXJnbVhmcFJtb05iMVM4cTBqVXd1SVJTM0FSYm1HN2tIM1hmSzNqaXJnckh4QjJ0c1d0R1prQnFyYkdpdlUtcTh1MGszcU9GbzhtcFI2OTdxa3lrd3h0V0g0RkhVYzRWZ0FWUk5FVGduWWdNenl0NmdaLUctemw0eC1EOXdaYVo1LUNFTkV…",
+      "cases": "",
+      "deaths": "",
+      "date": "2025-11-01",
+      "source": "Google News (India NCD)",
+      "sourceUrl": "https://news.google.com/rss/articles/CBMi1gFBVV95cUxPUm5Zak5tRmVDU1NHRU55YkhuZ204TUY0cU1zUXJMbXJnbVhmcFJtb05iMVM4cTBqVXd1SVJTM0FSYm1HN2tIM1hmSzNqaXJnckh4QjJ0c1d0R1prQnFyYkdpdlUtcTh1MGszcU9GbzhtcFI2OTdxa3lrd3h0V0g0RkhVYzRWZ0FWUk5FVGduWWdNenl0NmdaLUctemw0eC1EOXdaYVo1LUNFTkVrbHU0T2t0UkFEamhVOEhlQm4tdTkyeldKbTZUN2tIYm5EYjJtVnVaR2FB0gHbAUFVX3lxTE43aUlESXJMZDktR0NTbTNlZEFWaEZrTjlOX1dZT0NWd2RlT2tVajBTVlN4Z3pqSFFmVnZNU2c0QS1kR0c4TWxlajJJUDdGY0NBaGxYVkw0NzlBYWlmcVhleFAzd3ZOckpXR0FXdGZuZ0NDcF9Sd2dsSnZLTm1CVnI5R3d5Q0dzeWUwSmFxdklQSzRwNGtHRDJoZFV2N1l1SFd6ZFZKd0pGTlkzV2ZldG4tZVBCZlpjMmxDZTR2SEs0dUo3c0lkblRUQmtaS2JDMENRelZvdnFJMjNBQQ?oc=5",
+      "confidence": "Medium"
+    },
+    {
+      "type": "NCD",
+      "category": "ncd",
+      "title": "World Heart Day 2025: Rise of Heart Attacks in India’s Young Adults: What Lifestyle Shifts Are to Blame? - Onlymyhealth",
+      "disease": "Heart Attack (MI)",
+      "location": {
+        "state": "",
+        "district": "",
+        "village": ""
+      },
+      "summary": "a href=\"https://news.google.com/rss/articles/CBMiyAFBVV95cUxPQ3JYajhOanlBSWJJZzRma25wcWZ1R09CcjBjaGw1Q1NIMDZSNGxYU25hYVRpWmVJUkNSalh4TktjZUp1R255YUwxWkJzRW5jaXhqdENhdDZobWdpeE5LVmtkTlJrdVByYUd5akJCNkotYTRvb0ZmYjhmZUpqc2JLZVVPMS1wOU5CdHRKWkNvMEE3M3daRkk4NTJHb3dnSWFSRkI5eGNaT2NhajZ…",
+      "cases": "",
+      "deaths": "",
+      "date": "2025-09-20",
+      "source": "Google News (India NCD)",
+      "sourceUrl": "https://news.google.com/rss/articles/CBMiyAFBVV95cUxPQ3JYajhOanlBSWJJZzRma25wcWZ1R09CcjBjaGw1Q1NIMDZSNGxYU25hYVRpWmVJUkNSalh4TktjZUp1R255YUwxWkJzRW5jaXhqdENhdDZobWdpeE5LVmtkTlJrdVByYUd5akJCNkotYTRvb0ZmYjhmZUpqc2JLZVVPMS1wOU5CdHRKWkNvMEE3M3daRkk4NTJHb3dnSWFSRkI5eGNaT2NhajZ2WUs2ZUhtYnhGOExiUUxpU0xNVjdON0FMMFRuQw?oc=5",
+      "confidence": "Medium"
+    },
+    {
+      "type": "NCD",
+      "category": "ncd",
+      "title": "Novo Nordisk's obesity drug Wegovy cuts risk of heart attack by 57% vs Eli Lilly’s tirzepatide, shows real-world study - Fortune I",
+      "disease": "Heart Attack (MI)",
+      "location": {
+        "state": "",
+        "district": "",
+        "village": ""
+      },
+      "summary": "a href=\"https://news.google.com/rss/articles/CBMi7gFBVV95cUxQS2NvZk1rRlJNck5jWXQzVnh3YjlKZzRid3RWYWQ0Ujk3VGpRaXAtSFZjMkw1dTR0Ymtwamt5Qi1qZWwzQXJKYi1lSzRPVkJFQVJkNGc2OUIyVTJ5RTJkbWFwbHprZzRIaFNOMG9DX2Y3b1NFSkViM0Z1cnRSeGo3NEFkd2FKOWp2LXo5a3c2V0luNHlzWVkwSGhZYjN5cnlwblNLbFRYMkQzdDc…",
+      "cases": "",
+      "deaths": "",
+      "date": "2025-09-19",
+      "source": "Google News (India NCD)",
+      "sourceUrl": "https://news.google.com/rss/articles/CBMi7gFBVV95cUxQS2NvZk1rRlJNck5jWXQzVnh3YjlKZzRid3RWYWQ0Ujk3VGpRaXAtSFZjMkw1dTR0Ymtwamt5Qi1qZWwzQXJKYi1lSzRPVkJFQVJkNGc2OUIyVTJ5RTJkbWFwbHprZzRIaFNOMG9DX2Y3b1NFSkViM0Z1cnRSeGo3NEFkd2FKOWp2LXo5a3c2V0luNHlzWVkwSGhZYjN5cnlwblNLbFRYMkQzdDczeWF0ZjdZcmZnLWV5QlVHWXBkTms5dTRoSDczdGRrbldqalIwdEtXdkQ1VllsdWxxTmVfTHo0bjlEWUt0Y3UwVjFR0gH7AUFVX3lxTE1XMThSek1Scjd2WkU3MXVGeE9CeHJpbTM3b19vMkg2VENjbWVfWWl4ZE5UM0hqXzM2cm1peVgza1FsdndPaS0wY2szRVMyRVE5dm13eFk1aF96QWpabkZiUmFucnktODVWWU5Cc3IyRFNfM1c2b0M4Z2hBd3VkTDVIdjRSMGdwWGNEYWtZdHFRdWQ3Sl92c2FTeS11azJvbUZ6eWhIbHh4ekV6UzdqZkRVaWtFY3FzbmlrZVc5QjB5TlJzdzY2MkljeU90QmlDWnRfd2JFYTJYSzJwUFNVTENNS1BSRV9UQXhVTko1emw2WmNqNExFQ3FrbE04?oc=5",
+      "confidence": "Medium"
+    },
+    {
+      "type": "NCD",
+      "category": "ncd",
+      "title": "Cardiovascular Diseases Cause One-Third Of All Deaths In India: Report - NDTV",
+      "disease": "Cardiovascular Disease",
+      "location": {
+        "state": "",
+        "district": "",
+        "village": ""
+      },
+      "summary": "a href=\"https://news.google.com/rss/articles/CBMiqAFBVV95cUxPVnd2U2tmeWg5NHVGX01RMFBvWHctMExYeVNzWFZsb0JxcWRDbEhKWnFBLXpIellJMFRORHo2VktKVk11V3EwT2hJTm4tWDZZNGRMT2tacmlNbzVwbWVkTlAwRWs5am1PcmR4ZHdsR2x4eVJsTW1RY1A4NEFQXzhOQzdGSWVoOTlHbFNEVlRJTy1SOFlpTlNsekFnZktuU2Rwb050RVRlS0LSAbA…",
+      "cases": "",
+      "deaths": "",
+      "date": "2025-09-05",
+      "source": "Google News (India NCD)",
+      "sourceUrl": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxPVnd2U2tmeWg5NHVGX01RMFBvWHctMExYeVNzWFZsb0JxcWRDbEhKWnFBLXpIellJMFRORHo2VktKVk11V3EwT2hJTm4tWDZZNGRMT2tacmlNbzVwbWVkTlAwRWs5am1PcmR4ZHdsR2x4eVJsTW1RY1A4NEFQXzhOQzdGSWVoOTlHbFNEVlRJTy1SOFlpTlNsekFnZktuU2Rwb050RVRlS0LSAbABQVVfeXFMT2dib05fZElHcndaM05wUFRFWm9PWkYwR0NHUjg0T1ZtVXNwNXRxUFNHcVhibjIyeFR3LTNLdHB5WHpHSjlxQUNuNk9FVmVvSy1XeWhSV2U5TnI5LWIwTGpOWjRBWG1PNmN0Y2tPcWp1R0Noa0RYYTlhRWFtYU1LLWZvWmxTZndRV2F3d0FodzFkMXY5RFFtX1RYYnJiSU9nRG5saTU1aEl6ZXc0cjZzS0E?oc=5",
+      "confidence": "Medium"
+    },
+    {
+      "type": "NCD",
+      "category": "ncd",
+      "title": "Severe Covid-19, not vax, increases risk of cardiovascular disease - The New Indian Express",
+      "disease": "Cardiovascular Disease",
+      "location": {
+        "state": "Delhi",
+        "district": "",
+        "village": ""
+      },
+      "summary": "a href=\"https://news.google.com/rss/articles/CBMitwFBVV95cUxQbW93eGxXQVBWeFpUbi1tZkRTNGQ1bjNlVUExRHdWeEtYb2MteE1ud0tyRksyeS16OHZPclp0NUt3eUQ0UlRxTmtzOWg5MkRHQXlwS3M1QkNWWjdMVEN4eVcxQ2pfMTl4Wk0wX2d5MWtVeTRrZ0dyVFlJb1RJUzg3MHVCYVRLM2VLbGxzT1BfSDM2MTBhcHV1MlpwUUZSU3FLZVVxdDlNc2pCeHY…",
+      "cases": "",
+      "deaths": "",
+      "date": "2025-07-22",
+      "source": "Google News (India NCD)",
+      "sourceUrl": "https://news.google.com/rss/articles/CBMitwFBVV95cUxQbW93eGxXQVBWeFpUbi1tZkRTNGQ1bjNlVUExRHdWeEtYb2MteE1ud0tyRksyeS16OHZPclp0NUt3eUQ0UlRxTmtzOWg5MkRHQXlwS3M1QkNWWjdMVEN4eVcxQ2pfMTl4Wk0wX2d5MWtVeTRrZ0dyVFlJb1RJUzg3MHVCYVRLM2VLbGxzT1BfSDM2MTBhcHV1MlpwUUZSU3FLZVVxdDlNc2pCeHY3MlZxYU5ZaU11X2_SAcQBQVVfeXFMTjZpWkx0YVJPUWxDOTZIQVZKZkhzQVgyclNzYU50NTJiN2lVWjJEU1RrZTVVb1lLcHJ6R1FJVnVZb20zcjd2bzFmYjliTFVjRHF2a01iNTFORGdhdHVZbjFRUWxiTUN1Y3BrTHZ1LWg4NE1UNjVYcXlLYnl6eGtxX2ZNWE9RQVV3MDNFOU9DcEJXNlZSdzhEc2NLVW93U21GdG1SYlphak42TnhsbkpOelZRN0xlTVNfQVoxZHUwdlRpcG9oRg?oc=5",
+      "confidence": "Medium"
+    },
+    {
+      "type": "Program",
+      "category": "communicable",
+      "title": "Zoonotic disease outbreaks reported under India's Integrated Disease Surveillance Programme (IDSP), 2018–2023 - Vision IAS",
+      "program": "IDSP Surveillance",
+      "location": {
+        "state": "",
+        "district": "",
+        "village": ""
+      },
+      "summary": "a href=\"https://news.google.com/rss/articles/CBMilgJBVV95cUxNeXNhbkp5ZmMzYmFCNXd2R2tfZWR1SmlJNnNGTXdZM0E0SUpOWXpQRmd0N3dVVlh4SWRsd0RqMWhPR1ZnWHVFSzg5dmZ0SkZXOFRTNnpLeWxDTm9IWm5PaUQ5YUFLVWZzX2JXNUpOOHhXN1VTMmREOEVIanYyZUc1NERoMVFObFhnNDBiQjhwZkFZUThZQjVRcXpQRm9PMHVmRXhPRjhibVp2RXJ…",
+      "cases": "",
+      "deaths": "",
+      "date": "2025-05-31",
+      "source": "Google News (India Health)",
+      "sourceUrl": "https://news.google.com/rss/articles/CBMilgJBVV95cUxNeXNhbkp5ZmMzYmFCNXd2R2tfZWR1SmlJNnNGTXdZM0E0SUpOWXpQRmd0N3dVVlh4SWRsd0RqMWhPR1ZnWHVFSzg5dmZ0SkZXOFRTNnpLeWxDTm9IWm5PaUQ5YUFLVWZzX2JXNUpOOHhXN1VTMmREOEVIanYyZUc1NERoMVFObFhnNDBiQjhwZkFZUThZQjVRcXpQRm9PMHVmRXhPRjhibVp2RXJ6T1FXQUtsc0hDNGlYZjJLa3pPWnY1UUEwTkdaYjhhdFozTFl6V3NsM0xXYUJGWTlUenZtMlc2OC1sbHZrbUVFZUpncndpeE1TdVItY0hPQ2RYR3BiSEZqWHhDX04wWTB6WTV0c0h3WE1CZw?oc=5",
+      "confidence": "Medium"
+    },
+    {
+      "type": "Program",
+      "category": "communicable",
+      "title": "India’s mysterious diseases: What is NCDC doing? - Down To Earth",
+      "program": "NCDC Surveillance",
+      "location": {
+        "state": "",
+        "district": "",
+        "village": ""
+      },
+      "summary": "a href=\"https://news.google.com/rss/articles/CBMilgFBVV95cUxPMExDeGI0UzJBbHpMYURndjA5YWNJbW92YmRuVnFPNjd2NE1lYWdUWV9XNmU4cHJkWFZfSDZEakNjXzVpeW9OZUY1SEFmUDBHWGozUDhyUzM1ejFFVnRQTENnMFJpX3hEejNpVUxDekRmRks2X1NUQkZKNkw5dHJRQlFKSmRPaDRiUlN2aVdYeHhoTVpmUWfSAaMBQVVfeXFMUHp0ejhCNGh4dDB…",
+      "cases": "",
+      "deaths": "",
+      "date": "2020-07-24",
+      "source": "Google News (India Health)",
+      "sourceUrl": "https://news.google.com/rss/articles/CBMilgFBVV95cUxPMExDeGI0UzJBbHpMYURndjA5YWNJbW92YmRuVnFPNjd2NE1lYWdUWV9XNmU4cHJkWFZfSDZEakNjXzVpeW9OZUY1SEFmUDBHWGozUDhyUzM1ejFFVnRQTENnMFJpX3hEejNpVUxDekRmRks2X1NUQkZKNkw5dHJRQlFKSmRPaDRiUlN2aVdYeHhoTVpmUWfSAaMBQVVfeXFMUHp0ejhCNGh4dDBXQk5Yblh2LTZDeEJRUXBzRHNocmdCWGtQdFQtd1FLYVhFVUxIS1ZIclBZcTNQWDFiMjFUQnVaS2ZXSDJ1NllDQVVMc1ZLVi00cWxURnpBX01OVGRmSVpTRF9LMkxZbmx2eFU0bDl2dzBHcDE3Wi02bTZJUTJ1MkptbFROTVg0Y2Y2LVFWX1pWZndRUF9kcHVFTQ?oc=5",
+      "confidence": "Medium"
+    },
+    {
+      "type": "Policy",
+      "category": "communicable",
+      "title": "AI Disease Surveillance: India's Health Sentinel Alerts 5,000+ - OC Academy",
+      "location": {
+        "state": "",
+        "district": "",
+        "village": ""
+      },
+      "summary": "a href=\"https://news.google.com/rss/articles/CBMigwFBVV95cUxQRWxRa1FldWk4OFhmS0dQcjFrUktuY2NYcnRCVGx2MzNlWFJfelFTYWF5UjB6bVV3V0pKM245LVcxR2ZKS2pVSXhKWEFkd2xwSEc2cDVLVXNyak9DLXYzQlZ6ZTVROW1OOFB6aXhHQ3pzZE9lTEFhVkd1REdCM2NOTWFHaw?oc=5\" target=\"_blank\" AI Disease Surveillance: India…",
+      "cases": "",
+      "deaths": "",
+      "date": "2025-11-16",
+      "source": "Google News (India Health)",
+      "sourceUrl": "https://news.google.com/rss/articles/CBMigwFBVV95cUxQRWxRa1FldWk4OFhmS0dQcjFrUktuY2NYcnRCVGx2MzNlWFJfelFTYWF5UjB6bVV3V0pKM245LVcxR2ZKS2pVSXhKWEFkd2xwSEc2cDVLVXNyak9DLXYzQlZ6ZTVROW1OOFB6aXhHQ3pzZE9lTEFhVkd1REdCM2NOTWFHaw?oc=5",
+      "confidence": "Medium"
+    },
+    {
+      "type": "Policy",
+      "category": "ncd",
+      "title": "TOI Medithon 2025: Insights from leading cardiologists on heart health acrossgenerations - The Times of India",
+      "location": {
+        "state": "",
+        "district": "",
+        "village": ""
+      },
+      "summary": "a href=\"https://news.google.com/rss/articles/CBMi_wFBVV95cUxPbUs1emtFS2ZWLVc0ZW4wcVhfODZWWG41X1pPVjB5VS1ya1BWaE9Rcnp1MkJPT3JHSDlPU0pPMGxtVFQxbWMzNVBkUkgwYkVZSUpHckRaQXFkN1ByYjR0ald2T2ppNUx2SGppemlGSWRmNllEcVpmVnJ0b1duSVJpaUhTQ3pWSy1XRmN6VHFPWlJPaE5YbGlQcEMxa3BybE85RlQzOWwwekd0a2F…",
+      "cases": "",
+      "deaths": "",
+      "date": "2025-10-15",
+      "source": "Google News (India NCD)",
+      "sourceUrl": "https://news.google.com/rss/articles/CBMi_wFBVV95cUxPbUs1emtFS2ZWLVc0ZW4wcVhfODZWWG41X1pPVjB5VS1ya1BWaE9Rcnp1MkJPT3JHSDlPU0pPMGxtVFQxbWMzNVBkUkgwYkVZSUpHckRaQXFkN1ByYjR0ald2T2ppNUx2SGppemlGSWRmNllEcVpmVnJ0b1duSVJpaUhTQ3pWSy1XRmN6VHFPWlJPaE5YbGlQcEMxa3BybE85RlQzOWwwekd0a2FTcEtISml1djEzNS1XTm82RTRnXzRRNU96MW5GYl9WOFZpSkhVNm5QVlA1ZlNOMjEzZklFVlRWUWdIc0dWTFVLUHcwZ2FrOGtTSWZsSzlNcmZBSFXSAYQCQVVfeXFMTnlyaWxic0hXQXcxUEtRd3VrWUt3Qks4ZHJkbTBCMmcwVy1RVXU1c3dEUUJYMmh2NzQxWDVjV3Zsd2x5V1NXaXhvMDlaeXRrazhZYUtLaUJIcXc3ODE1LXluSXBhcDVHTnJ6MzlOaXJyMFhZYzA0dm9KWGdZd3ZpSjQwMGJSTEd6UUREQXQ4TDFuUUdDZk1kcFl6bk4yQlVNbnN1RGRfem8zN3U4U1R0Q0pvbVdXVjBSNXJqM2x0UjJuM1diTGFPVUF1VnM4RUNVQVJybjNlR05rQW5LbzJ0OHBHZm1TSGxVSENuVVdRX1RNQXp4NmdPN1pEQW9lQmRieEVmeDg?oc=5",
+      "confidence": "Medium"
+    },
+    {
+      "type": "Policy",
+      "category": "ncd",
+      "title": "Rising Heart Disease in India: Experts Highlight Critical Link Between Mental Well-being and... - The Hans India",
+      "location": {
+        "state": "",
+        "district": "",
+        "village": ""
+      },
+      "summary": "a href=\"https://news.google.com/rss/articles/CBMi8AFBVV95cUxQclhDMmRzazRuNGZJSTU4WHdNQmpER3ItSDluaEgwTm8zUDFPX21yRFRMNThnMkNmMWUxR1Z2aHhvNG4wQ2ppLXNSbjR0dTdhMVNkcXI3Y21MSzFtV2NmY3VqdjE1czRiQmx3THpTTlVKeU1idjczbHJJXzZPVl9SRmt0RTlHSWh4Q1hoNGw5NTNWNWROTWJLLTZEMHktakRZSDlwRGNBZHFvRHd…",
+      "cases": "",
+      "deaths": "",
+      "date": "2025-09-26",
+      "source": "Google News (India NCD)",
+      "sourceUrl": "https://news.google.com/rss/articles/CBMi8AFBVV95cUxQclhDMmRzazRuNGZJSTU4WHdNQmpER3ItSDluaEgwTm8zUDFPX21yRFRMNThnMkNmMWUxR1Z2aHhvNG4wQ2ppLXNSbjR0dTdhMVNkcXI3Y21MSzFtV2NmY3VqdjE1czRiQmx3THpTTlVKeU1idjczbHJJXzZPVl9SRmt0RTlHSWh4Q1hoNGw5NTNWNWROTWJLLTZEMHktakRZSDlwRGNBZHFvRHdnZkV5bE9IdmR3eExfdVRRakdtbTRsZjRtWDIyblVrYS1xN3poZlMtLWtyOW9TUmo2MFkweEtoY080OHdyZnpHemZzeV_SAfYBQVVfeXFMTjZaVTZpa1oxOFlybWh3TnBYYWVfMmdqMHNVNFh3YUdTZmFSSHI0ZlBzTDluZWlUa3JyOG5mSXBrTFF0dkl5TVpRRndZQVlaaW1mUFJEVUgwbWl2QVcxblFLTlF4RW1qNjhmSU5JVnV0SEFHUE9lanZyU3cxUkowS2VWbkJ1eWZFRFZYSjRuOHk3a040NUNORzVqM2JxUThibnlCS1dKTXoya1puQnJiQ25WekpJZms3MXhXWmY1QVdYSGJpSm9WUWFfdzFVOUxrcWV3bVExbVVxNkltQnJaLVJfVzBzeG0wSlU2YTQzR25kdDhEMzJn?oc=5",
+      "confidence": "Medium"
+    },
+    {
+      "type": "Policy",
+      "category": "communicable",
+      "title": "Strengthening India’s Health Preparedness Framework - orfonline.org",
+      "location": {
+        "state": "",
+        "district": "",
+        "village": ""
+      },
+      "summary": "a href=\"https://news.google.com/rss/articles/CBMijwFBVV95cUxQRVAwcGd1aDZONEx4M2dSRmFjdThiMFdJVUNIMWttOUhpUFNJaEFTUjdUbzFMbGFMaW9JbF9CYVlSSlJ0Umh1OUV3WXpqNENxTWJGQWlweVNIT2lBVTBZU1hIUlVFWHBXZWNtUGZoRkV2SEhTOEhKbkxPSmpXazBsRlFxd1N6WmItZmpLX1k4TQ?oc=5\" target=\"_blank\" Strengthening …",
+      "cases": "",
+      "deaths": "",
+      "date": "2025-04-03",
+      "source": "Google News (India Health)",
+      "sourceUrl": "https://news.google.com/rss/articles/CBMijwFBVV95cUxQRVAwcGd1aDZONEx4M2dSRmFjdThiMFdJVUNIMWttOUhpUFNJaEFTUjdUbzFMbGFMaW9JbF9CYVlSSlJ0Umh1OUV3WXpqNENxTWJGQWlweVNIT2lBVTBZU1hIUlVFWHBXZWNtUGZoRkV2SEhTOEhKbkxPSmpXazBsRlFxd1N6WmItZmpLX1k4TQ?oc=5",
+      "confidence": "Medium"
+    },
+    {
+      "type": "Policy",
+      "category": "communicable",
+      "title": "Understanding the complexities involved in disease surveillance in India - The Hindu",
+      "location": {
+        "state": "",
+        "district": "",
+        "village": ""
+      },
+      "summary": "a href=\"https://news.google.com/rss/articles/CBMizgFBVV95cUxQWlpRN1ZSNHZuYTJIaUR0SHZCeVkybDlaaGFoWDN6OXNzY2g3R2p0TDdXd1BtbkdNZThsUHY2dkxYTTVuOFJYSDRuNFdsOEdld1lPUHJPMTVQSy1GWEhQa1ZMT04wN05PRXBiNk5RbW9JQjBPSW1SMUxHYXhsekRSeHNJUTU1OGF2UEd3NDJsSW96R1RqMFRzdDFoblhTRVdYMUdPNWs1S2RGdHp…",
+      "cases": "",
+      "deaths": "",
+      "date": "2025-03-03",
+      "source": "Google News (India Health)",
+      "sourceUrl": "https://news.google.com/rss/articles/CBMizgFBVV95cUxQWlpRN1ZSNHZuYTJIaUR0SHZCeVkybDlaaGFoWDN6OXNzY2g3R2p0TDdXd1BtbkdNZThsUHY2dkxYTTVuOFJYSDRuNFdsOEdld1lPUHJPMTVQSy1GWEhQa1ZMT04wN05PRXBiNk5RbW9JQjBPSW1SMUxHYXhsekRSeHNJUTU1OGF2UEd3NDJsSW96R1RqMFRzdDFoblhTRVdYMUdPNWs1S2RGdHpScXRFOVhYZGdyM1p1WmlMdkJaQlNUQWhpeTBEX3Q3NGJ0UdIB1AFBVV95cUxQSHZVWmV5Ymh0YlEzYmdoeUZmMnJuZnpCOE5ydlJXc3NzcG9Hc3dPTkZrQ1dYT3B6MFg0NGd3anByeU50RFFQdDBCN3JOUnlEcTZuMzczUmxST0FyRElHUWVJdE1PT0ZyTEVUNlkzRDlKVjVyazZ6c1Y3dldRdWJUM2tSejFKaFYzQzZWcnlsTHRiVldsa01ZTmUwMDFyLVJ0Yk12SURVZFRWRGVtQ2gzTEN4WkNoNnZYQUU0d1JpMTB1Sm1zNU9HbjZEVHI2TTFqdXBGXw?oc=5",
+      "confidence": "Medium"
+    },
+    {
+      "type": "Policy",
+      "category": "communicable",
+      "title": "India’s efforts in strengthening public health surveillance: Role of integrated public health laboratories - orfonline.org",
+      "location": {
+        "state": "",
+        "district": "",
+        "village": ""
+      },
+      "summary": "a href=\"https://news.google.com/rss/articles/CBMi2wFBVV95cUxNeUswNWU5Uk54RXlaQ0pYbzVVQzZzTmNra1AxYzJSWXVxeFVuNFZsclZER0dyeDdvUVFCeTM0MXBKNkRYZmlpLVZJMUxhMXhlUTA0YjhZRzRaZ3VyUEx2d2U3RG01YS1vVzlTS0szaUtkN2RfQ2dBc2U3R3VLOF90NTJtVmw0Z1NSLWx2OVZodFdWSmNWcFNCVUI4dkVWbXAyeW1VUG96QU1UMFF…",
+      "cases": "",
+      "deaths": "",
+      "date": "2023-05-15",
+      "source": "Google News (India Health)",
+      "sourceUrl": "https://news.google.com/rss/articles/CBMi2wFBVV95cUxNeUswNWU5Uk54RXlaQ0pYbzVVQzZzTmNra1AxYzJSWXVxeFVuNFZsclZER0dyeDdvUVFCeTM0MXBKNkRYZmlpLVZJMUxhMXhlUTA0YjhZRzRaZ3VyUEx2d2U3RG01YS1vVzlTS0szaUtkN2RfQ2dBc2U3R3VLOF90NTJtVmw0Z1NSLWx2OVZodFdWSmNWcFNCVUI4dkVWbXAyeW1VUG96QU1UMFFoWml2NFU3aUtibXdnZ0V1ZEliVXdMQXppYmhFYnZySnpLcEVfM2NlVGQ4ZFRFbzg?oc=5",
+      "confidence": "Medium"
+    },
+    {
+      "type": "Policy",
+      "category": "communicable",
+      "title": "Scope and challenges of public health surveillance in India - Manorama Yearbook",
+      "location": {
+        "state": "",
+        "district": "",
+        "village": ""
+      },
+      "summary": "a href=\"https://news.google.com/rss/articles/CBMiuAFBVV95cUxOZHJYem5GVkhlUk1Bc0pFcDJYZUJYTXN6b1V0NHkzWHpGa29GX09iTHN4c0xTdkhPdzZlNHMzZWFnQTl5eEhDU3RLX0ZWcWRqUUxyVGNsWGxSQnhPT1NzLVUzVUxORkloeW11dmttaV9XalQyam92ZG9IOVJzV2JKWmZEV1p6WktoVGFJazZlLUh1a29RSVJ4VUJGUEV3R3UtdUE0aWFzYThJOWZ…",
+      "cases": "",
+      "deaths": "",
+      "date": "2020-12-14",
+      "source": "Google News (India Health)",
+      "sourceUrl": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxOZHJYem5GVkhlUk1Bc0pFcDJYZUJYTXN6b1V0NHkzWHpGa29GX09iTHN4c0xTdkhPdzZlNHMzZWFnQTl5eEhDU3RLX0ZWcWRqUUxyVGNsWGxSQnhPT1NzLVUzVUxORkloeW11dmttaV9XalQyam92ZG9IOVJzV2JKWmZEV1p6WktoVGFJazZlLUh1a29RSVJ4VUJGUEV3R3UtdUE0aWFzYThJOWZKUnVrWlpGY3FhVVBo?oc=5",
+      "confidence": "Medium"
+    },
+    {
+      "type": "Policy",
+      "category": "communicable",
+      "title": "India’s mysterious diseases: Why are they happening? - Down To Earth",
+      "location": {
+        "state": "",
+        "district": "",
+        "village": ""
+      },
+      "summary": "a href=\"https://news.google.com/rss/articles/CBMimwFBVV95cUxOb09vSFdMWUpucWhYUmJiZ1E0RjJJWFBaWTQyN1BnOG1IV19Zak03WU1COHJSQ3hjLWR4WkJKbFNBbGhvTGwyMnBVSHBkNkYzXzk4U2RXS1podmE2NW0xUVZJWUNKVE1pUUVyRTZQbFB3eWN0ZGliMVB3eUJlSnpCX2xXV0J4OVdoTmdXOE9MYk5UcHF1em81YzI2c9IBqAFBVV95cUxOX1VNdk5…",
+      "cases": "",
+      "deaths": "",
+      "date": "2020-07-22",
+      "source": "Google News (India Health)",
+      "sourceUrl": "https://news.google.com/rss/articles/CBMimwFBVV95cUxOb09vSFdMWUpucWhYUmJiZ1E0RjJJWFBaWTQyN1BnOG1IV19Zak03WU1COHJSQ3hjLWR4WkJKbFNBbGhvTGwyMnBVSHBkNkYzXzk4U2RXS1podmE2NW0xUVZJWUNKVE1pUUVyRTZQbFB3eWN0ZGliMVB3eUJlSnpCX2xXV0J4OVdoTmdXOE9MYk5UcHF1em81YzI2c9IBqAFBVV95cUxOX1VNdk53dnJiNU4tQWpUSms0ZlVmUHg3TkRocXdwaGRxMndQUjJBOElLYU00VWphbkVSM1hpbVp6dUtxUlZBclkwTmdKZm1pTk8yeE84YlY3aEpWa3lWQ08wajY5NDdyWlpNb0s5Z0Vya1lGdjlXbW9CZU9kbjVjMUFEc0lsUGg0cllNSDVSTTl3d1hlRjUtSE0wZHZTZjJiWGl5VUxTaXc?oc=5",
+      "confidence": "Medium"
+    }
+  ],
+  "sources": [
+    "[IDSP] Google News (12)",
+    "[IDSP] Outbreak News Today (3)",
+    "[NCD] Google News NCD (12)",
+    "[NCD] ICMR/WHO India (8)"
+  ],
   "errors": []
 }

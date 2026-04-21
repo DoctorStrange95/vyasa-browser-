@@ -3,7 +3,9 @@ import Link from "next/link";
 import { useState } from "react";
 import VyasaLogo from "./VyasaLogo";
 
-export default function Header() {
+export interface HeaderUser { name: string; email: string; }
+
+export default function Header({ user }: { user?: HeaderUser | null }) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
@@ -42,20 +44,19 @@ export default function Header() {
           <Link href="/sources" style={{ color: "#94a3b8", textDecoration: "none", fontSize: "0.875rem", fontWeight: 500 }}>
             Data Sources
           </Link>
-          <a
-            href="#"
-            style={{
-              backgroundColor: "#0d9488",
-              color: "#fff",
-              padding: "0.4rem 1rem",
-              borderRadius: "6px",
-              textDecoration: "none",
-              fontSize: "0.875rem",
-              fontWeight: 600,
-            }}
-          >
-            Vyasa Platform →
-          </a>
+          <Link href="/contribute" style={{ color: "#94a3b8", textDecoration: "none", fontSize: "0.875rem", fontWeight: 500 }}>
+            Contribute
+          </Link>
+          {user ? (
+            <Link href="/profile" style={{ display: "flex", alignItems: "center", gap: "0.5rem", backgroundColor: "#0d948820", border: "1px solid #0d948840", color: "#2dd4bf", padding: "0.35rem 0.9rem", borderRadius: "6px", textDecoration: "none", fontSize: "0.82rem", fontWeight: 600 }}>
+              <span style={{ width: "20px", height: "20px", borderRadius: "50%", backgroundColor: "#0d948840", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.65rem", fontWeight: 700 }}>{user.name[0].toUpperCase()}</span>
+              {user.name.split(" ")[0]}
+            </Link>
+          ) : (
+            <Link href="/auth" style={{ backgroundColor: "#0d9488", color: "#fff", padding: "0.4rem 1rem", borderRadius: "6px", textDecoration: "none", fontSize: "0.875rem", fontWeight: 600 }}>
+              Sign In →
+            </Link>
+          )}
         </nav>
 
         {/* Mobile hamburger */}

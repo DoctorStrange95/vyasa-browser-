@@ -1,91 +1,279 @@
+import Link from "next/link";
 import HealthTicker from "@/components/HealthTicker";
-import StateTable from "@/components/StateTable";
-import VyasaPlatformSection from "@/components/VyasaPlatformSection";
 import PHIntelligenceFeed from "@/components/PHIntelligenceFeed";
 import OutbreakAlerts from "@/components/OutbreakAlerts";
+import StateTable from "@/components/StateTable";
+import VyasaPlatformSection from "@/components/VyasaPlatformSection";
 import states from "@/data/states.json";
 
-const NATIONAL_STATS = [
-  { label: "States & UTs",         value: "36",    sub: "all covered",               src: "" },
-  { label: "Cities Monitored",     value: "213",   sub: "CPCB + Google AQI",         src: "" },
-  { label: "National IMR",         value: "25",    sub: "/1000 LB · SRS 2023",       src: "SRS 2023" },
-  { label: "Birth Rate",           value: "18.4",  sub: "/1000 pop · SRS 2023",      src: "SRS 2023" },
-  { label: "Death Rate",           value: "6.4",   sub: "/1000 pop · SRS 2023",      src: "SRS 2023" },
-  { label: "Vaccination Coverage", value: "76.4%", sub: "fully immunized · NFHS-5",  src: "NFHS-5" },
-  { label: "Child Stunting",       value: "35.5%", sub: "under 5 · NFHS-5",          src: "NFHS-5" },
-  { label: "Child Anaemia",        value: "67.1%", sub: "age 6–59 months · NFHS-5",  src: "NFHS-5" },
-];
+/* ── Health score (same formula as InteractiveHome) ── */
+function healthScore(s: typeof states[number]): number {
+  const imrS   = s.imr                    != null ? Math.max(0, 100 - (s.imr / 55) * 100)              : 50;
+  const vaccS  = s.vaccinationPct         != null ? s.vaccinationPct                                    : 50;
+  const ibS    = s.institutionalBirthsPct != null ? s.institutionalBirthsPct                            : 50;
+  const stuntS = s.stuntingPct            != null ? Math.max(0, 100 - (s.stuntingPct / 50) * 100)      : 50;
+  const anaemS = s.womenAnaemiaPct        != null ? Math.max(0, 100 - (s.womenAnaemiaPct / 75) * 100)  : 50;
+  return Math.round(imrS * 0.30 + vaccS * 0.25 + ibS * 0.20 + stuntS * 0.15 + anaemS * 0.10);
+}
+function scoreColor(v: number) {
+  if (v >= 80) return "#22c55e";
+  if (v >= 65) return "#84cc16";
+  if (v >= 50) return "#eab308";
+  if (v >= 35) return "#f97316";
+  return "#ef4444";
+}
+
+const ranked = [...states]
+  .map(s => ({ ...s, score: healthScore(s) }))
+  .sort((a, b) => b.score - a.score);
+
+const topStates    = ranked.slice(0, 6);
+const bottomStates = ranked.slice(-4);
+
+const natAvgIMR  = Math.round(states.filter(s => s.imr).reduce((a, s) => a + (s.imr ?? 0), 0) / states.filter(s => s.imr).length);
+const natAvgVacc = Math.round(states.filter(s => s.vaccinationPct).reduce((a, s) => a + (s.vaccinationPct ?? 0), 0) / states.filter(s => s.vaccinationPct).length);
 
 export default function HomePage() {
   return (
-    <div>
+    <div style={{ backgroundColor: "#070f1e", minHeight: "100vh" }}>
       <HealthTicker />
 
-      {/* Hero */}
-      <section className="hero-section" style={{ maxWidth: "1280px", margin: "0 auto", padding: "5rem 1.5rem 3rem" }}>
-        <div style={{ maxWidth: "700px" }}>
-          <div style={{
-            display: "inline-flex", alignItems: "center", gap: "0.5rem",
-            backgroundColor: "#0d948820", border: "1px solid #0d948840",
-            borderRadius: "20px", padding: "0.3rem 0.85rem", marginBottom: "1.5rem",
-          }}>
-            <span style={{ width: "6px", height: "6px", borderRadius: "50%", backgroundColor: "#2dd4bf", display: "inline-block" }} />
-            <span style={{ fontSize: "0.75rem", color: "#2dd4bf", letterSpacing: "0.08em", textTransform: "uppercase", fontFamily: "'IBM Plex Mono', monospace" }}>
-              Public Health Transparency
-            </span>
-          </div>
-
-          <h1 className="font-display" style={{ fontSize: "clamp(2rem,5vw,3.5rem)", fontWeight: 700, color: "#fff", lineHeight: 1.15, marginBottom: "1.25rem" }}>
-            India&apos;s Health Data,<br />
-            <span style={{ color: "#2dd4bf" }}>State &amp; District by District.</span>
-          </h1>
-
-          <p style={{ fontSize: "1.05rem", color: "#94a3b8", lineHeight: 1.75, marginBottom: "2rem" }}>
-            HealthForIndia tracks IMR, vaccination, stunting, institutional births and air quality
-            across all 36 states &amp; UTs and 213 cities — sourced live from NFHS-5, CPCB and NHP.
-          </p>
-
-          <div className="hero-cta" style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
-            <a href="#states" style={{ backgroundColor: "#0d9488", color: "#fff", padding: "0.65rem 1.5rem", borderRadius: "8px", textDecoration: "none", fontWeight: 600, fontSize: "0.9rem" }}>
-              Explore States
-            </a>
-            <a href="/sources" style={{ backgroundColor: "transparent", color: "#2dd4bf", padding: "0.65rem 1.5rem", borderRadius: "8px", textDecoration: "none", fontWeight: 600, fontSize: "0.9rem", border: "1px solid #1e3a5f" }}>
-              Data Sources
-            </a>
-          </div>
-        </div>
-      </section>
-
-      {/* National Stats Bar */}
-      <section style={{ backgroundColor: "#060e1c", borderTop: "1px solid #1e3a5f", borderBottom: "1px solid #1e3a5f" }}>
-        <div className="national-stats-grid" style={{ maxWidth: "1280px", margin: "0 auto", padding: "1.5rem" }}>
-          {NATIONAL_STATS.map((stat, i) => (
-            <div key={i} style={{ padding: "1.25rem 1rem", textAlign: "center", borderBottom: "1px solid #1e3a5f10" }}>
-              <div className="font-data" style={{ fontSize: "1.75rem", fontWeight: 600, color: "#2dd4bf", marginBottom: "0.2rem" }}>{stat.value}</div>
-              <div style={{ fontSize: "0.8rem", color: "#94a3b8", marginBottom: "0.2rem" }}>{stat.label}</div>
-              <div style={{ fontSize: "0.68rem", color: "#475569" }}>{stat.sub}</div>
-              {stat.src && (
-                <div style={{ marginTop: "0.35rem", display: "inline-block", fontSize: "0.6rem", color: stat.src === "SRS" ? "#0d9488" : "#6366f1", backgroundColor: stat.src === "SRS" ? "#0d948818" : "#6366f118", border: `1px solid ${stat.src === "SRS" ? "#0d948840" : "#6366f140"}`, borderRadius: "3px", padding: "0.1rem 0.35rem", letterSpacing: "0.05em", fontFamily: "'IBM Plex Mono', monospace" }}>
-                  {stat.src}
-                </div>
-              )}
+      {/* ── HERO ──────────────────────────────────────────────── */}
+      <section style={{ backgroundColor: "#0a1628", borderBottom: "1px solid #1e3a5f", padding: "3rem 1.5rem 2.5rem" }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "2.5rem", alignItems: "center", justifyContent: "space-between" }}>
+            <div style={{ maxWidth: "560px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.75rem" }}>
+                <span style={{ fontSize: "0.6rem", backgroundColor: "#0d948820", color: "#2dd4bf", border: "1px solid #0d948840", borderRadius: "4px", padding: "0.15rem 0.5rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" }}>Live · Updated Daily</span>
+                <span style={{ fontSize: "0.6rem", color: "#334155" }}>SRS 2023 · NFHS-5 · IDSP Surveillance</span>
+              </div>
+              <h1 className="font-display" style={{ fontSize: "clamp(1.8rem,4vw,2.8rem)", fontWeight: 700, color: "#fff", lineHeight: 1.2, marginBottom: "0.75rem" }}>
+                India&apos;s Public Health<br />Transparency Platform
+              </h1>
+              <p style={{ fontSize: "0.95rem", color: "#64748b", lineHeight: 1.7, marginBottom: "1.25rem" }}>
+                District-level health data: infant mortality, vaccination, disease surveillance, hospital infrastructure, nutrition & air quality — all in one place.
+              </p>
+              <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
+                <Link href="#states" style={{ backgroundColor: "#0d9488", color: "#fff", padding: "0.6rem 1.4rem", borderRadius: "7px", textDecoration: "none", fontSize: "0.88rem", fontWeight: 700 }}>
+                  Explore States →
+                </Link>
+                <Link href="/contribute" style={{ backgroundColor: "#0f2040", border: "1px solid #1e3a5f", color: "#94a3b8", padding: "0.6rem 1.2rem", borderRadius: "7px", textDecoration: "none", fontSize: "0.88rem", fontWeight: 600 }}>
+                  📎 Contribute Data
+                </Link>
+              </div>
             </div>
-          ))}
+
+            {/* National stats */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "0.75rem", minWidth: "280px" }}>
+              {[
+                { label: "States & UTs Tracked",  value: String(states.length),   icon: "🗺️", color: "#2dd4bf" },
+                { label: "Nat. Avg. IMR (2023)",   value: `${natAvgIMR}/1k`,       icon: "👶", color: "#f97316" },
+                { label: "Avg. Vaccination Cover", value: `${natAvgVacc}%`,        icon: "💉", color: "#22c55e" },
+                { label: "Data Points Tracked",    value: "780+",                  icon: "📊", color: "#6366f1" },
+              ].map(s => (
+                <div key={s.label} style={{ backgroundColor: "#080f1e", border: "1px solid #1e3a5f", borderRadius: "10px", padding: "1rem 1.1rem" }}>
+                  <div style={{ fontSize: "1.1rem", marginBottom: "0.25rem" }}>{s.icon}</div>
+                  <div className="font-data" style={{ fontSize: "1.5rem", fontWeight: 700, color: s.color, lineHeight: 1 }}>{s.value}</div>
+                  <div style={{ fontSize: "0.65rem", color: "#475569", marginTop: "0.25rem" }}>{s.label}</div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Live Outbreak Alerts */}
-      <OutbreakAlerts />
+      {/* ── FIND NEARBY FACILITIES ──────────────────────────────── */}
+      <section style={{ backgroundColor: "#0a1628", borderBottom: "1px solid #1e3a5f" }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "1.5rem 1.5rem" }}>
+          <div style={{ backgroundColor: "#080f1e", border: "1px solid #0d948850", borderRadius: "14px", padding: "1.5rem 2rem", display: "flex", flexWrap: "wrap", gap: "1.25rem", alignItems: "center" }}>
+            <div style={{ flex: 1, minWidth: "200px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", marginBottom: "0.5rem" }}>
+                <span style={{ fontSize: "1.4rem" }}>🏥</span>
+                <span style={{ fontSize: "1rem", fontWeight: 700, color: "#fff" }}>Find Nearby Health Facilities</span>
+                <span style={{ fontSize: "0.6rem", backgroundColor: "#0d948820", color: "#2dd4bf", border: "1px solid #0d948840", borderRadius: "4px", padding: "0.1rem 0.4rem", fontFamily: "monospace" }}>GPS-enabled</span>
+              </div>
+              <p style={{ fontSize: "0.82rem", color: "#475569", margin: 0, lineHeight: 1.6 }}>
+                Instantly locate hospitals, doctors, pharmacies, diagnostic labs, blood banks, ambulances & anganwadi centres near you.
+              </p>
+            </div>
+            <div style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap" }}>
+              {[
+                { icon: "🏥", label: "Hospital" },
+                { icon: "👨‍⚕️", label: "Doctor" },
+                { icon: "💊", label: "Pharmacy" },
+                { icon: "🩸", label: "Blood Bank" },
+                { icon: "🚑", label: "Ambulance" },
+                { icon: "🏫", label: "Anganwadi" },
+              ].map(f => (
+                <span key={f.label} style={{ fontSize: "0.72rem", backgroundColor: "#0f2040", border: "1px solid #1e3a5f", color: "#94a3b8", borderRadius: "6px", padding: "0.35rem 0.7rem" }}>
+                  {f.icon} {f.label}
+                </span>
+              ))}
+            </div>
+            <button
+              id="open-facility-drawer"
+              style={{ backgroundColor: "#0d9488", color: "#fff", border: "none", borderRadius: "9px", padding: "0.75rem 1.75rem", fontSize: "0.9rem", fontWeight: 700, cursor: "pointer", flexShrink: 0, fontFamily: "inherit" }}
+            >
+              🔍 Search Nearby →
+            </button>
+          </div>
+        </div>
+      </section>
 
-      {/* State Table */}
-      <StateTable states={states} />
+      {/* ── HEALTH INTELLIGENCE FEED ───────────────────────────── */}
+      <section style={{ borderBottom: "1px solid #1e3a5f" }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "2rem 1.5rem" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", marginBottom: "1.25rem" }}>
+            <span style={{ fontSize: "1rem" }}>📡</span>
+            <h2 className="font-display" style={{ fontSize: "1.15rem", fontWeight: 700, color: "#fff" }}>Health Intelligence Feed</h2>
+            <span style={{ fontSize: "0.6rem", backgroundColor: "#0d948820", color: "#2dd4bf", border: "1px solid #0d948840", borderRadius: "4px", padding: "0.1rem 0.4rem", fontFamily: "monospace" }}>Live</span>
+          </div>
+          <PHIntelligenceFeed maxItems={4} />
+        </div>
+      </section>
 
-      {/* Public Health Intelligence Feed */}
-      <div style={{ borderTop: "1px solid #1e3a5f" }}>
-        <PHIntelligenceFeed />
-      </div>
+      {/* ── DISEASE SURVEILLANCE ────────────────────────────────── */}
+      <section style={{ borderBottom: "1px solid #1e3a5f" }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "2rem 1.5rem" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", marginBottom: "1.25rem" }}>
+            <span style={{ fontSize: "1rem" }}>🚨</span>
+            <h2 className="font-display" style={{ fontSize: "1.15rem", fontWeight: 700, color: "#fff" }}>Active Disease Surveillance</h2>
+            <span style={{ fontSize: "0.6rem", backgroundColor: "#ef444420", color: "#f87171", border: "1px solid #ef444440", borderRadius: "4px", padding: "0.1rem 0.4rem", fontFamily: "monospace" }}>IDSP</span>
+          </div>
+          <OutbreakAlerts />
+        </div>
+      </section>
 
-      {/* Vyasa Platform Section */}
+      {/* ── TOP / BOTTOM STATES ─────────────────────────────────── */}
+      <section id="states" style={{ borderBottom: "1px solid #1e3a5f" }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "2rem 1.5rem" }}>
+          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", flexWrap: "wrap", gap: "0.5rem", marginBottom: "1.5rem" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+              <span style={{ fontSize: "1rem" }}>🏆</span>
+              <h2 className="font-display" style={{ fontSize: "1.15rem", fontWeight: 700, color: "#fff" }}>Health Leaders</h2>
+              <span style={{ fontSize: "0.65rem", color: "#475569" }}>Composite index: IMR · Vaccination · Nutrition · Births</span>
+            </div>
+            <Link href="#all-states" style={{ fontSize: "0.78rem", color: "#0d9488", textDecoration: "none", fontWeight: 600 }}>View all →</Link>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "0.85rem", marginBottom: "2rem" }}>
+            {topStates.map((s, i) => {
+              const col = scoreColor(s.score);
+              return (
+                <Link key={s.slug} href={`/state/${s.slug}`} style={{ textDecoration: "none" }}>
+                  <div style={{ backgroundColor: "#0a1628", border: "1px solid #1e3a5f", borderTop: `3px solid ${col}`, borderRadius: "10px", padding: "1rem", transition: "border-color 0.15s", cursor: "pointer" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.6rem" }}>
+                      <span style={{ fontSize: "0.68rem", color: "#334155", fontFamily: "monospace" }}>#{i + 1}</span>
+                      <span style={{ fontSize: "0.88rem", fontWeight: 700, color: "#e2e8f0" }}>{s.name}</span>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
+                      <div className="font-data" style={{ fontSize: "1.6rem", fontWeight: 700, color: col, lineHeight: 1 }}>{s.score}</div>
+                      <div style={{ fontSize: "0.62rem", color: "#475569", lineHeight: 1.3 }}>Health<br />Score</div>
+                    </div>
+                    <div style={{ height: "4px", backgroundColor: "#080f1e", borderRadius: "2px" }}>
+                      <div style={{ height: "100%", width: `${s.score}%`, backgroundColor: col, borderRadius: "2px" }} />
+                    </div>
+                    {s.imr != null && (
+                      <div style={{ display: "flex", justifyContent: "space-between", marginTop: "0.5rem", fontSize: "0.65rem", color: "#475569" }}>
+                        <span>IMR: <span style={{ color: "#94a3b8" }}>{s.imr}</span></span>
+                        <span>Vacc: <span style={{ color: "#94a3b8" }}>{s.vaccinationPct ?? "—"}%</span></span>
+                      </div>
+                    )}
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+
+          {/* States needing attention */}
+          <div style={{ backgroundColor: "#0a1628", border: "1px solid #ef444425", borderRadius: "10px", padding: "1.1rem 1.25rem" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.85rem" }}>
+              <span style={{ fontSize: "0.9rem" }}>⚠️</span>
+              <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#f87171", textTransform: "uppercase", letterSpacing: "0.07em" }}>Needs Attention</span>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(170px, 1fr))", gap: "0.6rem" }}>
+              {bottomStates.map(s => {
+                const col = scoreColor(s.score);
+                return (
+                  <Link key={s.slug} href={`/state/${s.slug}`} style={{ textDecoration: "none" }}>
+                    <div style={{ backgroundColor: "#080f1e", border: "1px solid #1e3a5f", borderRadius: "8px", padding: "0.75rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <span style={{ fontSize: "0.8rem", color: "#94a3b8" }}>{s.name}</span>
+                      <div className="font-data" style={{ fontSize: "1rem", fontWeight: 700, color: col }}>{s.score}</div>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── ALL STATES TABLE ──────────────────────────────────────── */}
+      <section id="all-states" style={{ borderBottom: "1px solid #1e3a5f" }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "2rem 1.5rem" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", marginBottom: "1.25rem" }}>
+            <span style={{ fontSize: "1rem" }}>📋</span>
+            <h2 className="font-display" style={{ fontSize: "1.15rem", fontWeight: 700, color: "#fff" }}>All States & Union Territories</h2>
+          </div>
+          <StateTable states={states} />
+        </div>
+      </section>
+
+      {/* ── NCD BURDEN ─────────────────────────────────────────────── */}
+      <section style={{ backgroundColor: "#060e1c", borderTop: "1px solid #f9731620", borderBottom: "1px solid #f9731620" }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "2rem 1.5rem" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", marginBottom: "1.25rem" }}>
+            <span style={{ fontSize: "1rem" }}>🫀</span>
+            <h2 className="font-display" style={{ fontSize: "1.15rem", fontWeight: 700, color: "#fff" }}>Non-Communicable Disease Burden — India</h2>
+            <span style={{ fontSize: "0.6rem", backgroundColor: "#f9731620", color: "#fb923c", border: "1px solid #f9731640", borderRadius: "4px", padding: "0.1rem 0.4rem", fontFamily: "monospace" }}>NCD</span>
+          </div>
+          <div className="national-stats-grid">
+            {[
+              { icon: "🫀", value: "4.77M", label: "Cardiovascular Deaths", sub: "annually · #1 NCD killer" },
+              { icon: "🩸", value: "101M",  label: "Diabetes Prevalence",   sub: "adults · IDF 2023" },
+              { icon: "🎗️", value: "1.46M", label: "Cancer Cases/Year",     sub: "new cases · NCRP 2022" },
+              { icon: "🫁", value: "55M",   label: "COPD Patients",         sub: "estimated · ICMR" },
+              { icon: "🫘", value: "17%",   label: "CKD Prevalence",        sub: "of adults screened" },
+              { icon: "🫀", value: "38.6%", label: "NAFLD Prevalence",      sub: "in urban India" },
+              { icon: "📊", value: "66%",   label: "NCD Share of Deaths",   sub: "of all deaths · WHO" },
+              { icon: "🏥", value: "36",    label: "NPCDCS Coverage",       sub: "states &amp; UTs · MoHFW" },
+            ].map((stat, i) => (
+              <div key={i} style={{ padding: "0.9rem 0.75rem", textAlign: "center" }}>
+                <div style={{ fontSize: "1.1rem", marginBottom: "0.1rem" }}>{stat.icon}</div>
+                <div className="font-data" style={{ fontSize: "1.35rem", fontWeight: 600, color: "#fb923c", marginBottom: "0.15rem" }}>{stat.value}</div>
+                <div style={{ fontSize: "0.75rem", color: "#94a3b8", marginBottom: "0.15rem" }}>{stat.label}</div>
+                <div style={{ fontSize: "0.63rem", color: "#475569" }} dangerouslySetInnerHTML={{ __html: stat.sub }} />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── CONTRIBUTE BANNER ───────────────────────────────────────── */}
+      <section style={{ borderBottom: "1px solid #1e3a5f" }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "2rem 1.5rem" }}>
+          <div style={{ backgroundColor: "#0a1628", border: "1px solid #0d948840", borderRadius: "12px", padding: "1.75rem 2rem", display: "flex", flexWrap: "wrap", gap: "1.5rem", alignItems: "center", justifyContent: "space-between" }}>
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
+                <span style={{ fontSize: "1.2rem" }}>📎</span>
+                <span style={{ fontSize: "1rem", fontWeight: 700, color: "#fff" }}>Contribute Health Data</span>
+              </div>
+              <p style={{ fontSize: "0.85rem", color: "#64748b", margin: 0, lineHeight: 1.6 }}>
+                Upload PDFs, CSVs, Excel sheets or images. Our AI extracts structured health metrics and routes them for admin review before publishing.
+              </p>
+            </div>
+            <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
+              {["PDF", "CSV", "Excel", "Images"].map(t => (
+                <span key={t} style={{ fontSize: "0.72rem", backgroundColor: "#0f2040", border: "1px solid #1e3a5f", color: "#94a3b8", borderRadius: "5px", padding: "0.25rem 0.65rem" }}>{t}</span>
+              ))}
+            </div>
+            <Link href="/contribute" style={{ backgroundColor: "#0d9488", color: "#fff", padding: "0.65rem 1.5rem", borderRadius: "8px", textDecoration: "none", fontSize: "0.88rem", fontWeight: 700, flexShrink: 0 }}>
+              Submit Data →
+            </Link>
+          </div>
+        </div>
+      </section>
+
       <VyasaPlatformSection />
     </div>
   );

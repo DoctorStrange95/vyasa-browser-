@@ -3,13 +3,16 @@ import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import FeedbackButton from "@/components/FeedbackButton";
+import FacilityDrawer from "@/components/FacilityDrawer";
+import { getUserSession } from "@/lib/userAuth";
 
 export const metadata: Metadata = {
   title: "HealthForIndia by Vyasa",
   description: "India's public health transparency platform — district-level data on IMR, hospitals, vaccination, PMJAY and air quality.",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const session = await getUserSession();
   return (
     <html lang="en">
       <head>
@@ -21,10 +24,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body>
-        <Header />
+        <Header user={session} />
         <main>{children}</main>
         <Footer />
         <FeedbackButton />
+        <FacilityDrawer />
       </body>
     </html>
   );

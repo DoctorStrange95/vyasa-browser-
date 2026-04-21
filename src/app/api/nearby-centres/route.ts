@@ -34,20 +34,38 @@ export async function GET(req: Request) {
   }
 
   try {
-    const isBloodBank = type === "bloodbank";
-    const keywords = type === "phc"
-      ? "primary health centre"
-      : type === "chc"
-      ? "community health centre"
-      : isBloodBank
-      ? "blood bank"
-      : "primary health centre OR community health centre OR government hospital";
+    const keywordMap: Record<string, string> = {
+      phc:        "primary health centre",
+      chc:        "community health centre OR district hospital",
+      bloodbank:  "blood bank",
+      hospital:   "hospital",
+      lab:        "diagnostic lab OR pathology lab OR medical laboratory",
+      pharmacy:   "pharmacy OR medical store OR chemist",
+      ambulance:  "ambulance service OR emergency medical service",
+      anganwadi:  "anganwadi center OR ICDS center OR balwadi",
+      doctor:     "doctor OR general physician OR clinic",
+      all:        "primary health centre OR community health centre OR government hospital",
+    };
+    const placeTypeMap: Record<string, string> = {
+      pharmacy:   "pharmacy",
+      hospital:   "hospital",
+      lab:        "health",
+      bloodbank:  "establishment",
+      ambulance:  "establishment",
+      anganwadi:  "establishment",
+      doctor:     "doctor",
+      all:        "health",
+      phc:        "health",
+      chc:        "health",
+    };
+    const keywords = keywordMap[type] ?? keywordMap.all;
+    const placeType = placeTypeMap[type] ?? "health";
 
     const url = new URL("https://maps.googleapis.com/maps/api/place/nearbysearch/json");
     url.searchParams.set("location", `${lat},${lng}`);
     url.searchParams.set("radius", radius);
     url.searchParams.set("keyword", keywords);
-    url.searchParams.set("type", isBloodBank ? "establishment" : "health");
+    url.searchParams.set("type", placeType);
     url.searchParams.set("key", GOOGLE_KEY);
 
     const res  = await fetch(url.toString(), { next: { revalidate: 3600 } });

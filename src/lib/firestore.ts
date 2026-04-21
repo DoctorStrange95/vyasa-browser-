@@ -104,6 +104,45 @@ export async function fsQuery(
     .map(r => ({ ...fromFields(r.document!.fields), _id: docId(r.document!.name) } as Record<string, unknown> & { _id: string }));
 }
 
+/** List all documents in a collection (up to maxItems) */
+export async function fsList(
+  col: string,
+  maxItems = 200,
+): Promise<Array<Record<string, unknown> & { _id: string }>> {
+  const res = await fetch(`${BASE}/${col}?pageSize=${maxItems}`, { cache: "no-store" });
+  if (!res.ok) return [];
+  type Row = { name: string; fields?: Record<string, FsVal> };
+  const data: { documents?: Row[] } = await res.json();
+  return (data.documents ?? [])
+    .filter(r => r.fields)
+    .map(r => ({ ...fromFields(r.fields!), _id: docId(r.name) } as Record<string, unknown> & { _id: string }));
+}
+
+/** Add a new document with an auto-generated ID */
+export async function fsAdd(col: string, data: Record<string, unknown>): Promise<string> {
+  const res = await fetch(`${BASE}/${col}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ fields: toFields(data) }),
+    cache: "no-store",
+  });
+  if (!res.ok) throw new Error(`fsAdd failed: ${res.status}`);
+  const doc: { name: string } = await res.json();
+  return docId(doc.name);
+}
+
+/** Get a single document by ID */
+export async function fsGet(
+  col: string,
+  id: string,
+): Promise<(Record<string, unknown> & { _id: string }) | null> {
+  const res = await fetch(`${BASE}/${col}/${encodeURIComponent(id)}`, { cache: "no-store" });
+  if (!res.ok) return null;
+  const doc: { name: string; fields?: Record<string, FsVal> } = await res.json();
+  if (!doc.fields) return null;
+  return { ...fromFields(doc.fields), _id: docId(doc.name) } as Record<string, unknown> & { _id: string };
+}
+
 /** Batch-update a list of doc IDs with the same partial data */
 export async function fsBatchUpdate(col: string, ids: string[], data: Record<string, unknown>): Promise<void> {
   if (!ids.length) return;

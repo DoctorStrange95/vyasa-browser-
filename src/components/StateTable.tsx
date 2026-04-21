@@ -48,6 +48,7 @@ export default function StateTable({ states }: { states: State[] }) {
   const [sortKey, setSortKey] = useState<string>("imr");
   const [sortAsc, setSortAsc] = useState(true);
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [showAll, setShowAll]   = useState(false);
 
   function toggleSort(key: string) {
     if (sortKey === key) setSortAsc((a) => !a);
@@ -149,7 +150,7 @@ export default function StateTable({ states }: { states: State[] }) {
         {sorted.length === 0 ? (
           <div style={{ padding: "3rem", textAlign: "center", color: "#475569" }}>No states match &quot;{query}&quot;</div>
         ) : (
-          sorted.map((s, idx) => (
+          (query || showAll ? sorted : sorted.slice(0, 5)).map((s, idx) => (
             <StateRow
               key={s.slug}
               state={s}
@@ -162,6 +163,22 @@ export default function StateTable({ states }: { states: State[] }) {
           ))
         )}
       </div>
+
+      {/* Show more / less — only when not actively searching */}
+      {!query && (
+        <div style={{ textAlign: "center", marginTop: "1rem" }}>
+          <button
+            onClick={() => setShowAll(p => !p)}
+            style={{
+              backgroundColor: "#0d948815", border: "1px solid #0d948840",
+              color: "#2dd4bf", borderRadius: "8px", padding: "0.55rem 2rem",
+              fontSize: "0.82rem", fontWeight: 600, cursor: "pointer", fontFamily: "inherit",
+            }}
+          >
+            {showAll ? `▲ Show less` : `▼ Show all ${sorted.length} States & UTs`}
+          </button>
+        </div>
+      )}
 
       <p style={{ marginTop: "0.75rem", fontSize: "0.72rem", color: "#334155", textAlign: "right" }}>
         Source: NFHS-5 (2019–21) · IMR/U5-MR per 1000 live births · Hover column headers for definitions

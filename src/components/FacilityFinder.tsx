@@ -1,0 +1,237 @@
+"use client";
+import { useState } from "react";
+
+type FacilityType = "hospital" | "lab" | "pharmacy" | "bloodbank" | "ambulance" | "anganwadi" | "doctor";
+type LocMode = "gps" | "text";
+
+interface Place {
+  place_id: string;
+  name: string;
+  vicinity: string;
+  formatted_address?: string;
+  formatted_phone_number?: string;
+  rating?: number;
+  user_ratings_total?: number;
+  opening_hours?: { open_now: boolean };
+  geometry: { location: { lat: number; lng: number } };
+}
+
+const CATEGORIES: { type: FacilityType; icon: string; label: string; color: string }[] = [
+  { type: "hospital",  icon: "🏥", label: "Hospital",      color: "#2dd4bf" },
+  { type: "doctor",    icon: "👨‍⚕️", label: "Doctor/Clinic", color: "#60a5fa" },
+  { type: "pharmacy",  icon: "💊", label: "Pharmacy",      color: "#4ade80" },
+  { type: "lab",       icon: "🔬", label: "Diagnostic Lab",color: "#818cf8" },
+  { type: "bloodbank", icon: "🩸", label: "Blood Bank",    color: "#f87171" },
+  { type: "ambulance", icon: "🚑", label: "Ambulance",     color: "#fb923c" },
+  { type: "anganwadi", icon: "🏫", label: "Anganwadi",     color: "#fbbf24" },
+];
+
+export default function FacilityFinder() {
+  const [active,   setActive]   = useState<FacilityType>("hospital");
+  const [locMode,  setLocMode]  = useState<LocMode>("gps");
+  const [query,    setQuery]    = useState("");
+  const [places,   setPlaces]   = useState<Place[]>([]);
+  const [status,   setStatus]   = useState<"idle"|"locating"|"loading"|"done"|"error"|"nokey">("idle");
+  const [errMsg,   setErrMsg]   = useState("");
+  const [radius,   setRadius]   = useState("5000");
+  const [location, setLocation] = useState<string>("");
+
+  async function searchByCoords(lat: number, lng: number, type: FacilityType, rad: string) {
+    setStatus("loading");
+    try {
+      const res = await fetch(`/api/nearby-centres?lat=${lat}&lng=${lng}&radius=${rad}&type=${type}`);
+      const d   = await res.json();
+      if (d.needsKey) { setStatus("nokey"); return; }
+      if (d.error)    { setErrMsg(d.error); setStatus("error"); return; }
+      setPlaces(d.results ?? []);
+      setStatus("done");
+    } catch {
+      setErrMsg("Network error. Please try again.");
+      setStatus("error");
+    }
+  }
+
+  async function searchByText() {
+    if (!query.trim()) return;
+    setStatus("locating");
+    try {
+      const geo = await fetch(`/api/geocode?q=${encodeURIComponent(query)}`);
+      const g   = await geo.json();
+      if (g.error) { setErrMsg(g.error); setStatus("error"); return; }
+      setLocation(g.formatted);
+      searchByCoords(g.lat, g.lng, active, radius);
+    } catch {
+      setErrMsg("Could not locate. Try a different pincode or district name.");
+      setStatus("error");
+    }
+  }
+
+  function searchByGPS() {
+    if (!navigator.geolocation) { setErrMsg("Geolocation not supported."); setStatus("error"); return; }
+    setStatus("locating");
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        setLocation("Your location");
+        searchByCoords(pos.coords.latitude, pos.coords.longitude, active, radius);
+      },
+      err => { setErrMsg(`Location denied: ${err.message}`); setStatus("error"); },
+      { timeout: 10000, maximumAge: 60000 }
+    );
+  }
+
+  function changeType(t: FacilityType) {
+    setActive(t);
+    if (status === "done" && location) {
+      setStatus("loading");
+      fetch(`/api/geocode?q=${encodeURIComponent(location)}`).then(r => r.json()).then(g => {
+        if (!g.error) searchByCoords(g.lat, g.lng, t, radius);
+      }).catch(() => {});
+    }
+  }
+
+  const cat = CATEGORIES.find(c => c.type === active)!;
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", height: "100%", gap: "0.75rem" }}>
+      {/* Category tabs — 7 categories in a scrollable row */}
+      <div style={{ display: "flex", gap: "0.4rem", flexShrink: 0, overflowX: "auto", paddingBottom: "2px" }}>
+        {CATEGORIES.map(c => (
+          <button key={c.type} onClick={() => changeType(c.type)} style={{
+            display: "flex", flexDirection: "column", alignItems: "center", gap: "0.2rem",
+            padding: "0.5rem 0.6rem", flexShrink: 0, minWidth: "60px",
+            backgroundColor: active === c.type ? "#0f2040" : "#060d1a",
+            border: `1px solid ${active === c.type ? c.color : "#1e3a5f"}`,
+            borderBottom: `2px solid ${active === c.type ? c.color : "transparent"}`,
+            borderRadius: "8px", cursor: "pointer", transition: "all 0.12s",
+          }}>
+            <span style={{ fontSize: "1.1rem" }}>{c.icon}</span>
+            <span style={{ fontSize: "0.58rem", color: active === c.type ? c.color : "#475569", fontWeight: active === c.type ? 700 : 400, textAlign: "center", lineHeight: 1.2, whiteSpace: "nowrap" }}>{c.label}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* Location mode toggle */}
+      <div style={{ display: "flex", gap: "0.4rem", flexShrink: 0 }}>
+        <div style={{ display: "flex", backgroundColor: "#060d1a", border: "1px solid #1e3a5f", borderRadius: "7px", overflow: "hidden", flexShrink: 0 }}>
+          {(["gps", "text"] as LocMode[]).map(m => (
+            <button key={m} onClick={() => setLocMode(m)} style={{
+              fontSize: "0.7rem", padding: "0.35rem 0.7rem",
+              background: locMode === m ? "#0f2040" : "transparent",
+              color: locMode === m ? "#e2e8f0" : "#475569",
+              border: "none", cursor: "pointer", fontFamily: "inherit",
+            }}>
+              {m === "gps" ? "📍 GPS" : "🔍 Pincode / District"}
+            </button>
+          ))}
+        </div>
+        <select value={radius} onChange={e => setRadius(e.target.value)} style={{ backgroundColor: "#060d1a", border: "1px solid #1e3a5f", borderRadius: "7px", color: "#64748b", fontSize: "0.7rem", padding: "0.35rem 0.5rem", fontFamily: "inherit", cursor: "pointer" }}>
+          <option value="3000">3 km</option>
+          <option value="5000">5 km</option>
+          <option value="10000">10 km</option>
+          <option value="20000">20 km</option>
+        </select>
+      </div>
+
+      {/* Search bar */}
+      {locMode === "text" ? (
+        <div style={{ display: "flex", gap: "0.4rem", flexShrink: 0 }}>
+          <input
+            type="text"
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+            onKeyDown={e => e.key === "Enter" && searchByText()}
+            placeholder="Enter pincode or district (e.g. 400001, Pune)"
+            style={{ flex: 1, backgroundColor: "#080f1e", border: "1px solid #1e3a5f", borderRadius: "7px", color: "#e2e8f0", fontSize: "0.78rem", padding: "0.45rem 0.75rem", fontFamily: "inherit", outline: "none" }}
+          />
+          <button onClick={searchByText} disabled={!query.trim() || status === "loading" || status === "locating"} style={{ fontSize: "0.75rem", backgroundColor: cat.color + "20", border: `1px solid ${cat.color}60`, color: cat.color, borderRadius: "7px", padding: "0.45rem 0.9rem", cursor: "pointer", fontFamily: "inherit", fontWeight: 600, flexShrink: 0 }}>
+            Search
+          </button>
+        </div>
+      ) : (
+        <button onClick={searchByGPS} disabled={status === "locating" || status === "loading"} style={{ fontSize: "0.8rem", backgroundColor: cat.color + "15", border: `1px solid ${cat.color}40`, color: cat.color, borderRadius: "8px", padding: "0.6rem", cursor: "pointer", fontFamily: "inherit", fontWeight: 600 }}>
+          {status === "locating" ? "Getting location…" : `Find ${cat.label} near me`}
+        </button>
+      )}
+
+      {/* Status messages */}
+      {status === "loading" && (
+        <div style={{ fontSize: "0.75rem", color: "#64748b", textAlign: "center", padding: "1rem" }}>
+          Searching {cat.label}s nearby…
+        </div>
+      )}
+      {status === "error" && (
+        <div style={{ fontSize: "0.75rem", color: "#f87171", backgroundColor: "#ef444415", border: "1px solid #ef444430", borderRadius: "8px", padding: "0.6rem 0.75rem" }}>
+          ⚠ {errMsg}
+          <button onClick={() => setStatus("idle")} style={{ marginLeft: "0.5rem", color: "#64748b", background: "none", border: "none", cursor: "pointer", fontSize: "0.7rem" }}>Dismiss</button>
+        </div>
+      )}
+      {status === "nokey" && (
+        <div style={{ fontSize: "0.75rem", color: "#eab308", backgroundColor: "#eab30815", border: "1px solid #eab30830", borderRadius: "8px", padding: "0.6rem 0.75rem" }}>
+          Google Places API key not configured. Add <code style={{ background: "#0f2040", padding: "0 0.3rem", borderRadius: "3px" }}>GOOGLE_PLACES_API_KEY</code> to .env.local.
+        </div>
+      )}
+
+      {/* Results */}
+      {status === "done" && (
+        <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+          <div style={{ fontSize: "0.65rem", color: "#475569", flexShrink: 0 }}>
+            {places.length} {cat.label}s found {location ? `near ${location}` : ""}
+          </div>
+          {places.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "1.5rem", color: "#334155", fontSize: "0.8rem" }}>
+              None found within {Number(radius)/1000} km. Try expanding the radius.
+            </div>
+          ) : (
+            places.map(p => <PlaceCard key={p.place_id} place={p} color={cat.color} />)
+          )}
+        </div>
+      )}
+
+      {status === "idle" && (
+        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: "0.5rem", color: "#334155" }}>
+          <span style={{ fontSize: "2rem" }}>{cat.icon}</span>
+          <span style={{ fontSize: "0.78rem" }}>Search for nearby {cat.label}s</span>
+          <span style={{ fontSize: "0.65rem", color: "#1e3a5f" }}>Use GPS or enter a pincode / district name</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PlaceCard({ place, color }: { place: Place; color: string }) {
+  const isOpen  = place.opening_hours?.open_now;
+  const address = place.formatted_address ?? place.vicinity;
+  const phone   = place.formatted_phone_number;
+  const mapsUrl = `https://www.google.com/maps/place/?q=place_id:${place.place_id}`;
+
+  return (
+    <div style={{ backgroundColor: "#080f1e", border: "1px solid #1e3a5f", borderLeft: `3px solid ${color}`, borderRadius: "8px", padding: "0.7rem 0.85rem", flexShrink: 0 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "0.5rem", marginBottom: "0.3rem" }}>
+        <div style={{ fontSize: "0.82rem", fontWeight: 700, color: "#e2e8f0", lineHeight: 1.3 }}>{place.name}</div>
+        {place.opening_hours && (
+          <span style={{ fontSize: "0.6rem", color: isOpen ? "#4ade80" : "#f87171", flexShrink: 0, backgroundColor: isOpen ? "#22c55e15" : "#ef444415", borderRadius: "3px", padding: "0.1rem 0.35rem" }}>
+            {isOpen ? "Open" : "Closed"}
+          </span>
+        )}
+      </div>
+      {address && <div style={{ fontSize: "0.68rem", color: "#64748b", marginBottom: "0.3rem", lineHeight: 1.4 }}>📍 {address}</div>}
+      {phone   && <div style={{ fontSize: "0.68rem", color: "#2dd4bf", marginBottom: "0.3rem" }}>📞 <a href={`tel:${phone}`} style={{ color: "#2dd4bf", textDecoration: "none" }}>{phone}</a></div>}
+      {place.rating && (
+        <div style={{ fontSize: "0.63rem", color: "#eab308", marginBottom: "0.35rem" }}>
+          {"★".repeat(Math.round(place.rating))}{"☆".repeat(Math.max(0, 5 - Math.round(place.rating)))}
+          <span style={{ color: "#475569" }}> {place.rating.toFixed(1)}</span>
+        </div>
+      )}
+      <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.3rem" }}>
+        <a href={mapsUrl} target="_blank" rel="noopener noreferrer" style={{ flex: 1, textAlign: "center", backgroundColor: color + "20", border: `1px solid ${color}40`, color, borderRadius: "5px", padding: "0.3rem 0.5rem", fontSize: "0.68rem", fontWeight: 600, textDecoration: "none" }}>
+          Directions ↗
+        </a>
+        {phone && (
+          <a href={`tel:${phone}`} style={{ flex: 1, textAlign: "center", backgroundColor: "#0f2040", border: "1px solid #1e3a5f", color: "#94a3b8", borderRadius: "5px", padding: "0.3rem 0.5rem", fontSize: "0.68rem", fontWeight: 600, textDecoration: "none" }}>
+            Call
+          </a>
+        )}
+      </div>
+    </div>
+  );
+}
