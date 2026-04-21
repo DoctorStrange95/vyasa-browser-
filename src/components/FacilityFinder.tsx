@@ -140,7 +140,7 @@ export default function FacilityFinder() {
             value={query}
             onChange={e => setQuery(e.target.value)}
             onKeyDown={e => e.key === "Enter" && searchByText()}
-            placeholder="Enter pincode or district (e.g. 400001, Pune)"
+            placeholder="6-digit pincode or district name (e.g. 400001, Kozhikode)"
             style={{ flex: 1, backgroundColor: "#080f1e", border: "1px solid #1e3a5f", borderRadius: "7px", color: "#e2e8f0", fontSize: "0.78rem", padding: "0.45rem 0.75rem", fontFamily: "inherit", outline: "none" }}
           />
           <button onClick={searchByText} disabled={!query.trim() || status === "loading" || status === "locating"} style={{ fontSize: "0.75rem", backgroundColor: cat.color + "20", border: `1px solid ${cat.color}60`, color: cat.color, borderRadius: "7px", padding: "0.45rem 0.9rem", cursor: "pointer", fontFamily: "inherit", fontWeight: 600, flexShrink: 0 }}>
