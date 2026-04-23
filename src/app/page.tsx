@@ -3,7 +3,6 @@ import HealthTicker from "@/components/HealthTicker";
 import PHIntelligenceFeed from "@/components/PHIntelligenceFeed";
 import OutbreakAlerts from "@/components/OutbreakAlerts";
 import StateTable from "@/components/StateTable";
-import VyasaPlatformSection from "@/components/VyasaPlatformSection";
 import states from "@/data/states.json";
 
 /* ── Health score (same formula as InteractiveHome) ── */
@@ -345,7 +344,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      <VyasaPlatformSection />
     </div>
   );
 }

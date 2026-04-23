@@ -47,8 +47,11 @@ export default function Header({ user }: { user?: HeaderUser | null }) {
           <Link href="/contribute" style={{ color: "#94a3b8", textDecoration: "none", fontSize: "0.875rem", fontWeight: 500 }}>
             Contribute
           </Link>
+          <Link href="/join" style={{ backgroundColor: "#0d948820", border: "1px solid #0d948860", color: "#2dd4bf", padding: "0.4rem 1rem", borderRadius: "6px", textDecoration: "none", fontSize: "0.875rem", fontWeight: 700 }}>
+            Join Now
+          </Link>
           {user ? (
-            <Link href="/profile" style={{ display: "flex", alignItems: "center", gap: "0.5rem", backgroundColor: "#0d948820", border: "1px solid #0d948840", color: "#2dd4bf", padding: "0.35rem 0.9rem", borderRadius: "6px", textDecoration: "none", fontSize: "0.82rem", fontWeight: 600 }}>
+            <Link href="/profile" style={{ display: "flex", alignItems: "center", gap: "0.5rem", backgroundColor: "#0f2040", border: "1px solid #1e3a5f", color: "#94a3b8", padding: "0.35rem 0.9rem", borderRadius: "6px", textDecoration: "none", fontSize: "0.82rem", fontWeight: 600 }}>
               <span style={{ width: "20px", height: "20px", borderRadius: "50%", backgroundColor: "#0d948840", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.65rem", fontWeight: 700 }}>{user.name[0].toUpperCase()}</span>
               {user.name.split(" ")[0]}
             </Link>
@@ -102,9 +105,9 @@ export default function Header({ user }: { user?: HeaderUser | null }) {
           <Link href="/sources" style={{ color: "#94a3b8", textDecoration: "none", fontSize: "0.875rem" }} onClick={() => setMenuOpen(false)}>
             Data Sources
           </Link>
-          <a href="#" style={{ color: "#2dd4bf", textDecoration: "none", fontSize: "0.875rem", fontWeight: 600 }}>
-            Vyasa Platform →
-          </a>
+          <Link href="/join" style={{ color: "#2dd4bf", textDecoration: "none", fontSize: "0.875rem", fontWeight: 700 }} onClick={() => setMenuOpen(false)}>
+            Join Vyasa →
+          </Link>
         </div>
       )}
 
