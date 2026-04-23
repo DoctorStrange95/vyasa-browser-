@@ -6,7 +6,7 @@ export async function POST(req: NextRequest) {
   try { body = await req.json(); }
   catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }); }
 
-  const { name, email, phone, role, specialization, prescriptionBoring, interests, city, state, referral } = body as Record<string, string | string[]>;
+  const { name, email, phone, role, specialization, facilitySize, opdLoad, currentSystem, prescriptionBoring, painPoints, interests, city, state, referral } = body as Record<string, string | string[]>;
 
   if (!name || !email || !phone || !role) {
     return NextResponse.json({ error: "Name, email, phone and role are required." }, { status: 400 });
@@ -24,10 +24,14 @@ export async function POST(req: NextRequest) {
       phone:              String(phone).trim(),
       role:               String(role),
       specialization:     specialization ? String(specialization).trim() : "",
+      facilitySize:       facilitySize   ? String(facilitySize)           : "",
+      opdLoad:            opdLoad        ? String(opdLoad)                 : "",
+      currentSystem:      currentSystem  ? String(currentSystem)           : "",
       prescriptionBoring: String(prescriptionBoring ?? ""),
-      interests:          Array.isArray(interests) ? interests : [],
-      city:               city  ? String(city).trim()  : "",
-      state:              state ? String(state).trim() : "",
+      painPoints:         Array.isArray(painPoints) ? painPoints : [],
+      interests:          Array.isArray(interests)  ? interests  : [],
+      city:               city    ? String(city).trim()    : "",
+      state:              state   ? String(state).trim()   : "",
       referral:           referral ? String(referral).trim() : "",
       joinedAt:           new Date().toISOString(),
       status:             "waitlisted",

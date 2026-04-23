@@ -277,38 +277,55 @@ export default function HomePage() {
       {/* ── JOIN VYASA WAITLIST BANNER ───────────────────────────── */}
       <section style={{ borderBottom: "1px solid #1e3a5f", backgroundColor: "#060e1c" }}>
         <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "2.5rem 1.5rem" }}>
+
+          {/* Pain point stats row — direct from clinical data */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))", gap: "0.75rem", marginBottom: "1.25rem" }}>
+            {[
+              { val: "70%",   label: "of serious medical errors",        sub: "caused by miscommunication in handoffs", color: "#f87171", cite: "JCAHO 2023" },
+              { val: "73.9%", label: "of Indian doctors",                sub: "burdened by non-medical clerical work",  color: "#f59e0b", cite: "FAIMA · 28 States" },
+              { val: "30–35", label: "disease outbreaks weekly in India", sub: "yet private hospitals lack IDSP access", color: "#818cf8", cite: "MoHFW · IDSP" },
+            ].map(s => (
+              <div key={s.val} style={{ backgroundColor: "#080f1e", border: `1px solid ${s.color}30`, borderLeft: `3px solid ${s.color}`, borderRadius: "10px", padding: "1rem 1.25rem", display: "flex", gap: "0.85rem", alignItems: "flex-start" }}>
+                <div style={{ fontSize: "1.6rem", fontWeight: 800, color: s.color, lineHeight: 1, fontFamily: "monospace", flexShrink: 0 }}>{s.val}</div>
+                <div>
+                  <div style={{ fontSize: "0.78rem", fontWeight: 600, color: "#e2e8f0", lineHeight: 1.3 }}>{s.label}</div>
+                  <div style={{ fontSize: "0.72rem", color: "#64748b", lineHeight: 1.4, marginTop: "0.2rem" }}>{s.sub}</div>
+                  <div style={{ fontSize: "0.58rem", color: "#334155", marginTop: "0.3rem", fontStyle: "italic" }}>{s.cite}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Main CTA card */}
           <div style={{
             background: "linear-gradient(135deg, #0a1628 0%, #0f2040 50%, #0a1628 100%)",
-            border: "1px solid #0d948850",
-            borderRadius: "16px", padding: "2.5rem 2.5rem",
+            border: "1px solid #0d948850", borderRadius: "16px", padding: "2rem 2.5rem",
             display: "flex", flexWrap: "wrap", gap: "2rem", alignItems: "center", justifyContent: "space-between",
             position: "relative", overflow: "hidden",
           }}>
-            {/* Background glow */}
-            <div style={{ position: "absolute", top: "-40px", right: "120px", width: "200px", height: "200px", borderRadius: "50%", background: "radial-gradient(circle, #0d948830 0%, transparent 70%)", pointerEvents: "none" }} />
+            <div style={{ position: "absolute", top: "-40px", right: "100px", width: "200px", height: "200px", borderRadius: "50%", background: "radial-gradient(circle, #0d948825 0%, transparent 70%)", pointerEvents: "none" }} />
 
             <div style={{ flex: 1, minWidth: "260px", position: "relative" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", marginBottom: "0.75rem" }}>
                 <span style={{ width: "7px", height: "7px", borderRadius: "50%", backgroundColor: "#2dd4bf", display: "inline-block", animation: "pulseGlow 2s infinite" }} />
                 <span style={{ fontSize: "0.62rem", color: "#2dd4bf", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>Early Access · Limited Seats</span>
               </div>
-              <h2 style={{ fontSize: "1.5rem", fontWeight: 700, color: "#fff", marginBottom: "0.6rem", lineHeight: 1.3 }}>
-                Join the Vyasa Intelligent<br />Health Network
+              <h2 style={{ fontSize: "1.55rem", fontWeight: 700, color: "#fff", marginBottom: "0.5rem", lineHeight: 1.25, letterSpacing: "-0.01em" }}>
+                Built from the ward,<br />not the boardroom.
               </h2>
-              <p style={{ fontSize: "0.85rem", color: "#64748b", lineHeight: 1.7, margin: 0, maxWidth: "480px" }}>
-                Built for doctors tired of paper prescriptions, hospitals drowning in clipboards, and labs waiting to go digital.
-                One platform for the entire care chain — Rx, labs, pharmacy, analytics, and surveillance.
+              <p style={{ fontSize: "0.83rem", color: "#64748b", lineHeight: 1.7, margin: 0, maxWidth: "460px" }}>
+                One platform for every role — digital Rx, live lab sync, nurse SOS alerts, auto-billing, AI discharge summaries, and IDSP outbreak feeds. Designed by an AIIMS physician.
               </p>
             </div>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", alignItems: "flex-start" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem", alignItems: "flex-start" }}>
               {[
-                { icon: "✍️", text: "Digital prescriptions with AI" },
-                { icon: "🔗", text: "Lab → Doctor in seconds" },
-                { icon: "📊", text: "Clinical analytics dashboard" },
-                { icon: "📡", text: "Outbreak & NCD surveillance" },
+                { icon: "✍️", text: "Kill paper prescriptions" },
+                { icon: "🔴", text: "Live SOS alerts & remote monitoring" },
+                { icon: "🔗", text: "Lab results reach doctor in seconds" },
+                { icon: "🧾", text: "Every action auto-bills — zero leakage" },
               ].map(f => (
-                <div key={f.text} style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.8rem", color: "#94a3b8" }}>
+                <div key={f.text} style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.78rem", color: "#94a3b8" }}>
                   <span>{f.icon}</span><span>{f.text}</span>
                 </div>
               ))}
@@ -316,13 +333,13 @@ export default function HomePage() {
 
             <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem", alignItems: "center", flexShrink: 0 }}>
               <Link href="/join" style={{
-                backgroundColor: "#0d9488", color: "#fff", padding: "0.85rem 2rem",
+                backgroundColor: "#0d9488", color: "#fff", padding: "0.9rem 2rem",
                 borderRadius: "10px", textDecoration: "none", fontSize: "0.95rem", fontWeight: 700,
-                display: "block", textAlign: "center", transition: "background 0.15s",
+                display: "block", textAlign: "center",
               }}>
                 Request Early Access →
               </Link>
-              <span style={{ fontSize: "0.68rem", color: "#334155" }}>Doctors · Hospitals · Labs · Pharmacies</span>
+              <span style={{ fontSize: "0.68rem", color: "#475569" }}>Doctors · Hospitals · Labs · Pharmacies</span>
             </div>
           </div>
         </div>
