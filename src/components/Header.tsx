@@ -38,8 +38,8 @@ export default function Header({ user }: { user?: HeaderUser | null }) {
 
         {/* Desktop nav */}
         <nav style={{ display: "flex", gap: "2rem", alignItems: "center" }} className="desktop-nav">
-          <Link href="/" style={{ color: "#94a3b8", textDecoration: "none", fontSize: "0.875rem", fontWeight: 500 }}>
-            Districts
+          <Link href="/team" style={{ color: "#94a3b8", textDecoration: "none", fontSize: "0.875rem", fontWeight: 500 }}>
+            Our Team
           </Link>
           <Link href="/sources" style={{ color: "#94a3b8", textDecoration: "none", fontSize: "0.875rem", fontWeight: 500 }}>
             Data Sources
@@ -99,8 +99,8 @@ export default function Header({ user }: { user?: HeaderUser | null }) {
           }}
           className="mobile-menu-panel"
         >
-          <Link href="/" style={{ color: "#94a3b8", textDecoration: "none", fontSize: "0.875rem" }} onClick={() => setMenuOpen(false)}>
-            Districts
+          <Link href="/team" style={{ color: "#94a3b8", textDecoration: "none", fontSize: "0.875rem" }} onClick={() => setMenuOpen(false)}>
+            Our Team
           </Link>
           <Link href="/sources" style={{ color: "#94a3b8", textDecoration: "none", fontSize: "0.875rem" }} onClick={() => setMenuOpen(false)}>
             Data Sources
