@@ -2,7 +2,11 @@
   "crons": [
     {
       "path": "/api/cron/refresh",
-      "schedule": "0 2 */2 * *"
+      "schedule": "0 2 * * *"
     }
-  ]
+  ],
+  "functions": {
+    "src/app/api/cron/refresh/route.ts":     { "maxDuration": 300 },
+    "src/app/api/ph-intelligence/route.ts":  { "maxDuration": 60 }
+  }
 }

@@ -1,5 +1,5 @@
 {
-  "refreshedAt": "2026-04-21T11:21:12.538Z",
+  "refreshedAt": "2026-04-21T12:06:35.151Z",
   "items": [
     {
       "type": "NCD",
@@ -311,6 +311,25 @@
     {
       "type": "NCD",
       "category": "ncd",
+      "title": "World Diabetes Day 2025: The link between diabetes and heart health that is commonly overlooked - The Times of India",
+      "disease": "Diabetes",
+      "program": "Health & Wellness Centres",
+      "location": {
+        "state": "",
+        "district": "",
+        "village": ""
+      },
+      "summary": "a href=\"https://news.google.com/rss/articles/CBMinwJBVV95cUxNS2tJMVpQVzVFTm1QMTMxMUNoU3pHOVdHZE9HbHZnMXBjdkE2WGhjZ0JvRjF3YUExQWNtRk53MEJseXlxbE9zTkFnVXVhZE5XU2lKaC1HaElCYUJWalhaMGt0cDZ2SUVCT1JuR3d0bTJoOGNOMjN4anI2MnQ4YkhYbXNmNHJPcVlEZFBWRkxFOU9zNjZ4RHU3TFd3UHplSktNYTE2OUw2R2h4QjV…",
+      "cases": "",
+      "deaths": "",
+      "date": "2025-11-14",
+      "source": "Google News (India NCD)",
+      "sourceUrl": "https://news.google.com/rss/articles/CBMinwJBVV95cUxNS2tJMVpQVzVFTm1QMTMxMUNoU3pHOVdHZE9HbHZnMXBjdkE2WGhjZ0JvRjF3YUExQWNtRk53MEJseXlxbE9zTkFnVXVhZE5XU2lKaC1HaElCYUJWalhaMGt0cDZ2SUVCT1JuR3d0bTJoOGNOMjN4anI2MnQ4YkhYbXNmNHJPcVlEZFBWRkxFOU9zNjZ4RHU3TFd3UHplSktNYTE2OUw2R2h4QjVBLUQ1QkxKN2JBY0RYdmNJT3pOLTE3UEdoZ2hwczdCWTA4c0JDT2cyejFRaVlTU2x3NEw2WWlUV0tNSkRIU2pvNDQ0MHBjRG92Q2hnWVJraEpxaGRjZUpyX2s2TVYwbElfR0VmNlJnNi1OUXVSUHhjQU5VMNIBpAJBVV95cUxNNkZpLVJfMnhtc3A3Y2ZoRE0wM3dKNFNQX1BEWXNNVExLeFlrT3lhcjB1X2NnajBOSWxTd2lGNzhDWE9NRUxpZ1VrRVFsQnk1N0FxYUVrNWhxMFNFb3Bsay1KbGgyQ05ORnJHQnBoeHRfcTE1aV93Q2lfOVBCazVoNjcyVVJsaXR4S0tVT3Rid2NrT1JLTjhacFFXUGFPRUc1S19hbkgzY2NMUnpHSTgwRHNRU2dpclJwOWU1NGMzYkNhcmxUMDVYbWZQM1Boa2tMMi1oQlRjS3J2R2swNVcwVE15TzhHWUpXektQX2k1RDh1NGwwNFc1dmZZcDVVS0hhVC0wd0MyeVU3MHJvUUxSYzhSWkwtem1xcml6U2o0RDdzQkdG?oc=5",
+      "confidence": "Medium"
+    },
+    {
+      "type": "NCD",
+      "category": "ncd",
       "title": "99% of heart attacks in India are linked to these 4 hidden risk factors: Know warning signs and proven pr - The Times of India",
       "disease": "Heart Attack (MI)",
       "location": {
@@ -324,24 +343,6 @@
       "date": "2025-11-09",
       "source": "Google News (India NCD)",
       "sourceUrl": "https://news.google.com/rss/articles/CBMivAJBVV95cUxQRTNKdzRRWlppUUxfalJIZDhwVzZsYy1KUjlHTjJ4b0tyZDFPZlg5ejh1LVhyenBXS2V4ZzdMUTRJMk1GaHh1V1FETklMZTB5VzJBWjBkRzNlMmRLU1RFNm05MzQzWWVRRW1KR1FjNnJjTWxTSGdlVTdCNmcxQVFrQmlBbkM1X0t4cGUxckt2SkdvcjNIdHhpeGJfVmZHb0ZGZkRheklKZU9vNC12MXRvZXJPNk5SbHQtUk92MlRWR0NfM3JIX0NOdVRIc1otQ2VudFQ5aGIxNVM2UTZSclNiQWNjUlpsTUFRQURqT05WMkxNZGhYSDR2MTZiQXNsUjVqb2dpLVhlMTVGNU9yelBPaXpUZEhYSDE0TEpRdkdxMHViaDhPMjNBR2RULXFUR0ZPSVQ3T2Eyamp3THl50gHCAkFVX3lxTFBmNHdhTC1CajFrRlNCQlp4dXNveXVpY3Vsb3pLRU9WLW9ESjRfbEs5TjlKdURrZ3I5UWM4OTliV3B1TG9JVGFhMW5UZXgyNHVxbElibmNraS1jeXhIbW9hNHNWX0RmV0t4X3FveXpVUGVrMDVGbmJFTFh5T3dzcDlSZ0IwVzlWTTBjay1lelBQbTBpSTJNYWRtWUJ6blFSYVkzSDJaMVN6OUxuamxoV19PN3paVnFway1BRkl4OE9vaVFqNDdTbHVHY01UNHpkOFlteURFLV9pZVM4UnNwX1ZOX25WaEt5VEhQWElEZVJHN1hsV1VQMU5Ed1Bjc2txaWV0NF9vOF81LUVJVkRuZlJMaERxenRtNHo0b3BGRE9nTURNVDZja0plazNMcGRXWjZrZTQzU2tIclBVQVZnaTFOaHc?oc=5",
-      "confidence": "Medium"
-    },
-    {
-      "type": "NCD",
-      "category": "ncd",
-      "title": "FDA approves pill which can prevent heart attack, stroke by reducing inflammation: How it works - The Times of India",
-      "disease": "Heart Attack (MI)",
-      "location": {
-        "state": "",
-        "district": "",
-        "village": ""
-      },
-      "summary": "a href=\"https://news.google.com/rss/articles/CBMingJBVV95cUxNd2J6YmU4QjZMbEdBSDZpZGZJX0ZjbmloZ19Sd19nU2tRSUhFbGxzYTRwMFhsMnVjcTB1ZmNodG9xT0lhTmJweEpqVGxuMExpWWpQOWdKcVVjc2YyOUx6ME1VYzllVFA4NGx3NU56U1VsTE1YZWVGZmZISjVPY0p0Rm0zQnMxdWZpdExQWFR3RTVZR0h2N3ZrdkxEeDAzdlY1TnByTlVyQ2s5VVV…",
-      "cases": "",
-      "deaths": "",
-      "date": "2025-11-06",
-      "source": "Google News (India NCD)",
-      "sourceUrl": "https://news.google.com/rss/articles/CBMingJBVV95cUxNd2J6YmU4QjZMbEdBSDZpZGZJX0ZjbmloZ19Sd19nU2tRSUhFbGxzYTRwMFhsMnVjcTB1ZmNodG9xT0lhTmJweEpqVGxuMExpWWpQOWdKcVVjc2YyOUx6ME1VYzllVFA4NGx3NU56U1VsTE1YZWVGZmZISjVPY0p0Rm0zQnMxdWZpdExQWFR3RTVZR0h2N3ZrdkxEeDAzdlY1TnByTlVyQ2s5VVV3LWpSZWtzTTRxR3QwWmFQQU1hd29DS1NzbXBIM0VmeUdqTHpXdjJPdWpMVlZUSjAxelQySk5aOWgtclM0Y2U4RHJhZjdPU2NHUFF4bVJIZ0pvZkNrUy1RTFgzbVlGXzd1eDdDSUVCT25IS0RXU005M0N30gGjAkFVX3lxTE9ZQ0NOeDFmM284STdQQTVsejJoQkRCdGNBeHdmLWZ2Z0Rlc1BUZ1l2cTg5Z3lFX01ycEhTRnVPalR6NW15bEdUQWhWbVVCRERiS2otTXNmbmd0cnRhd2dseGJVd1lyeFR4Y3ZuV3hTQ2VsenhZbU9zWFlPUWowdld5a3BtLV90YVgyd3NEVURQYURtQ3VvencwMk5LLVlfSWcySzBIWkZhTnNROHQ2aW9oNklkQXR3Tng2SWlFQTRjZWpwU1I5QVdqOTlfTlZpR0wydUZ5UWlvdS1XQzJpZU1LLWp4dGVZOENhNGZqeUNELWZZZnZ1NnhaVWhsNnJOd1l2OGZYYml1MEgzNXkzMWpEQk9IRjJFaHFpY2dQNnZxUWJ6RQ?oc=5",
       "confidence": "Medium"
     },
     {
@@ -414,6 +415,24 @@
       "date": "2025-09-05",
       "source": "Google News (India NCD)",
       "sourceUrl": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxPVnd2U2tmeWg5NHVGX01RMFBvWHctMExYeVNzWFZsb0JxcWRDbEhKWnFBLXpIellJMFRORHo2VktKVk11V3EwT2hJTm4tWDZZNGRMT2tacmlNbzVwbWVkTlAwRWs5am1PcmR4ZHdsR2x4eVJsTW1RY1A4NEFQXzhOQzdGSWVoOTlHbFNEVlRJTy1SOFlpTlNsekFnZktuU2Rwb050RVRlS0LSAbABQVVfeXFMT2dib05fZElHcndaM05wUFRFWm9PWkYwR0NHUjg0T1ZtVXNwNXRxUFNHcVhibjIyeFR3LTNLdHB5WHpHSjlxQUNuNk9FVmVvSy1XeWhSV2U5TnI5LWIwTGpOWjRBWG1PNmN0Y2tPcWp1R0Noa0RYYTlhRWFtYU1LLWZvWmxTZndRV2F3d0FodzFkMXY5RFFtX1RYYnJiSU9nRG5saTU1aEl6ZXc0cjZzS0E?oc=5",
+      "confidence": "Medium"
+    },
+    {
+      "type": "NCD",
+      "category": "ncd",
+      "title": "Your heart sends warnings 12 years before a heart attack; here’s the sign most people miss and prevention - The Times of India",
+      "disease": "Heart Attack (MI)",
+      "location": {
+        "state": "",
+        "district": "",
+        "village": ""
+      },
+      "summary": "a href=\"https://news.google.com/rss/articles/CBMi0AJBVV95cUxQb0ZvX3kwVjFVQ0d0V2RCaFVocWZ6SFFXRTJuUHRSazdPRlYwUVN4a1AxeE9hZkkwTEItaVFOWEQ2ZzF0LXRJd2NCN3ZaZWRXS2RMai1QSy1rRG9aZzF5YnB5RVNwT3IzM3hObnVQTVZmQ25kTzBiT24zTHE1TUYzVFF4bTh2TjBldjd5c2NnZUxubVRiMzQ4dEk0ZWdMeWsxWkxkdHNWR1VDWXY…",
+      "cases": "",
+      "deaths": "",
+      "date": "2025-08-18",
+      "source": "Google News (India NCD)",
+      "sourceUrl": "https://news.google.com/rss/articles/CBMi0AJBVV95cUxQb0ZvX3kwVjFVQ0d0V2RCaFVocWZ6SFFXRTJuUHRSazdPRlYwUVN4a1AxeE9hZkkwTEItaVFOWEQ2ZzF0LXRJd2NCN3ZaZWRXS2RMai1QSy1rRG9aZzF5YnB5RVNwT3IzM3hObnVQTVZmQ25kTzBiT24zTHE1TUYzVFF4bTh2TjBldjd5c2NnZUxubVRiMzQ4dEk0ZWdMeWsxWkxkdHNWR1VDWXYyMm1vSzBUVDlJZTV0RlB6WTFnT0ZuQUNfV3ZPZ2xhaUUwUHpYRDN6Smc2U0pXUWs0UTFmaVRoWFpTRjlwNjg3QnhsR0Nvb0V4RldLSzBZbDZmOXV1T2s4d3ZzbmRkRU9ERXRYRy01TkRwaGQ0ZExJYXZnQnVsR3F4YVNHM3dkWnF2dGJkbEJGSlRtaUowaGo0a0czeFZCLWRmTUVlQVVPeXl4cV_SAdYCQVVfeXFMUGliSGZJc0ViRHBocWp0T1g3VjBwYW1uQWtVN3pSVThyNzRlOElIUy1hTXFDVHZPWXYxT2QwZjY5NUlWZHpfTUEtQVhmM21FUGtrTkFINzJNS291ZTFPVkxjNlk3bjFTVzNVcU1DeHNHcU5RSl9CMVpueTV2UVBkZXNCU0hkdVVLeXZMVkR4Um5uWnotbm5rdDlqXzQycEFUZlQyOXJMMjVGb3hTX1hJVUJVTWN5VTMySlZZc1E4WHRmQ2huSlJseGl5R2hGSW5qdGRUNy16TGtrV2YxT3hRZFV3ZGVjaVFqYWNLNjFZc0Q5QTJUR0tXOWJEbmlNVTVhRGkzLVlBNDYySERmVmZIaHpfZm9ZY1FkV2ZpbWxpMXVaOU9UVUFsM0RWVUdlTnVid3RBYVJBeXVvdGNFelMwcVFpWUE5Qk5yVlQ1TUwyOWtEWTdNT213?oc=5",
       "confidence": "Medium"
     },
     {
@@ -502,23 +521,6 @@
       "date": "2025-10-15",
       "source": "Google News (India NCD)",
       "sourceUrl": "https://news.google.com/rss/articles/CBMi_wFBVV95cUxPbUs1emtFS2ZWLVc0ZW4wcVhfODZWWG41X1pPVjB5VS1ya1BWaE9Rcnp1MkJPT3JHSDlPU0pPMGxtVFQxbWMzNVBkUkgwYkVZSUpHckRaQXFkN1ByYjR0ald2T2ppNUx2SGppemlGSWRmNllEcVpmVnJ0b1duSVJpaUhTQ3pWSy1XRmN6VHFPWlJPaE5YbGlQcEMxa3BybE85RlQzOWwwekd0a2FTcEtISml1djEzNS1XTm82RTRnXzRRNU96MW5GYl9WOFZpSkhVNm5QVlA1ZlNOMjEzZklFVlRWUWdIc0dWTFVLUHcwZ2FrOGtTSWZsSzlNcmZBSFXSAYQCQVVfeXFMTnlyaWxic0hXQXcxUEtRd3VrWUt3Qks4ZHJkbTBCMmcwVy1RVXU1c3dEUUJYMmh2NzQxWDVjV3Zsd2x5V1NXaXhvMDlaeXRrazhZYUtLaUJIcXc3ODE1LXluSXBhcDVHTnJ6MzlOaXJyMFhZYzA0dm9KWGdZd3ZpSjQwMGJSTEd6UUREQXQ4TDFuUUdDZk1kcFl6bk4yQlVNbnN1RGRfem8zN3U4U1R0Q0pvbVdXVjBSNXJqM2x0UjJuM1diTGFPVUF1VnM4RUNVQVJybjNlR05rQW5LbzJ0OHBHZm1TSGxVSENuVVdRX1RNQXp4NmdPN1pEQW9lQmRieEVmeDg?oc=5",
-      "confidence": "Medium"
-    },
-    {
-      "type": "Policy",
-      "category": "ncd",
-      "title": "Rising Heart Disease in India: Experts Highlight Critical Link Between Mental Well-being and... - The Hans India",
-      "location": {
-        "state": "",
-        "district": "",
-        "village": ""
-      },
-      "summary": "a href=\"https://news.google.com/rss/articles/CBMi8AFBVV95cUxQclhDMmRzazRuNGZJSTU4WHdNQmpER3ItSDluaEgwTm8zUDFPX21yRFRMNThnMkNmMWUxR1Z2aHhvNG4wQ2ppLXNSbjR0dTdhMVNkcXI3Y21MSzFtV2NmY3VqdjE1czRiQmx3THpTTlVKeU1idjczbHJJXzZPVl9SRmt0RTlHSWh4Q1hoNGw5NTNWNWROTWJLLTZEMHktakRZSDlwRGNBZHFvRHd…",
-      "cases": "",
-      "deaths": "",
-      "date": "2025-09-26",
-      "source": "Google News (India NCD)",
-      "sourceUrl": "https://news.google.com/rss/articles/CBMi8AFBVV95cUxQclhDMmRzazRuNGZJSTU4WHdNQmpER3ItSDluaEgwTm8zUDFPX21yRFRMNThnMkNmMWUxR1Z2aHhvNG4wQ2ppLXNSbjR0dTdhMVNkcXI3Y21MSzFtV2NmY3VqdjE1czRiQmx3THpTTlVKeU1idjczbHJJXzZPVl9SRmt0RTlHSWh4Q1hoNGw5NTNWNWROTWJLLTZEMHktakRZSDlwRGNBZHFvRHdnZkV5bE9IdmR3eExfdVRRakdtbTRsZjRtWDIyblVrYS1xN3poZlMtLWtyOW9TUmo2MFkweEtoY080OHdyZnpHemZzeV_SAfYBQVVfeXFMTjZaVTZpa1oxOFlybWh3TnBYYWVfMmdqMHNVNFh3YUdTZmFSSHI0ZlBzTDluZWlUa3JyOG5mSXBrTFF0dkl5TVpRRndZQVlaaW1mUFJEVUgwbWl2QVcxblFLTlF4RW1qNjhmSU5JVnV0SEFHUE9lanZyU3cxUkowS2VWbkJ1eWZFRFZYSjRuOHk3a040NUNORzVqM2JxUThibnlCS1dKTXoya1puQnJiQ25WekpJZms3MXhXWmY1QVdYSGJpSm9WUWFfdzFVOUxrcWV3bVExbVVxNkltQnJaLVJfVzBzeG0wSlU2YTQzR25kdDhEMzJn?oc=5",
       "confidence": "Medium"
     },
     {

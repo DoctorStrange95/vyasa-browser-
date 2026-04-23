@@ -86,7 +86,25 @@ export async function GET(req: Request) {
     log.push(`✓ SRS data.gov.in: last updated ${updated}, total=${data?.total ?? "?"}`);
   } catch (e) { errors.push(`✗ SRS check: ${e}`); }
 
-  // ── 6. Revalidate all pages ───────────────────────────────────────────────
+  // ── 6. PH Intelligence Feed (IDSP + NCD agents) ─────────────────────────
+  try {
+    const { collectPHIntelligence } = await import("@/lib/phIntelligence");
+    const result  = await collectPHIntelligence();
+    const payload = {
+      refreshedAt: new Date().toISOString(),
+      items:       result.items,
+      sources:     result.sources,
+      errors:      result.errors,
+    };
+    await writeFile(
+      path.join(process.cwd(), "src/data/ph-intelligence-cache.json"),
+      JSON.stringify(payload, null, 2)
+    );
+    log.push(`✓ PH Intelligence: ${result.items.length} items collected (${result.sources.length} sources)`);
+    if (result.errors.length) log.push(`  ⚠ PH errors: ${result.errors.slice(0, 3).join("; ")}`);
+  } catch (e) { errors.push(`✗ PH Intelligence: ${e}`); }
+
+  // ── 7. Revalidate all pages ───────────────────────────────────────────────
   revalidatePath("/");
   revalidatePath("/sources");
   log.push("✓ Home + sources pages revalidated");

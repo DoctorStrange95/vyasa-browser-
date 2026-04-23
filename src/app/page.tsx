@@ -274,6 +274,60 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ── JOIN VYASA WAITLIST BANNER ───────────────────────────── */}
+      <section style={{ borderBottom: "1px solid #1e3a5f", backgroundColor: "#060e1c" }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "2.5rem 1.5rem" }}>
+          <div style={{
+            background: "linear-gradient(135deg, #0a1628 0%, #0f2040 50%, #0a1628 100%)",
+            border: "1px solid #0d948850",
+            borderRadius: "16px", padding: "2.5rem 2.5rem",
+            display: "flex", flexWrap: "wrap", gap: "2rem", alignItems: "center", justifyContent: "space-between",
+            position: "relative", overflow: "hidden",
+          }}>
+            {/* Background glow */}
+            <div style={{ position: "absolute", top: "-40px", right: "120px", width: "200px", height: "200px", borderRadius: "50%", background: "radial-gradient(circle, #0d948830 0%, transparent 70%)", pointerEvents: "none" }} />
+
+            <div style={{ flex: 1, minWidth: "260px", position: "relative" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", marginBottom: "0.75rem" }}>
+                <span style={{ width: "7px", height: "7px", borderRadius: "50%", backgroundColor: "#2dd4bf", display: "inline-block", animation: "pulseGlow 2s infinite" }} />
+                <span style={{ fontSize: "0.62rem", color: "#2dd4bf", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>Early Access · Limited Seats</span>
+              </div>
+              <h2 style={{ fontSize: "1.5rem", fontWeight: 700, color: "#fff", marginBottom: "0.6rem", lineHeight: 1.3 }}>
+                Join the Vyasa Intelligent<br />Health Network
+              </h2>
+              <p style={{ fontSize: "0.85rem", color: "#64748b", lineHeight: 1.7, margin: 0, maxWidth: "480px" }}>
+                Built for doctors tired of paper prescriptions, hospitals drowning in clipboards, and labs waiting to go digital.
+                One platform for the entire care chain — Rx, labs, pharmacy, analytics, and surveillance.
+              </p>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", alignItems: "flex-start" }}>
+              {[
+                { icon: "✍️", text: "Digital prescriptions with AI" },
+                { icon: "🔗", text: "Lab → Doctor in seconds" },
+                { icon: "📊", text: "Clinical analytics dashboard" },
+                { icon: "📡", text: "Outbreak & NCD surveillance" },
+              ].map(f => (
+                <div key={f.text} style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.8rem", color: "#94a3b8" }}>
+                  <span>{f.icon}</span><span>{f.text}</span>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem", alignItems: "center", flexShrink: 0 }}>
+              <Link href="/join" style={{
+                backgroundColor: "#0d9488", color: "#fff", padding: "0.85rem 2rem",
+                borderRadius: "10px", textDecoration: "none", fontSize: "0.95rem", fontWeight: 700,
+                display: "block", textAlign: "center", transition: "background 0.15s",
+              }}>
+                Request Early Access →
+              </Link>
+              <span style={{ fontSize: "0.68rem", color: "#334155" }}>Doctors · Hospitals · Labs · Pharmacies</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <VyasaPlatformSection />
     </div>
   );

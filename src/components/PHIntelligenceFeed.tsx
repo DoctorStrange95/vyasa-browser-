@@ -390,22 +390,59 @@ export default function PHIntelligenceFeed({ maxItems }: { maxItems?: number } =
   const [error,     setError]     = useState<string | null>(null);
   const [selected,  setSelected]  = useState<PHItem | null>(null);
   const [showAll,   setShowAll]   = useState(false);
+  const [refreshMsg, setRefreshMsg] = useState<string | null>(null);
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const load = useCallback(async (refresh = false) => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`/api/ph-intelligence${refresh ? "?refresh=1" : ""}`);
+      const res = await fetch(`/api/ph-intelligence${refresh ? "?refresh=1" : ""}`,
+        { signal: AbortSignal.timeout(55000) }
+      );
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      setData(await res.json());
+      const d = await res.json() as FeedData;
+      setData(d);
+      setRefreshMsg(null);
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : "Failed to load");
+      if ((e as { name?: string }).name === "TimeoutError") {
+        /* Refresh is running server-side — poll for updated data */
+        setRefreshMsg("Refresh running in background — polling for new data…");
+        if (pollRef.current) clearInterval(pollRef.current);
+        let attempts = 0;
+        pollRef.current = setInterval(async () => {
+          attempts++;
+          try {
+            const r = await fetch("/api/ph-intelligence");
+            if (r.ok) {
+              const d = await r.json() as FeedData;
+              setData(d);
+              /* Stop polling once we get data newer than before */
+              if (attempts >= 3 || !d.fromCache) {
+                clearInterval(pollRef.current!);
+                pollRef.current = null;
+                setRefreshMsg(null);
+              }
+            }
+          } catch { /* keep polling */ }
+          if (attempts >= 8) {
+            clearInterval(pollRef.current!);
+            pollRef.current = null;
+            setRefreshMsg("Refresh queued — data will update within the hour via cron.");
+          }
+        }, 10000);
+      } else {
+        setError(e instanceof Error ? e.message : "Failed to load");
+      }
     } finally {
       setLoading(false);
     }
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+    return () => { if (pollRef.current) clearInterval(pollRef.current); };
+  }, [load]);
 
   const allFiltered = data?.items.filter(i => {
     if (tab === "All")      return true;

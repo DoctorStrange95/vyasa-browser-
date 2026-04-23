@@ -4,14 +4,20 @@
  * Covers all 34 IDSP notifiable diseases + IHIP diseases (HIV/AIDS, Hepatitis B/C,
  * TB, Kala-Azar, Filariasis) plus novel pathogen tracking.
  *
- * Sources:
+ * Sources (all RSS/HTML — no API key required for most):
  *  1. PIB (Press Information Bureau) Health Ministry RSS
  *  2. MoHFW homepage headlines
- *  3. data.gov.in IDSP disease surveillance API
+ *  3. data.gov.in IDSP disease surveillance API  (historical reference)
  *  4. NHP / NCDC disease surveillance page scraping
  *  5. Google News RSS — India disease outbreaks (no API key needed)
  *  6. Outbreak News Today RSS (global surveillance feed)
- *  7. WHO SEARO India news feed
+ *  7. The Hindu Health RSS
+ *  8. NDTV India Health RSS
+ *  9. Times of India Health RSS
+ * 10. The Wire Science & Health RSS
+ * 11. Hindustan Times Health RSS
+ * 12. WHO SEARO / WHO News (India-filtered)
+ * 13. ANI News Health RSS
  */
 
 import { extractLocation } from "./agentLocation";
@@ -19,6 +25,8 @@ import type { PHIntelligenceItem } from "./phIntelligence";
 
 const GOV_KEY = process.env.DATA_GOV_IN_API_KEY ?? "";
 const BASE    = "https://api.data.gov.in/resource";
+
+const CURRENT_YEAR = new Date().getFullYear();
 
 // ── All 34 IDSP notifiable diseases + IHIP diseases ────────────────────────────
 const IDSP_DISEASE_DICT: Record<string, string> = {
@@ -179,6 +187,19 @@ function extractSummary(text: string, maxLen = 280): string {
   return cut > 80 ? clean.slice(0, cut + 1) : clean.slice(0, maxLen) + "…";
 }
 
+function parseDateToISO(pubDate: string): string {
+  if (!pubDate) return new Date().toISOString().split("T")[0];
+  try { return new Date(pubDate).toISOString().split("T")[0]; } catch { return new Date().toISOString().split("T")[0]; }
+}
+
+/** Returns age of a date string in days (returns 999 if unparseable) */
+function ageDays(isoDate: string): number {
+  try {
+    const ms = Date.now() - new Date(isoDate).getTime();
+    return ms / 86_400_000;
+  } catch { return 999; }
+}
+
 function makeItem(
   title: string, desc: string, link: string, pubDate: string,
   source: string, confidence: PHIntelligenceItem["confidence"]
@@ -193,7 +214,7 @@ function makeItem(
   const type   = disease ? "Outbreak" : program ? "Program" : "Policy";
   const cases  = extractNumber(combined, ["cases", "patients", "infected", "positive", "confirmed"]);
   const deaths = extractNumber(combined, ["deaths", "died", "fatalities", "killed"]);
-  const date   = pubDate ? (() => { try { return new Date(pubDate).toISOString().split("T")[0]; } catch { return new Date().toISOString().split("T")[0]; } })() : new Date().toISOString().split("T")[0];
+  const date   = parseDateToISO(pubDate);
 
   return {
     type,
@@ -260,7 +281,7 @@ async function fetchMoHFWAlerts(): Promise<PHIntelligenceItem[]> {
   return items.slice(0, 12);
 }
 
-// ── Source 3: data.gov.in IDSP API ────────────────────────────────────────────
+// ── Source 3: data.gov.in IDSP API (historical reference — treated as Low confidence if old)
 async function fetchDataGovIDSP(): Promise<PHIntelligenceItem[]> {
   const items: PHIntelligenceItem[] = [];
   if (!GOV_KEY) return items;
@@ -288,18 +309,23 @@ async function fetchDataGovIDSP(): Promise<PHIntelligenceItem[]> {
         if (!disease || !state) continue;
 
         const normalized = detectIDSPDisease(disease) || disease;
+        const recordYear = parseInt(String(year).slice(0, 4)) || 0;
+        // Records more than 2 years old are historical reference only
+        const isRecent = recordYear >= CURRENT_YEAR - 1;
+        const isoDate = year ? `${String(year).slice(0, 4)}-01-01` : new Date().toISOString().split("T")[0];
+
         items.push({
           type:     "Outbreak",
           category: "communicable",
-          title:    `${normalized} — ${state}${district ? `, ${district}` : ""}`,
+          title:    `${normalized} — ${state}${district ? `, ${district}` : ""}${!isRecent ? ` (${recordYear})` : ""}`,
           disease:  normalized,
           location: { state, district, village: "" },
-          summary:  `IDSP surveillance (${label}): ${cases > 0 ? cases.toLocaleString() + " cases" : "cases recorded"}${deaths > 0 ? `, ${deaths} deaths` : ""} of ${normalized} reported in ${state}${year ? ` (${year})` : ""}.`,
+          summary:  `IDSP surveillance (${label}): ${cases > 0 ? cases.toLocaleString() + " cases" : "cases recorded"}${deaths > 0 ? `, ${deaths} deaths` : ""} of ${normalized} in ${state}${year ? ` (${year})` : ""}.`,
           cases:    cases  > 0 ? String(cases)  : "",
           deaths:   deaths > 0 ? String(deaths) : "",
-          date:     year ? `${year.slice(0, 4)}-01-01` : new Date().toISOString().split("T")[0],
+          date:     isoDate,
           source:   `IDSP / data.gov.in (${label})`,
-          confidence: "High",
+          confidence: isRecent ? "High" : "Low",
         });
       }
       if (items.length >= 10) break;
@@ -326,7 +352,6 @@ async function fetchNHPNCDC(): Promise<PHIntelligenceItem[]> {
       if (!res.ok) continue;
       const html = await res.text();
 
-      // Extract headlined links
       const linkRE = /<a[^>]+href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/gi;
       let m: RegExpExecArray | null;
       while ((m = linkRE.exec(html)) !== null) {
@@ -354,7 +379,6 @@ async function fetchNHPNCDC(): Promise<PHIntelligenceItem[]> {
         if (items.length >= 10) break;
       }
 
-      // Also parse table rows
       const rowRE  = /<tr[^>]*>([\s\S]*?)<\/tr>/gi;
       let rm: RegExpExecArray | null;
       let rowIdx = 0;
@@ -390,13 +414,51 @@ async function fetchNHPNCDC(): Promise<PHIntelligenceItem[]> {
   return items.slice(0, 15);
 }
 
-// ── Source 5: Google News RSS — India disease outbreaks (no key needed) ───────
+// ── Generic RSS parser ─────────────────────────────────────────────────────────
+async function fetchRSS(
+  url: string,
+  sourceName: string,
+  confidence: PHIntelligenceItem["confidence"],
+  maxItems = 12,
+  indiaFilter = true,
+): Promise<PHIntelligenceItem[]> {
+  const items: PHIntelligenceItem[] = [];
+  try {
+    const res = await fetch(url, {
+      headers: { "User-Agent": "HealthForIndia/2.0 (+https://healthforindia.in)" },
+      next:    { revalidate: 0 },
+      signal:  AbortSignal.timeout(8000),
+    });
+    if (!res.ok) return items;
+    const xml    = await res.text();
+    const itemRE = /<item>([\s\S]*?)<\/item>/gi;
+    let m: RegExpExecArray | null;
+    while ((m = itemRE.exec(xml)) !== null && items.length < maxItems) {
+      const b       = m[1];
+      const title   = stripHtml(b.match(/<title><!\[CDATA\[([\s\S]*?)\]\]><\/title>/)?.[1] ?? b.match(/<title>([\s\S]*?)<\/title>/)?.[1] ?? "");
+      const desc    = stripHtml(b.match(/<description><!\[CDATA\[([\s\S]*?)\]\]><\/description>/)?.[1] ?? b.match(/<description>([\s\S]*?)<\/description>/)?.[1] ?? "");
+      const link    = (b.match(/<link>([\s\S]*?)<\/link>/)?.[1] ?? b.match(/<guid[^>]*>([\s\S]*?)<\/guid>/)?.[1] ?? "").trim();
+      const pubDate = b.match(/<pubDate>([\s\S]*?)<\/pubDate>/)?.[1] ?? "";
+      if (!title) continue;
+      const combined = `${title} ${desc}`;
+      if (indiaFilter && !/india/i.test(combined) && !extractLocation(combined).state) continue;
+      const item = makeItem(title, desc, link, pubDate, sourceName, confidence);
+      if (item) items.push(item);
+    }
+  } catch { /* silent */ }
+  return items;
+}
+
+// ── Source 5: Google News RSS — India disease outbreaks ────────────────────────
 async function fetchGoogleNewsIDSP(): Promise<PHIntelligenceItem[]> {
   const items: PHIntelligenceItem[] = [];
+  const yr = CURRENT_YEAR;
   const queries = [
-    "India+IDSP+disease+outbreak+epidemic",
-    "India+dengue+malaria+cholera+outbreak+2025",
-    "India+nipah+mpox+disease+alert+health",
+    `India+IDSP+disease+outbreak+epidemic+${yr}`,
+    `India+dengue+malaria+cholera+outbreak+${yr}`,
+    `India+nipah+mpox+disease+alert+health+${yr}`,
+    `India+influenza+H1N1+H3N2+bird+flu+${yr}`,
+    `India+leptospirosis+typhoid+scrub+typhus+${yr}`,
   ];
   for (const q of queries) {
     try {
@@ -417,44 +479,105 @@ async function fetchGoogleNewsIDSP(): Promise<PHIntelligenceItem[]> {
         const link    = (b.match(/<link>([\s\S]*?)<\/link>/)?.[1] ?? b.match(/<guid[^>]*>([\s\S]*?)<\/guid>/)?.[1] ?? "").trim();
         const pubDate = b.match(/<pubDate>([\s\S]*?)<\/pubDate>/)?.[1] ?? "";
         if (!title) continue;
-        // Filter out non-India news
         if (!/india/i.test(`${title} ${desc}`) && !extractLocation(`${title} ${desc}`).state) continue;
         const item = makeItem(title, desc, link, pubDate, "Google News (India Health)", "Medium");
         if (item) items.push(item);
       }
-      if (items.length >= 8) break;
+      if (items.length >= 10) break;
     } catch { continue; }
   }
-  return items.slice(0, 12);
+  return items.slice(0, 15);
 }
 
 // ── Source 6: Outbreak News Today RSS ─────────────────────────────────────────
 async function fetchOutbreakNewsFeed(): Promise<PHIntelligenceItem[]> {
+  return fetchRSS("https://outbreaknewstoday.com/feed/", "Outbreak News Today", "Medium", 8, true);
+}
+
+// ── Source 7: The Hindu Health RSS ────────────────────────────────────────────
+async function fetchTheHinduHealth(): Promise<PHIntelligenceItem[]> {
+  return fetchRSS(
+    "https://www.thehindu.com/sci-tech/health/feeder/default.rss",
+    "The Hindu Health",
+    "High",
+    12,
+    false,  // The Hindu is India-based, no India filter needed
+  );
+}
+
+// ── Source 8: NDTV Health RSS ─────────────────────────────────────────────────
+async function fetchNDTVHealth(): Promise<PHIntelligenceItem[]> {
+  // Try both known NDTV feed URLs
+  const feeds = [
+    "https://feeds.feedburner.com/ndtvnews-health",
+    "https://www.ndtv.com/rss/health",
+  ];
+  for (const url of feeds) {
+    const items = await fetchRSS(url, "NDTV Health", "High", 12, false);
+    if (items.length > 0) return items;
+  }
+  return [];
+}
+
+// ── Source 9: Times of India Health RSS ────────────────────────────────────────
+async function fetchTOIHealth(): Promise<PHIntelligenceItem[]> {
+  return fetchRSS(
+    "https://timesofindia.indiatimes.com/rssfeeds/3908837.cms",
+    "Times of India Health",
+    "High",
+    12,
+    false,
+  );
+}
+
+// ── Source 10: The Wire Science & Health ──────────────────────────────────────
+async function fetchTheWireScience(): Promise<PHIntelligenceItem[]> {
+  return fetchRSS(
+    "https://thewire.in/category/health/feed",
+    "The Wire Science",
+    "High",
+    10,
+    false,
+  );
+}
+
+// ── Source 11: Hindustan Times Health ─────────────────────────────────────────
+async function fetchHTHealth(): Promise<PHIntelligenceItem[]> {
+  const feeds = [
+    "https://www.hindustantimes.com/feeds/rss/health/rssfeed.xml",
+    "https://www.hindustantimes.com/rss/health/story-9Yq1BqV5JsWWI7xJIpS8YO.rss",
+  ];
+  for (const url of feeds) {
+    const items = await fetchRSS(url, "Hindustan Times Health", "High", 10, false);
+    if (items.length > 0) return items;
+  }
+  return [];
+}
+
+// ── Source 12: WHO News (India-filtered) ──────────────────────────────────────
+async function fetchWHONews(): Promise<PHIntelligenceItem[]> {
+  const feeds = [
+    "https://www.who.int/rss-feeds/news-releases.xml",
+    "https://www.who.int/feeds/entity/csr/don/en/rss.xml",
+  ];
   const items: PHIntelligenceItem[] = [];
-  try {
-    const res = await fetch("https://outbreaknewstoday.com/feed/", {
-      headers: { "User-Agent": "HealthForIndia/2.0" },
-      next:    { revalidate: 0 },
-      signal:  AbortSignal.timeout(8000),
-    });
-    if (!res.ok) return items;
-    const xml    = await res.text();
-    const itemRE = /<item>([\s\S]*?)<\/item>/gi;
-    let m: RegExpExecArray | null;
-    while ((m = itemRE.exec(xml)) !== null) {
-      const b       = m[1];
-      const title   = stripHtml(b.match(/<title><!\[CDATA\[([\s\S]*?)\]\]><\/title>/)?.[1] ?? b.match(/<title>([\s\S]*?)<\/title>/)?.[1] ?? "");
-      const desc    = stripHtml(b.match(/<description><!\[CDATA\[([\s\S]*?)\]\]><\/description>/)?.[1] ?? "");
-      const link    = (b.match(/<link>([\s\S]*?)<\/link>/)?.[1] ?? "").trim();
-      const pubDate = b.match(/<pubDate>([\s\S]*?)<\/pubDate>/)?.[1] ?? "";
-      if (!title) continue;
-      // Only India-relevant articles
-      if (!/india/i.test(`${title} ${desc}`)) continue;
-      const item = makeItem(title, desc, link, pubDate, "Outbreak News Today", "Medium");
-      if (item) items.push(item);
-    }
-  } catch { /* silent */ }
+  for (const url of feeds) {
+    const batch = await fetchRSS(url, "WHO Disease Outbreak News", "High", 10, true);
+    items.push(...batch);
+    if (items.length >= 8) break;
+  }
   return items.slice(0, 8);
+}
+
+// ── Source 13: ANI Health News ────────────────────────────────────────────────
+async function fetchANIHealth(): Promise<PHIntelligenceItem[]> {
+  return fetchRSS(
+    "https://www.aninews.in/rss/health.xml",
+    "ANI Health News",
+    "High",
+    10,
+    false,
+  );
 }
 
 // ── Deduplication ──────────────────────────────────────────────────────────────
@@ -477,42 +600,60 @@ export async function runIDSPAgent(): Promise<{
   const errors:  string[] = [];
   const sources: string[] = [];
 
-  const [pib, mohfw, dataGov, nhp, gnews, ont] = await Promise.allSettled([
+  const results = await Promise.allSettled([
     fetchPIBFeed(),
     fetchMoHFWAlerts(),
     fetchDataGovIDSP(),
     fetchNHPNCDC(),
     fetchGoogleNewsIDSP(),
     fetchOutbreakNewsFeed(),
+    fetchTheHinduHealth(),
+    fetchNDTVHealth(),
+    fetchTOIHealth(),
+    fetchTheWireScience(),
+    fetchHTHealth(),
+    fetchWHONews(),
+    fetchANIHealth(),
   ]);
+
+  const labels = [
+    "PIB", "MoHFW", "IDSP data.gov.in", "NHP/NCDC",
+    "Google News", "Outbreak News Today",
+    "The Hindu Health", "NDTV Health", "Times of India",
+    "The Wire Science", "Hindustan Times", "WHO News", "ANI Health",
+  ];
 
   const all: PHIntelligenceItem[] = [];
 
-  const add = (r: PromiseSettledResult<PHIntelligenceItem[]>, label: string) => {
+  results.forEach((r, i) => {
     if (r.status === "fulfilled") {
       all.push(...r.value);
-      if (r.value.length) sources.push(`${label} (${r.value.length})`);
+      if (r.value.length) sources.push(`${labels[i]} (${r.value.length})`);
     } else {
-      errors.push(`${label}: ${r.reason}`);
+      errors.push(`${labels[i]}: ${r.reason}`);
     }
+  });
+
+  // Recency score: items in the last 30 days get a boost; last 7 days get a bigger boost
+  const confScore = { High: 3, Medium: 2, Low: 1 } as const;
+  const typeScore: Record<string, number> = {
+    Outbreak: 4, Program: 3, Policy: 2, Infrastructure: 1, NCD: 0,
   };
 
-  add(pib,    "PIB");
-  add(mohfw,  "MoHFW");
-  add(dataGov,"IDSP data.gov.in");
-  add(nhp,    "NHP/NCDC");
-  add(gnews,  "Google News");
-  add(ont,    "Outbreak News Today");
-
   const sorted = dedup(all).sort((a, b) => {
-    const cs = { High: 3, Medium: 2, Low: 1 };
-    const ts = { Outbreak: 4, Program: 3, Policy: 2, Infrastructure: 1, NCD: 0 };
-    const c  = cs[b.confidence] - cs[a.confidence];
+    const aDays = ageDays(a.date ?? "");
+    const bDays = ageDays(b.date ?? "");
+
+    // Items older than 365 days always sort to the bottom
+    if (aDays > 365 && bDays <= 365) return 1;
+    if (bDays > 365 && aDays <= 365) return -1;
+
+    const c = (confScore[b.confidence] ?? 0) - (confScore[a.confidence] ?? 0);
     if (c !== 0) return c;
-    const t  = (ts[b.type] ?? 0) - (ts[a.type] ?? 0);
+    const t = (typeScore[b.type] ?? 0) - (typeScore[a.type] ?? 0);
     if (t !== 0) return t;
     return (b.date ?? "").localeCompare(a.date ?? "");
   });
 
-  return { items: sorted.slice(0, 60), sources, errors };
+  return { items: sorted.slice(0, 70), sources, errors };
 }

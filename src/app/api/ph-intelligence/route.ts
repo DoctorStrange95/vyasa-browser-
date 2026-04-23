@@ -4,7 +4,7 @@ import path from "path";
 import { fsQuery, fsExists, fsSet } from "@/lib/firestore";
 
 const CACHE_FILE = path.join(process.cwd(), "src/data/ph-intelligence-cache.json");
-const TTL_HOURS  = 48;
+const TTL_HOURS  = 24;
 
 function readJsonCache() {
   try { return JSON.parse(fs.readFileSync(CACHE_FILE, "utf8")); }
