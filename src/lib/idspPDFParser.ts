@@ -250,7 +250,9 @@ export async function fetchAndParseIDSPPdf(pdfUrl: string): Promise<IDSPParsedRe
     });
     if (!resp.ok) return null;
     const buf = Buffer.from(await resp.arrayBuffer());
-    const pdfParse = (await import("pdf-parse")).default;
+    // Import the core lib directly to avoid pdf-parse's self-test on import
+    // (which fails in Next.js server bundles looking for ./test/data/...)
+    const pdfParse = (await import("pdf-parse/lib/pdf-parse.js")).default;
     const parsed   = await pdfParse(buf);
     const rawText  = parsed.text;
 
