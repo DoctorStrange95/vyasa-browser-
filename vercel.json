@@ -3,10 +3,15 @@
     {
       "path": "/api/cron/refresh",
       "schedule": "0 2 * * *"
+    },
+    {
+      "path": "/api/idsp-weekly",
+      "schedule": "0 6 * * 3"
     }
   ],
   "functions": {
     "src/app/api/cron/refresh/route.ts":     { "maxDuration": 300 },
-    "src/app/api/ph-intelligence/route.ts":  { "maxDuration": 60 }
+    "src/app/api/ph-intelligence/route.ts":  { "maxDuration": 60 },
+    "src/app/api/idsp-weekly/route.ts":      { "maxDuration": 120 }
   }
 }
