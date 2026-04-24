@@ -3,7 +3,7 @@ import Link from "next/link";
 import HealthTicker from "@/components/HealthTicker";
 import PHIntelligenceFeed from "@/components/PHIntelligenceFeed";
 import IDSPWeeklyReport from "@/components/IDSPWeeklyReport";
-import SidebarNav from "@/components/SidebarNav";
+import SidebarNav, { HomePillNav } from "@/components/SidebarNav";
 import StateTable from "@/components/StateTable";
 import JsonLd from "@/components/JsonLd";
 import states from "@/data/states.json";
@@ -69,6 +69,9 @@ export default function HomePage() {
       }} />
       <HealthTicker />
 
+      {/* ── MOBILE PILL NAV (hidden on desktop) ─────────────────── */}
+      <HomePillNav />
+
       {/* ── SIDEBAR + CONTENT LAYOUT ─────────────────────────────── */}
       <div style={{ display: "flex", alignItems: "flex-start" }}>
 
@@ -79,40 +82,40 @@ export default function HomePage() {
         <main style={{ flex: 1, minWidth: 0 }}>
 
           {/* ── HERO ────────────────────────────────────────────── */}
-          <section id="sec-hero" style={{ backgroundColor: "#0a1628", borderBottom: "1px solid #1e3a5f", padding: "3rem 1.5rem 2.5rem" }}>
+          <section id="sec-hero" className="home-hero" style={{ backgroundColor: "#0a1628", borderBottom: "1px solid #1e3a5f", padding: "2.5rem 1.5rem 2rem" }}>
             <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "2.5rem", alignItems: "center", justifyContent: "space-between" }}>
-                <div style={{ maxWidth: "560px" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.75rem" }}>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "2rem", alignItems: "center", justifyContent: "space-between" }}>
+                <div style={{ maxWidth: "560px", flex: "1 1 280px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.6rem", flexWrap: "wrap" }}>
                     <span style={{ fontSize: "0.6rem", backgroundColor: "#0d948820", color: "#2dd4bf", border: "1px solid #0d948840", borderRadius: "4px", padding: "0.15rem 0.5rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" }}>Live · Updated Daily</span>
-                    <span style={{ fontSize: "0.6rem", color: "#334155" }}>SRS 2023 · NFHS-5 · IDSP Surveillance</span>
+                    <span style={{ fontSize: "0.6rem", color: "#334155" }}>SRS 2023 · NFHS-5 · IDSP</span>
                   </div>
-                  <h1 className="font-display" style={{ fontSize: "clamp(1.8rem,4vw,2.8rem)", fontWeight: 700, color: "#fff", lineHeight: 1.2, marginBottom: "0.75rem" }}>
+                  <h1 className="font-display" style={{ fontSize: "clamp(1.6rem,4vw,2.6rem)", fontWeight: 700, color: "#fff", lineHeight: 1.2, marginBottom: "0.65rem" }}>
                     India&apos;s Public Health<br />Transparency Platform
                   </h1>
-                  <p style={{ fontSize: "0.95rem", color: "#64748b", lineHeight: 1.7, marginBottom: "1.25rem" }}>
-                    District-level health data: infant mortality, vaccination, disease surveillance, hospital infrastructure, nutrition & air quality — all in one place.
+                  <p style={{ fontSize: "0.88rem", color: "#64748b", lineHeight: 1.65, marginBottom: "1.1rem" }}>
+                    District-level health data: infant mortality, vaccination, disease surveillance, hospital infrastructure, nutrition & air quality.
                   </p>
-                  <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
-                    <Link href="#sec-states" style={{ backgroundColor: "#0d9488", color: "#fff", padding: "0.6rem 1.4rem", borderRadius: "7px", fontSize: "0.88rem", fontWeight: 700, textDecoration: "none", display: "inline-block" }}>
+                  <div className="hero-cta" style={{ display: "flex", gap: "0.65rem", flexWrap: "wrap" }}>
+                    <Link href="#sec-states" style={{ backgroundColor: "#0d9488", color: "#fff", padding: "0.55rem 1.25rem", borderRadius: "7px", fontSize: "0.85rem", fontWeight: 700, textDecoration: "none", display: "inline-block" }}>
                       Explore States →
                     </Link>
-                    <Link href="/contribute" style={{ backgroundColor: "#0f2040", border: "1px solid #1e3a5f", color: "#94a3b8", padding: "0.6rem 1.2rem", borderRadius: "7px", textDecoration: "none", fontSize: "0.88rem", fontWeight: 600 }}>
+                    <Link href="/contribute" style={{ backgroundColor: "#0f2040", border: "1px solid #1e3a5f", color: "#94a3b8", padding: "0.55rem 1rem", borderRadius: "7px", textDecoration: "none", fontSize: "0.85rem", fontWeight: 600 }}>
                       📎 Contribute Data
                     </Link>
                   </div>
                 </div>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "0.75rem", minWidth: "280px" }}>
+                <div className="hero-stat-cards" style={{ flex: "0 0 auto" }}>
                   {[
                     { label: "States & UTs Tracked",   value: String(states.length), icon: "🗺️", color: "#2dd4bf" },
                     { label: "Nat. Avg. IMR (2023)",    value: `${natAvgIMR}/1k`,     icon: "👶", color: "#f97316" },
                     { label: "Avg. Vaccination Cover",  value: `${natAvgVacc}%`,      icon: "💉", color: "#22c55e" },
                     { label: "Data Points Tracked",     value: "780+",                icon: "📊", color: "#6366f1" },
                   ].map(s => (
-                    <div key={s.label} style={{ backgroundColor: "#080f1e", border: "1px solid #1e3a5f", borderRadius: "10px", padding: "1rem 1.1rem" }}>
-                      <div style={{ fontSize: "1.1rem", marginBottom: "0.25rem" }}>{s.icon}</div>
-                      <div className="font-data" style={{ fontSize: "1.5rem", fontWeight: 700, color: s.color, lineHeight: 1 }}>{s.value}</div>
-                      <div style={{ fontSize: "0.65rem", color: "#475569", marginTop: "0.25rem" }}>{s.label}</div>
+                    <div key={s.label} style={{ backgroundColor: "#080f1e", border: "1px solid #1e3a5f", borderRadius: "10px", padding: "0.9rem 1rem" }}>
+                      <div style={{ fontSize: "1rem", marginBottom: "0.2rem" }}>{s.icon}</div>
+                      <div className="font-data" style={{ fontSize: "1.4rem", fontWeight: 700, color: s.color, lineHeight: 1 }}>{s.value}</div>
+                      <div style={{ fontSize: "0.62rem", color: "#475569", marginTop: "0.2rem" }}>{s.label}</div>
                     </div>
                   ))}
                 </div>
@@ -121,9 +124,9 @@ export default function HomePage() {
           </section>
 
           {/* ── FIND NEARBY FACILITIES ──────────────────────────── */}
-          <section id="sec-facilities" style={{ backgroundColor: "#0a1628", borderBottom: "1px solid #1e3a5f" }}>
+          <section id="sec-facilities" className="home-section" style={{ backgroundColor: "#0a1628", borderBottom: "1px solid #1e3a5f" }}>
             <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "1.5rem" }}>
-              <div style={{ backgroundColor: "#080f1e", border: "1px solid #0d948850", borderRadius: "14px", padding: "1.5rem 2rem", display: "flex", flexWrap: "wrap", gap: "1.25rem", alignItems: "center" }}>
+              <div className="facility-section-inner" style={{ backgroundColor: "#080f1e", border: "1px solid #0d948850", borderRadius: "14px", padding: "1.5rem 2rem", display: "flex", flexWrap: "wrap", gap: "1.25rem", alignItems: "center" }}>
                 <div style={{ flex: 1, minWidth: "200px" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", marginBottom: "0.5rem" }}>
                     <span style={{ fontSize: "1.4rem" }}>🏥</span>
@@ -155,7 +158,7 @@ export default function HomePage() {
           </section>
 
           {/* ── HEALTH INTELLIGENCE FEED ────────────────────────── */}
-          <section id="sec-intel" style={{ borderBottom: "1px solid #1e3a5f" }}>
+          <section id="sec-intel" className="home-section" style={{ borderBottom: "1px solid #1e3a5f" }}>
             <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "2rem 1.5rem" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", marginBottom: "1.25rem" }}>
                 <span style={{ fontSize: "1rem" }}>📡</span>
@@ -167,7 +170,7 @@ export default function HomePage() {
           </section>
 
           {/* ── IDSP WEEKLY REPORT ──────────────────────────────── */}
-          <section id="sec-idsp" style={{ borderBottom: "1px solid #1e3a5f", backgroundColor: "#06090f" }}>
+          <section id="sec-idsp" className="home-section" style={{ borderBottom: "1px solid #1e3a5f", backgroundColor: "#06090f" }}>
             <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "2rem 1.5rem" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", marginBottom: "1.25rem", flexWrap: "wrap" }}>
                 <span style={{ fontSize: "1rem" }}>🚨</span>
@@ -183,7 +186,7 @@ export default function HomePage() {
           </section>
 
           {/* ── HEALTH LEADERS ──────────────────────────────────── */}
-          <section id="sec-leaders" style={{ borderBottom: "1px solid #1e3a5f" }}>
+          <section id="sec-leaders" className="home-section" style={{ borderBottom: "1px solid #1e3a5f" }}>
             <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "2rem 1.5rem" }}>
               <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", flexWrap: "wrap", gap: "0.5rem", marginBottom: "1.5rem" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
@@ -196,7 +199,7 @@ export default function HomePage() {
                 </Link>
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "0.85rem", marginBottom: "2rem" }}>
+              <div className="leaders-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "0.85rem", marginBottom: "2rem" }}>
                 {topStates.map((s, i) => {
                   const col = scoreColor(s.score);
                   return (
@@ -248,7 +251,7 @@ export default function HomePage() {
           </section>
 
           {/* ── ALL STATES TABLE ────────────────────────────────── */}
-          <section id="sec-states" style={{ borderBottom: "1px solid #1e3a5f" }}>
+          <section id="sec-states" className="home-section" style={{ borderBottom: "1px solid #1e3a5f" }}>
             <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "2rem 1.5rem" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", marginBottom: "1.25rem" }}>
                 <span style={{ fontSize: "1rem" }}>📋</span>
@@ -259,7 +262,7 @@ export default function HomePage() {
           </section>
 
           {/* ── NCD BURDEN ──────────────────────────────────────── */}
-          <section id="sec-ncd" style={{ backgroundColor: "#060e1c", borderTop: "1px solid #f9731620", borderBottom: "1px solid #f9731620" }}>
+          <section id="sec-ncd" className="home-section" style={{ backgroundColor: "#060e1c", borderTop: "1px solid #f9731620", borderBottom: "1px solid #f9731620" }}>
             <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "2rem 1.5rem" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", marginBottom: "1.25rem" }}>
                 <span style={{ fontSize: "1rem" }}>🫀</span>
@@ -289,9 +292,9 @@ export default function HomePage() {
           </section>
 
           {/* ── CONTRIBUTE BANNER ───────────────────────────────── */}
-          <section id="sec-contribute" style={{ borderBottom: "1px solid #1e3a5f" }}>
+          <section id="sec-contribute" className="home-section" style={{ borderBottom: "1px solid #1e3a5f" }}>
             <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "2rem 1.5rem" }}>
-              <div style={{ backgroundColor: "#0a1628", border: "1px solid #0d948840", borderRadius: "12px", padding: "1.75rem 2rem", display: "flex", flexWrap: "wrap", gap: "1.5rem", alignItems: "center", justifyContent: "space-between" }}>
+              <div className="contribute-inner" style={{ backgroundColor: "#0a1628", border: "1px solid #0d948840", borderRadius: "12px", padding: "1.75rem 2rem", display: "flex", flexWrap: "wrap", gap: "1.5rem", alignItems: "center", justifyContent: "space-between" }}>
                 <div>
                   <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
                     <span style={{ fontSize: "1.2rem" }}>📎</span>
@@ -314,7 +317,7 @@ export default function HomePage() {
           </section>
 
           {/* ── JOIN VYASA WAITLIST ──────────────────────────────── */}
-          <section id="sec-join" style={{ borderBottom: "1px solid #1e3a5f", backgroundColor: "#060e1c" }}>
+          <section id="sec-join" className="home-section" style={{ borderBottom: "1px solid #1e3a5f", backgroundColor: "#060e1c" }}>
             <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "2.5rem 1.5rem" }}>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))", gap: "0.75rem", marginBottom: "1.25rem" }}>
                 {[
@@ -333,7 +336,7 @@ export default function HomePage() {
                 ))}
               </div>
 
-              <div style={{
+              <div className="join-inner-box" style={{
                 background: "linear-gradient(135deg, #0a1628 0%, #0f2040 50%, #0a1628 100%)",
                 border: "1px solid #0d948850", borderRadius: "16px", padding: "2rem 2.5rem",
                 display: "flex", flexWrap: "wrap", gap: "2rem", alignItems: "center", justifyContent: "space-between",
@@ -352,7 +355,7 @@ export default function HomePage() {
                     One platform for every role — digital Rx, live lab sync, nurse SOS alerts, auto-billing, AI discharge summaries, and IDSP outbreak feeds. Designed by an AIIMS physician.
                   </p>
                 </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem", alignItems: "flex-start" }}>
+                <div className="join-features" style={{ display: "flex", flexDirection: "column", gap: "0.6rem", alignItems: "flex-start" }}>
                   {[
                     { icon: "✍️", text: "Kill paper prescriptions" },
                     { icon: "🔴", text: "Live SOS alerts & remote monitoring" },

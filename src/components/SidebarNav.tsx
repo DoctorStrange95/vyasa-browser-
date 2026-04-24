@@ -1,45 +1,85 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 const SECTIONS = [
   { id: "sec-hero",        icon: "🏠", label: "Overview" },
-  { id: "sec-facilities",  icon: "🏥", label: "Find Facilities" },
-  { id: "sec-intel",       icon: "📡", label: "Health Intel" },
+  { id: "sec-facilities",  icon: "🏥", label: "Facilities" },
+  { id: "sec-intel",       icon: "📡", label: "Intel Feed" },
   { id: "sec-idsp",        icon: "📊", label: "IDSP Weekly" },
-  { id: "sec-leaders",     icon: "🏆", label: "Health Leaders" },
+  { id: "sec-leaders",     icon: "🏆", label: "Leaders" },
   { id: "sec-states",      icon: "📋", label: "All States" },
-  { id: "sec-ncd",         icon: "🫀", label: "NCD Burden" },
+  { id: "sec-ncd",         icon: "🫀", label: "NCD" },
   { id: "sec-contribute",  icon: "📎", label: "Contribute" },
   { id: "sec-join",        icon: "🚀", label: "Join Vyasa" },
 ];
 
-export default function SidebarNav() {
-  const [active,   setActive]   = useState<string>("sec-hero");
-  const [mobileOpen, setMobile] = useState(false);
-
+function useActiveSection() {
+  const [active, setActive] = useState<string>("sec-hero");
   useEffect(() => {
-    const observer = new IntersectionObserver(
+    const obs = new IntersectionObserver(
       (entries) => {
-        const visible = entries
-          .filter(e => e.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
-        if (visible.length > 0) setActive(visible[0].target.id);
+        const vis = entries.filter(e => e.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+        if (vis.length > 0) setActive(vis[0].target.id);
       },
-      { threshold: 0.15, rootMargin: "-5% 0px -60% 0px" }
+      { threshold: 0.1, rootMargin: "-5% 0px -55% 0px" }
     );
-    SECTIONS.forEach(s => {
-      const el = document.getElementById(s.id);
-      if (el) observer.observe(el);
-    });
-    return () => observer.disconnect();
+    SECTIONS.forEach(s => { const el = document.getElementById(s.id); if (el) obs.observe(el); });
+    return () => obs.disconnect();
   }, []);
+  return active;
+}
+
+/* ── Horizontal pill nav (mobile only, rendered in page.tsx) ── */
+export function HomePillNav() {
+  const active = useActiveSection();
+  const navRef = useRef<HTMLDivElement>(null);
+
+  function scrollTo(id: string) {
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  // Auto-scroll active pill into view
+  useEffect(() => {
+    const el = navRef.current?.querySelector(`[data-id="${active}"]`) as HTMLElement | null;
+    el?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+  }, [active]);
+
+  return (
+    <div ref={navRef} className="home-pill-nav" aria-label="Jump to section">
+      {SECTIONS.map(s => (
+        <button
+          key={s.id}
+          data-id={s.id}
+          onClick={() => scrollTo(s.id)}
+          style={{
+            flexShrink: 0,
+            padding: "0.3rem 0.7rem",
+            borderRadius: "50px",
+            fontSize: "0.7rem",
+            fontWeight: active === s.id ? 700 : 500,
+            cursor: "pointer",
+            fontFamily: "inherit",
+            whiteSpace: "nowrap",
+            border: active === s.id ? "none" : "1px solid #1e3a5f",
+            backgroundColor: active === s.id ? "#0d9488" : "transparent",
+            color: active === s.id ? "#fff" : "#475569",
+            transition: "all 0.15s",
+          }}
+        >
+          {s.icon} {s.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+export default function SidebarNav() {
+  const active = useActiveSection();
+  const [mobileOpen, setMobile] = useState(false);
 
   function scrollTo(id: string) {
     const el = document.getElementById(id);
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth", block: "start" });
-      setActive(id);
-    }
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
     setMobile(false);
   }
 
