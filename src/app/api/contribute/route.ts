@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import Anthropic from "@anthropic-ai/sdk";
+import Groq from "groq-sdk";
 import { fsAdd } from "@/lib/firestore";
 import * as XLSX from "xlsx";
 
-const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
-const client = ANTHROPIC_KEY ? new Anthropic({ apiKey: ANTHROPIC_KEY }) : null;
+const GROQ_KEY = process.env.GROQ_API_KEY;
+const groq = GROQ_KEY ? new Groq({ apiKey: GROQ_KEY }) : null;
 
 const EXTRACT_PROMPT = `You are a public health data analyst. Extract ALL structured health metrics from the provided document.
 
@@ -37,14 +37,14 @@ export async function POST(req: NextRequest) {
     const name        = (form.get("name")        as string) ?? "Anonymous";
     const email       = (form.get("email")       as string) ?? "";
 
-    if (!client) return NextResponse.json({ error: "ANTHROPIC_API_KEY not configured — contact admin." }, { status: 503 });
+    if (!groq) return NextResponse.json({ error: "GROQ_API_KEY not configured — contact admin." }, { status: 503 });
     if (!file) return NextResponse.json({ error: "No file" }, { status: 400 });
 
     const bytes  = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
     const ext    = file.name.split(".").pop()?.toLowerCase() ?? "";
 
-    /* ── Extract text / send to Claude ────────────────────────── */
+    /* ── Extract text / send to Groq ───────────────────────────── */
     let extractedData: object = {};
     let rawText = "";
 
@@ -72,8 +72,11 @@ export async function POST(req: NextRequest) {
       extractedData = await extractWithImage(b64, mime, description);
 
     } else if (docTypes.includes(ext)) {
-      const b64 = buffer.toString("base64");
-      extractedData = await extractWithPDF(b64, description);
+      // Extract text from PDF, then send to Groq
+      const pdfParse = (await import("pdf-parse/lib/pdf-parse.js" as never) as { default: (buf: Buffer) => Promise<{ text: string }> }).default;
+      const parsed = await pdfParse(buffer);
+      rawText = parsed.text.slice(0, 20000);
+      extractedData = await extractWithText(rawText, description);
 
     } else {
       return NextResponse.json({ error: "Unsupported file type. Allowed: PDF, CSV, XLSX, PNG, JPG" }, { status: 400 });
@@ -103,58 +106,42 @@ export async function POST(req: NextRequest) {
   }
 }
 
-async function extractWithText(text: string, description: string) {
-  const msg = await client!.messages.create({
-    model:      "claude-opus-4-7",
+async function extractWithText(text: string, description: string): Promise<object> {
+  const res = await groq!.chat.completions.create({
+    model: "llama-3.3-70b-versatile",
     max_tokens: 2048,
-    thinking:   { type: "adaptive" },
-    messages: [{
-      role: "user",
-      content: `${EXTRACT_PROMPT}\n\nUser description: ${description}\n\nDocument content:\n${text}`,
-    }],
+    messages: [
+      { role: "system", content: "You are a public health data analyst. Return only valid JSON." },
+      { role: "user",   content: `${EXTRACT_PROMPT}\n\nUser description: ${description}\n\nDocument content:\n${text}` },
+    ],
   });
-  return parseExtracted(msg.content);
+  return parseExtracted(res.choices[0]?.message?.content ?? "");
 }
 
-async function extractWithImage(b64: string, mime: string, description: string) {
-  const msg = await client!.messages.create({
-    model:      "claude-opus-4-7",
+async function extractWithImage(b64: string, mime: string, description: string): Promise<object> {
+  const res = await groq!.chat.completions.create({
+    model: "meta-llama/llama-4-scout-17b-16e-instruct",
     max_tokens: 2048,
-    thinking:   { type: "adaptive" },
-    messages: [{
-      role: "user",
-      content: [
-        { type: "image", source: { type: "base64", media_type: mime as "image/jpeg", data: b64 } },
-        { type: "text",  text: `${EXTRACT_PROMPT}\n\nUser description: ${description}` },
-      ],
-    }],
-  });
-  return parseExtracted(msg.content);
-}
-
-async function extractWithPDF(b64: string, description: string) {
-  const msg = await client!.messages.create({
-    model:      "claude-opus-4-7",
-    max_tokens: 2048,
-    thinking:   { type: "adaptive" },
     messages: [{
       role: "user",
       content: [
-        { type: "document", source: { type: "base64", media_type: "application/pdf", data: b64 } } as never,
-        { type: "text",     text: `${EXTRACT_PROMPT}\n\nUser description: ${description}` },
-      ],
+        { type: "image_url", image_url: { url: `data:${mime};base64,${b64}` } },
+        { type: "text",      text: `${EXTRACT_PROMPT}\n\nUser description: ${description}` },
+      ] as never,
     }],
   });
-  return parseExtracted(msg.content);
+  return parseExtracted(res.choices[0]?.message?.content ?? "");
 }
 
-function parseExtracted(content: Anthropic.ContentBlock[]): object {
-  const text = content.find(b => b.type === "text");
-  if (!text || text.type !== "text") return {};
+function parseExtracted(text: string): object {
   try {
-    const clean = text.text.replace(/```json\n?|```/g, "").trim();
-    return JSON.parse(clean);
+    const clean = text.replace(/```json\n?|```/g, "").trim();
+    // Find first { to last } in case of extra text
+    const start = clean.indexOf("{");
+    const end   = clean.lastIndexOf("}");
+    if (start === -1 || end === -1) return { raw: text.slice(0, 2000) };
+    return JSON.parse(clean.slice(start, end + 1));
   } catch {
-    return { raw: (text as { text: string }).text.slice(0, 2000) };
+    return { raw: text.slice(0, 2000) };
   }
 }
