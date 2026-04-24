@@ -59,10 +59,9 @@ export default function HomePage() {
                     District-level health data: infant mortality, vaccination, disease surveillance, hospital infrastructure, nutrition & air quality — all in one place.
                   </p>
                   <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
-                    <button onClick={() => document.getElementById("sec-states")?.scrollIntoView({ behavior: "smooth" })}
-                      style={{ backgroundColor: "#0d9488", color: "#fff", padding: "0.6rem 1.4rem", borderRadius: "7px", fontSize: "0.88rem", fontWeight: 700, border: "none", cursor: "pointer", fontFamily: "inherit" }}>
+                    <Link href="#sec-states" style={{ backgroundColor: "#0d9488", color: "#fff", padding: "0.6rem 1.4rem", borderRadius: "7px", fontSize: "0.88rem", fontWeight: 700, textDecoration: "none", display: "inline-block" }}>
                       Explore States →
-                    </button>
+                    </Link>
                     <Link href="/contribute" style={{ backgroundColor: "#0f2040", border: "1px solid #1e3a5f", color: "#94a3b8", padding: "0.6rem 1.2rem", borderRadius: "7px", textDecoration: "none", fontSize: "0.88rem", fontWeight: 600 }}>
                       📎 Contribute Data
                     </Link>
@@ -157,10 +156,9 @@ export default function HomePage() {
                   <h2 className="font-display" style={{ fontSize: "1.15rem", fontWeight: 700, color: "#fff" }}>Health Leaders</h2>
                   <span style={{ fontSize: "0.65rem", color: "#475569" }}>Composite index: IMR · Vaccination · Nutrition · Births</span>
                 </div>
-                <button onClick={() => document.getElementById("sec-states")?.scrollIntoView({ behavior: "smooth" })}
-                  style={{ fontSize: "0.78rem", color: "#0d9488", background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", fontWeight: 600 }}>
+                <Link href="#sec-states" style={{ fontSize: "0.78rem", color: "#0d9488", textDecoration: "none", fontWeight: 600 }}>
                   View all →
-                </button>
+                </Link>
               </div>
 
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "0.85rem", marginBottom: "2rem" }}>
