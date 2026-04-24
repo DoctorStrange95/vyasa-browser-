@@ -1,7 +1,34 @@
 "use client";
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import type { IDSPWeeklyMeta } from "@/app/api/idsp-weekly/route";
 import type { IDSPOutbreak } from "@/lib/idspPDFParser";
+import districts from "@/data/districts.json";
+import states from "@/data/states.json";
+
+function toSlug(name: string): string {
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+}
+
+const districtSlugMap: Record<string, string> = Object.fromEntries(
+  districts.map(d => [toSlug(d.name), d.slug])
+);
+const stateSlugMap: Record<string, string> = Object.fromEntries(
+  states.map(s => [toSlug(s.name.replace(/&/g, "and")), s.slug])
+);
+
+function resolveLink(district: string, state: string): string {
+  const dSlug = districtSlugMap[toSlug(district)];
+  if (dSlug) return `/district/${dSlug}`;
+  const sSlug = stateSlugMap[toSlug(state.replace(/&/g, "and"))];
+  if (sSlug) return `/state/${sSlug}`;
+  return `/state/${toSlug(state)}`;
+}
+
+function stateLink(state: string): string {
+  const sSlug = stateSlugMap[toSlug(state.replace(/&/g, "and"))];
+  return `/state/${sSlug ?? toSlug(state)}`;
+}
 
 const DISEASE_COLORS: Record<string, string> = {
   "Chickenpox":               "#a78bfa",
@@ -182,28 +209,37 @@ export default function IDSPWeeklyReport() {
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: "0.45rem", flex: 1 }}>
               {visibleStates.map(([state, info]) => (
-                <div key={state} style={{
-                  display: "flex", alignItems: "center", gap: "0.6rem",
-                  padding: "0.45rem 0.6rem", backgroundColor: "#0a1628", borderRadius: "7px", border: "1px solid #1e3a5f",
-                }}>
+                <Link key={state} href={stateLink(state)} style={{ textDecoration: "none" }}>
                   <div style={{
-                    minWidth: "22px", height: "22px", borderRadius: "50%",
-                    backgroundColor: "#ef444420", border: "1px solid #ef444440",
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    fontSize: "0.65rem", fontWeight: 800, color: "#f87171", fontFamily: "monospace", flexShrink: 0,
-                  }}>
-                    {info.count}
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ display: "flex", justifyContent: "space-between" }}>
-                      <span style={{ fontSize: "0.72rem", fontWeight: 600, color: "#e2e8f0", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{state}</span>
-                      {info.cases > 0 && <span style={{ fontSize: "0.62rem", color: "#fb923c", flexShrink: 0, marginLeft: "0.4rem" }}>{info.cases.toLocaleString()} cases</span>}
+                    display: "flex", alignItems: "center", gap: "0.6rem",
+                    padding: "0.45rem 0.6rem", backgroundColor: "#0a1628", borderRadius: "7px",
+                    border: "1px solid #1e3a5f", cursor: "pointer", transition: "border-color 0.15s",
+                  }}
+                    onMouseEnter={e => (e.currentTarget.style.borderColor = "#2dd4bf")}
+                    onMouseLeave={e => (e.currentTarget.style.borderColor = "#1e3a5f")}
+                  >
+                    <div style={{
+                      minWidth: "22px", height: "22px", borderRadius: "50%",
+                      backgroundColor: "#ef444420", border: "1px solid #ef444440",
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      fontSize: "0.65rem", fontWeight: 800, color: "#f87171", fontFamily: "monospace", flexShrink: 0,
+                    }}>
+                      {info.count}
                     </div>
-                    <div style={{ fontSize: "0.6rem", color: "#475569", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                      {info.diseases.slice(0, 3).join(" · ")}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <span style={{ fontSize: "0.72rem", fontWeight: 600, color: "#e2e8f0", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{state}</span>
+                        <span style={{ fontSize: "0.6rem", color: "#2dd4bf", flexShrink: 0, marginLeft: "0.4rem" }}>→</span>
+                      </div>
+                      <div style={{ display: "flex", justifyContent: "space-between" }}>
+                        <span style={{ fontSize: "0.6rem", color: "#475569", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                          {info.diseases.slice(0, 3).join(" · ")}
+                        </span>
+                        {info.cases > 0 && <span style={{ fontSize: "0.6rem", color: "#fb923c", flexShrink: 0, marginLeft: "0.4rem" }}>{info.cases.toLocaleString()} cases</span>}
+                      </div>
                     </div>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
             {statesSorted.length > 8 && (
@@ -227,26 +263,36 @@ export default function IDSPWeeklyReport() {
           <div style={{ display: "flex", gap: "0.75rem", overflowX: "auto", paddingBottom: "6px" }}>
             {outbreaks.slice(0, 20).map((o, i) => {
               const color = diseaseColor(o.disease);
+              const href  = resolveLink(o.district, o.state);
               return (
-                <div key={i} style={{
-                  minWidth: "210px", maxWidth: "240px", flexShrink: 0,
-                  backgroundColor: "#080f1e", border: `1px solid ${color}30`, borderTop: `3px solid ${color}`,
-                  borderRadius: "10px", padding: "0.85rem 1rem",
-                  display: "flex", flexDirection: "column", gap: "0.3rem",
-                }}>
-                  <span style={{ fontSize: "0.58rem", fontWeight: 800, color, textTransform: "uppercase", letterSpacing: "0.08em", fontFamily: "monospace" }}>
-                    {o.disease}
-                  </span>
-                  <div style={{ fontSize: "0.73rem", fontWeight: 600, color: "#e2e8f0", lineHeight: 1.3 }}>
-                    {o.district}{o.district && o.state ? ", " : ""}{o.state}
+                <Link key={i} href={href} style={{ textDecoration: "none", flexShrink: 0 }}>
+                  <div style={{
+                    minWidth: "210px", maxWidth: "240px",
+                    backgroundColor: "#080f1e", border: `1px solid ${color}30`, borderTop: `3px solid ${color}`,
+                    borderRadius: "10px", padding: "0.85rem 1rem",
+                    display: "flex", flexDirection: "column", gap: "0.3rem",
+                    cursor: "pointer", transition: "border-color 0.15s, box-shadow 0.15s",
+                  }}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor = color; e.currentTarget.style.boxShadow = `0 4px 16px ${color}25`; }}
+                    onMouseLeave={e => { e.currentTarget.style.borderColor = `${color}30`; e.currentTarget.style.boxShadow = "none"; }}
+                  >
+                    <span style={{ fontSize: "0.58rem", fontWeight: 800, color, textTransform: "uppercase", letterSpacing: "0.08em", fontFamily: "monospace" }}>
+                      {o.disease}
+                    </span>
+                    <div style={{ fontSize: "0.73rem", fontWeight: 600, color: "#e2e8f0", lineHeight: 1.3 }}>
+                      {o.district}{o.district && o.state ? ", " : ""}{o.state}
+                    </div>
+                    <div style={{ display: "flex", gap: "0.6rem", fontSize: "0.63rem", marginTop: "0.1rem" }}>
+                      <span style={{ color: "#fb923c" }}>Cases: <b>{o.cases}</b></span>
+                      {o.deaths > 0 && <span style={{ color: "#f87171" }}>Deaths: <b>{o.deaths}</b></span>}
+                    </div>
+                    {o.startDate && <span style={{ fontSize: "0.58rem", color: "#334155" }}>Started: {o.startDate}</span>}
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "auto" }}>
+                      <span style={{ fontSize: "0.56rem", color: "#1e3a5f", fontFamily: "monospace" }}>{o.uid}</span>
+                      <span style={{ fontSize: "0.6rem", color: "#2dd4bf" }}>View profile →</span>
+                    </div>
                   </div>
-                  <div style={{ display: "flex", gap: "0.6rem", fontSize: "0.63rem", marginTop: "0.1rem" }}>
-                    <span style={{ color: "#fb923c" }}>Cases: <b>{o.cases}</b></span>
-                    {o.deaths > 0 && <span style={{ color: "#f87171" }}>Deaths: <b>{o.deaths}</b></span>}
-                  </div>
-                  {o.startDate && <span style={{ fontSize: "0.58rem", color: "#334155" }}>Started: {o.startDate}</span>}
-                  <span style={{ fontSize: "0.56rem", color: "#1e3a5f", marginTop: "auto", fontFamily: "monospace" }}>{o.uid}</span>
-                </div>
+                </Link>
               );
             })}
           </div>
