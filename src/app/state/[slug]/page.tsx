@@ -12,6 +12,8 @@ import AIAnalysisCard from "@/components/AIAnalysisCard";
 import PageSidebar from "@/components/PageSidebar";
 import JsonLd from "@/components/JsonLd";
 import type { OutbreakAlert, IDSPRecord, HospitalBedsRecord } from "@/lib/idsp";
+import { fsGet } from "@/lib/firestore";
+import type { IDSPOutbreak } from "@/lib/idspPDFParser";
 
 export async function generateStaticParams() {
   return states.map((s) => ({ slug: s.slug }));
@@ -47,6 +49,35 @@ async function getIDSPCache() {
     const raw = await readFile(path.join(process.cwd(), "src/data/idsp-cache.json"), "utf-8");
     return JSON.parse(raw);
   } catch { return null; }
+}
+
+function normalizeStateName(name: string): string {
+  return name.toLowerCase().replace(/[^a-z0-9]/g, "").replace(/andaman.*nicobar/g, "andamannicobar");
+}
+
+async function getIDSPWeeklyForState(stateName: string): Promise<{ outbreaks: OutbreakAlert[]; weekLabel: string }> {
+  try {
+    const data = await fsGet("idsp_weekly", "latest_v3") as { week: number; year: number; outbreaks: IDSPOutbreak[] } | null;
+    if (!data?.outbreaks?.length) return { outbreaks: [], weekLabel: "" };
+    const norm = normalizeStateName(stateName);
+    const filtered = data.outbreaks.filter(o =>
+      normalizeStateName(o.state).includes(norm.slice(0, 6)) ||
+      norm.includes(normalizeStateName(o.state).slice(0, 6))
+    );
+    const converted: OutbreakAlert[] = filtered.map(o => ({
+      id: o.uid,
+      disease: o.disease,
+      state: o.state,
+      district: o.district || undefined,
+      cases: o.cases,
+      deaths: o.deaths,
+      status: (o.status === "active" || o.status === "contained" || o.status === "monitoring") ? o.status : "active",
+      reportDate: o.reportDate || o.startDate,
+      source: "IDSP MoHFW Weekly",
+    }));
+    const weekLabel = data.week && data.year ? `IDSP Week ${data.week}, ${data.year}` : "IDSP Surveillance";
+    return { outbreaks: converted, weekLabel };
+  } catch { return { outbreaks: [], weekLabel: "" }; }
 }
 
 function healthScore(s: typeof states[number]): number {
@@ -107,15 +138,18 @@ export default async function StatePage({ params }: { params: { slug: string } }
   const score = healthScore(state);
   const col   = scoreColor(score);
 
-  const [liveHospitals, idspCache] = await Promise.all([
+  const [liveHospitals, idspCache, idspWeekly] = await Promise.all([
     fetchHealthCentres(state.phcStateName),
     getIDSPCache(),
+    getIDSPWeeklyForState(state.name),
   ]);
 
   const stateOutbreaks: OutbreakAlert[] = (idspCache?.outbreaks ?? []).filter(
     (a: OutbreakAlert) => a.state.toLowerCase().includes(state.name.toLowerCase().slice(0, 6))
   );
-  const allOutbreaks: OutbreakAlert[] = stateOutbreaks.length > 0 ? stateOutbreaks : (idspCache?.nhpAlerts ?? []).slice(0, 4);
+  const legacyOutbreaks: OutbreakAlert[] = stateOutbreaks.length > 0 ? stateOutbreaks : (idspCache?.nhpAlerts ?? []).slice(0, 4);
+  // Prefer live IDSP weekly data; fall back to legacy cache
+  const allOutbreaks: OutbreakAlert[] = idspWeekly.outbreaks.length > 0 ? idspWeekly.outbreaks : legacyOutbreaks;
   const diseaseRecords: IDSPRecord[] = (idspCache?.diseaseRecords ?? []).filter(
     (r: IDSPRecord) => r.state.toLowerCase().includes(state.name.toLowerCase().slice(0, 6))
   );
@@ -273,6 +307,7 @@ export default async function StatePage({ params }: { params: { slug: string } }
             birthRate={state.birthRate2023 ?? null}
             deathRate={state.deathRate2023 ?? null}
             outbreaks={allOutbreaks}
+            idspWeekLabel={idspWeekly.weekLabel || undefined}
             diseaseRecords={diseaseRecords}
             anaemiaPct={state.anaemiaPct ?? null}
             womenAnaemiaPct={state.womenAnaemiaPct ?? null}

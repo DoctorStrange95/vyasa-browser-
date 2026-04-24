@@ -42,6 +42,7 @@ interface Props {
   instBirthsPct?:  number | null;
   stateName?:      string;
   level?:          "state" | "district";
+  idspWeekLabel?:  string;
 }
 
 function scoreColor(v: number, best: number, worst: number, higher: boolean) {
@@ -133,7 +134,7 @@ export default function HealthCategories({
   stuntingPct, wastingPct, underweightPct,
   phcTotal, chcTotal, hospitalBeds,
   aqi, aqiLabel, pollutants, healthRec, aqiSource,
-  stateName, level = "state",
+  stateName, level = "state", idspWeekLabel,
 }: Props) {
 
   const primaryIMR = imrSRS2023 ?? imr;
@@ -179,8 +180,42 @@ export default function HealthCategories({
           <CategoryHeader roman="II" title="Morbidity & Infectious Disease" icon="🦠" />
 
           {allOutbreaks.length > 0 ? (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px,1fr))", gap: "0.75rem", marginBottom: "1rem" }}>
-              {allOutbreaks.slice(0, 6).map(a => <OutbreakCard key={a.id} alert={a} />)}
+            <div style={{ marginBottom: "1rem" }}>
+              {/* IDSP weekly summary header */}
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "0.5rem", marginBottom: "0.75rem" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                  <span style={{ fontSize: "0.65rem", backgroundColor: "#ef444420", color: "#ef4444", borderRadius: "4px", padding: "0.15rem 0.5rem", fontWeight: 600 }}>LIVE</span>
+                  <span style={{ fontSize: "0.75rem", color: "#94a3b8" }}>
+                    {idspWeekLabel ?? "IDSP Surveillance"} · {allOutbreaks.length} outbreak{allOutbreaks.length !== 1 ? "s" : ""}
+                  </span>
+                </div>
+                <div style={{ display: "flex", gap: "1rem", fontSize: "0.72rem" }}>
+                  <span style={{ color: "#eab308" }}>Cases: <strong style={{ color: "#fbbf24" }}>{allOutbreaks.reduce((s, a) => s + (a.cases || 0), 0).toLocaleString()}</strong></span>
+                  <span style={{ color: "#ef4444" }}>Deaths: <strong style={{ color: "#f87171" }}>{allOutbreaks.reduce((s, a) => s + (a.deaths || 0), 0)}</strong></span>
+                </div>
+              </div>
+              {/* District-level outbreak table */}
+              <div style={{ backgroundColor: "#0a1628", border: "1px solid #1e3a5f", borderRadius: "10px", overflow: "hidden" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 60px 55px", gap: 0, borderBottom: "1px solid #1e3a5f", padding: "0.45rem 1rem", backgroundColor: "#0d1f3c" }}>
+                  <span style={{ fontSize: "0.6rem", color: "#475569", textTransform: "uppercase", letterSpacing: "0.07em" }}>District</span>
+                  <span style={{ fontSize: "0.6rem", color: "#475569", textTransform: "uppercase", letterSpacing: "0.07em" }}>Disease</span>
+                  <span style={{ fontSize: "0.6rem", color: "#475569", textTransform: "uppercase", letterSpacing: "0.07em", textAlign: "right" }}>Cases</span>
+                  <span style={{ fontSize: "0.6rem", color: "#475569", textTransform: "uppercase", letterSpacing: "0.07em", textAlign: "right" }}>Deaths</span>
+                </div>
+                {allOutbreaks.map((a, i) => (
+                  <div key={a.id} style={{ display: "grid", gridTemplateColumns: "1fr 1fr 60px 55px", gap: 0, padding: "0.55rem 1rem", borderBottom: i < allOutbreaks.length - 1 ? "1px solid #0f2040" : "none", alignItems: "center" }}>
+                    <div>
+                      <span style={{ fontSize: "0.78rem", color: "#e2e8f0", fontWeight: 500 }}>{a.district || "—"}</span>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                      <span style={{ fontSize: "0.75rem", color: "#94a3b8" }}>{a.disease}</span>
+                      {a.status === "active" && <span style={{ fontSize: "0.55rem", backgroundColor: "#ef444420", color: "#ef4444", borderRadius: "3px", padding: "0.05rem 0.3rem" }}>active</span>}
+                    </div>
+                    <span style={{ fontSize: "0.82rem", color: "#fbbf24", fontWeight: 600, textAlign: "right" }}>{(a.cases || 0).toLocaleString()}</span>
+                    <span style={{ fontSize: "0.82rem", color: a.deaths > 0 ? "#f87171" : "#334155", fontWeight: a.deaths > 0 ? 600 : 400, textAlign: "right" }}>{a.deaths || 0}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           ) : (
             <div style={{ backgroundColor: "#0f2040", border: "1px solid #22c55e30", borderRadius: "8px", padding: "0.85rem 1.25rem", fontSize: "0.82rem", color: "#22c55e", marginBottom: "1rem", display: "flex", gap: "0.5rem", alignItems: "center" }}>
