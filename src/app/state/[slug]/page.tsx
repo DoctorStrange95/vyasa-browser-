@@ -10,10 +10,36 @@ import NearbyHealthCentres from "@/components/NearbyHealthCentres";
 import HealthCategories from "@/components/HealthCategories";
 import AIAnalysisCard from "@/components/AIAnalysisCard";
 import PageSidebar from "@/components/PageSidebar";
+import JsonLd from "@/components/JsonLd";
 import type { OutbreakAlert, IDSPRecord, HospitalBedsRecord } from "@/lib/idsp";
 
 export async function generateStaticParams() {
   return states.map((s) => ({ slug: s.slug }));
+}
+
+export async function generateMetadata({ params }: { params: { slug: string } }) {
+  const s = states.find(st => st.slug === params.slug);
+  if (!s) return {};
+  const score = healthScore(s);
+  const desc = [
+    `${s.name} public health data: IMR ${s.imr ?? "N/A"}/1,000 live births`,
+    s.vaccinationPct != null ? `${s.vaccinationPct}% vaccination coverage` : null,
+    s.institutionalBirthsPct != null ? `${s.institutionalBirthsPct}% institutional births` : null,
+    `health score ${score}/100.`,
+    "Source: NFHS-5, SRS 2023, IDSP, MoHFW.",
+  ].filter(Boolean).join(", ");
+  const url = `https://healthforindia.vyasa.health/state/${s.slug}`;
+  return {
+    title: `${s.name} — IMR, Vaccination & Disease Surveillance Data`,
+    description: desc,
+    alternates: { canonical: url },
+    openGraph: {
+      title: `${s.name} Public Health Dashboard | HealthForIndia`,
+      description: desc,
+      url,
+    },
+    twitter: { card: "summary_large_image", title: `${s.name} Health Data | HealthForIndia`, description: desc },
+  };
 }
 
 async function getIDSPCache() {
@@ -118,8 +144,32 @@ export default async function StatePage({ params }: { params: { slug: string } }
   const ranked = [...states].map(s => healthScore(s)).sort((a,b) => b - a);
   const rank = ranked.indexOf(score) + 1;
 
+  const stateUrl = `https://healthforindia.vyasa.health/state/${state.slug}`;
+
   return (
     <div style={{ backgroundColor: "#070f1e", minHeight: "100vh" }}>
+      <JsonLd data={{
+        "@context": "https://schema.org",
+        "@type": "Dataset",
+        "name": `${state.name} Public Health Statistics`,
+        "description": `Comprehensive health data for ${state.name}: IMR, vaccination coverage, institutional births, stunting, anaemia and disease surveillance.`,
+        "url": stateUrl,
+        "creator": { "@type": "Organization", "name": "Vyasa Health" },
+        "spatialCoverage": { "@type": "State", "name": state.name, "containedInPlace": { "@type": "Country", "name": "India" } },
+        "variableMeasured": [
+          { "@type": "PropertyValue", "name": "Infant Mortality Rate", "value": state.imr, "unitText": "per 1,000 live births" },
+          { "@type": "PropertyValue", "name": "Vaccination Coverage", "value": state.vaccinationPct, "unitText": "%" },
+          { "@type": "PropertyValue", "name": "Health Score", "value": score, "unitText": "/100" },
+        ],
+      }} />
+      <JsonLd data={{
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "India", "item": "https://healthforindia.vyasa.health" },
+          { "@type": "ListItem", "position": 2, "name": state.name, "item": stateUrl },
+        ],
+      }} />
 
       {/* ── BREADCRUMB BAR ─────────────────────────────────────────── */}
       <div style={{ backgroundColor: "#0a1628", borderBottom: "1px solid #1e3a5f", padding: "0 1.5rem" }}>

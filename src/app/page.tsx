@@ -1,10 +1,19 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import HealthTicker from "@/components/HealthTicker";
 import PHIntelligenceFeed from "@/components/PHIntelligenceFeed";
 import IDSPWeeklyReport from "@/components/IDSPWeeklyReport";
 import SidebarNav from "@/components/SidebarNav";
 import StateTable from "@/components/StateTable";
+import JsonLd from "@/components/JsonLd";
 import states from "@/data/states.json";
+
+export const metadata: Metadata = {
+  title: "HealthForIndia — India's Public Health Transparency Platform",
+  description:
+    "District-level public health data for every Indian state and UT — infant mortality, vaccination, IDSP disease outbreaks, hospital infrastructure, nutrition and air quality. NFHS-5 · SRS 2023 · MoHFW.",
+  alternates: { canonical: "https://healthforindia.vyasa.health" },
+};
 
 /* ── Health score ── */
 function healthScore(s: typeof states[number]): number {
@@ -32,6 +41,32 @@ const natAvgVacc  = Math.round(states.filter(s => s.vaccinationPct).reduce((a, s
 export default function HomePage() {
   return (
     <div style={{ backgroundColor: "#070f1e", minHeight: "100vh" }}>
+      <JsonLd data={{
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebSite",
+            "@id": "https://healthforindia.vyasa.health/#website",
+            "url": "https://healthforindia.vyasa.health",
+            "name": "HealthForIndia by Vyasa",
+            "description": "India's public health transparency platform with district-level data on IMR, vaccination, disease outbreaks, hospital infrastructure, nutrition and air quality.",
+            "publisher": { "@type": "Organization", "name": "Vyasa Health", "url": "https://healthforindia.vyasa.health" },
+            "potentialAction": { "@type": "SearchAction", "target": "https://healthforindia.vyasa.health/district/{search_term_string}", "query-input": "required name=search_term_string" },
+          },
+          {
+            "@type": "Dataset",
+            "name": "India Public Health Statistics",
+            "description": "Comprehensive district-level health metrics for all Indian states and UTs including IMR, vaccination coverage, institutional births, stunting, anaemia and disease surveillance data.",
+            "url": "https://healthforindia.vyasa.health",
+            "creator": { "@type": "Organization", "name": "Vyasa Health" },
+            "license": "https://creativecommons.org/licenses/by/4.0/",
+            "keywords": ["India", "public health", "IMR", "vaccination", "NFHS-5", "IDSP", "disease surveillance"],
+            "spatialCoverage": { "@type": "Place", "name": "India" },
+            "temporalCoverage": "2023",
+            "distribution": [{ "@type": "DataDownload", "encodingFormat": "application/json", "contentUrl": "https://healthforindia.vyasa.health/api/idsp" }],
+          },
+        ],
+      }} />
       <HealthTicker />
 
       {/* ── SIDEBAR + CONTENT LAYOUT ─────────────────────────────── */}

@@ -11,9 +11,34 @@ import { fetchAQI, fetchGoogleAQI, geocodeCity, fetchHealthCentres } from "@/lib
 import { readFile } from "fs/promises";
 import path from "path";
 import type { OutbreakAlert, IDSPRecord } from "@/lib/idsp";
+import JsonLd from "@/components/JsonLd";
 
 export async function generateStaticParams() {
   return cities.map((c) => ({ slug: c.slug }));
+}
+
+export async function generateMetadata({ params }: { params: { slug: string } }) {
+  const city = cities.find(c => c.slug === params.slug);
+  if (!city) return {};
+  const stateName = city.stateName ?? "";
+  const desc = [
+    `${city.name}, ${stateName} public health data:`,
+    city.aqi != null ? `AQI ${city.aqi} (${city.aqiLabel ?? ""})` : null,
+    "hospital infrastructure, disease outbreaks, vaccination coverage.",
+    "Source: CPCB, NFHS-5, IDSP, MoHFW.",
+  ].filter(Boolean).join(" ");
+  const url = `https://healthforindia.vyasa.health/district/${city.slug}`;
+  return {
+    title: `${city.name} Health Data — AQI, Hospitals & Disease Surveillance | ${stateName}`,
+    description: desc,
+    alternates: { canonical: url },
+    openGraph: {
+      title: `${city.name} Public Health Dashboard | HealthForIndia`,
+      description: desc,
+      url,
+    },
+    twitter: { card: "summary_large_image", title: `${city.name} Health Data | HealthForIndia`, description: desc },
+  };
 }
 
 async function getIDSPCache() {
@@ -120,8 +145,35 @@ export default async function DistrictPage({ params }: { params: { slug: string 
     aqi, aqiLabel,
   };
 
+  const districtUrl = `https://healthforindia.vyasa.health/district/${city.slug}`;
+
   return (
     <div style={{ backgroundColor: "#070f1e", minHeight: "100vh" }}>
+      <JsonLd data={{
+        "@context": "https://schema.org",
+        "@type": "Dataset",
+        "name": `${city.name} Public Health Statistics`,
+        "description": `Health data for ${city.name}, ${city.stateName ?? ""}: IMR, vaccination, AQI, hospital infrastructure and PMJAY coverage.`,
+        "url": districtUrl,
+        "creator": { "@type": "Organization", "name": "Vyasa Health" },
+        "spatialCoverage": {
+          "@type": "City",
+          "name": city.name,
+          "containedInPlace": { "@type": "State", "name": city.stateName ?? "", "containedInPlace": { "@type": "Country", "name": "India" } },
+        },
+        "variableMeasured": [
+          ...(city.aqi != null ? [{ "@type": "PropertyValue", "name": "Air Quality Index", "value": city.aqi }] : []),
+        ],
+      }} />
+      <JsonLd data={{
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "India", "item": "https://healthforindia.vyasa.health" },
+          ...(stateData ? [{ "@type": "ListItem", "position": 2, "name": stateData.name, "item": `https://healthforindia.vyasa.health/state/${stateData.slug}` }] : []),
+          { "@type": "ListItem", "position": stateData ? 3 : 2, "name": city.name, "item": districtUrl },
+        ],
+      }} />
 
       {/* ── BREADCRUMB BAR ─────────────────────────────────────────── */}
       <div style={{ backgroundColor: "#0a1628", borderBottom: "1px solid #1e3a5f", padding: "0 1.5rem" }}>
