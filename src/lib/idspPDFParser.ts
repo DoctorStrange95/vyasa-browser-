@@ -1,6 +1,7 @@
 /**
  * Parses IDSP Weekly Outbreak Report PDFs into structured data.
- * Handles PDF text extraction quirks: word-wrap splits, multi-line cells.
+ * Primary: Groq LLM (llama-3.3-70b) for reliable extraction.
+ * Fallback: regex parsing.
  */
 
 export interface IDSPOutbreak {
@@ -26,7 +27,73 @@ export interface IDSPParsedReport {
   outbreaks: IDSPOutbreak[];
 }
 
-// ── Known disease names (longest first so multi-word match first) ──────────────
+// ── Groq-based parser ─────────────────────────────────────────────────────────
+
+async function parseWithGroq(text: string, week: number, year: number): Promise<IDSPOutbreak[] | null> {
+  const apiKey = process.env.GROQ_API_KEY;
+  if (!apiKey) return null;
+
+  // Send only the outbreak detail pages (skip charts/graphs at top, ~2500 chars)
+  const startIdx = text.indexOf("Unique ID");
+  const relevant = startIdx > 0 ? text.slice(startIdx) : text;
+  // Groq context limit: send up to 28,000 chars
+  const snippet = relevant.slice(0, 28000);
+
+  const prompt = `Extract all disease outbreak records from this IDSP Weekly Outbreak Report text.
+Return ONLY a valid JSON array. Each element must have these exact fields:
+- uid: the unique ID string (format like AP/EAS/2026/10/371)
+- state: full state name
+- district: district name
+- disease: disease name exactly as written
+- cases: integer number of cases
+- deaths: integer number of deaths
+- startDate: start date as DD-MM-YYYY string
+- status: current status (e.g. "Under Surveillance")
+
+Return [] if no outbreaks found. No markdown, no explanation, just the JSON array.
+
+TEXT:
+${snippet}`;
+
+  try {
+    const resp = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "llama-3.3-70b-versatile",
+        messages: [{ role: "user", content: prompt }],
+        temperature: 0,
+        max_tokens: 8000,
+      }),
+      signal: AbortSignal.timeout(45_000),
+    });
+    if (!resp.ok) {
+      console.error("Groq API error:", resp.status, await resp.text());
+      return null;
+    }
+    const json = await resp.json() as { choices: { message: { content: string } }[] };
+    const raw = json.choices?.[0]?.message?.content ?? "";
+    // Extract JSON array from response
+    const arrStart = raw.indexOf("[");
+    const arrEnd = raw.lastIndexOf("]");
+    if (arrStart === -1 || arrEnd === -1) return null;
+    const arr = JSON.parse(raw.slice(arrStart, arrEnd + 1)) as IDSPOutbreak[];
+    return arr.map(o => ({
+      ...o,
+      cases:  Number(o.cases)  || 0,
+      deaths: Number(o.deaths) || 0,
+      week:   week,
+      year:   year,
+      reportDate: o.reportDate ?? o.startDate ?? "",
+    }));
+  } catch (e) {
+    console.error("Groq parse error:", e);
+    return null;
+  }
+}
+
+// ── Regex-based fallback parser ───────────────────────────────────────────────
+
 const DISEASES = [
   "Acute Diarrhoeal Disease",
   "Acute Diarrheal Disease",
@@ -55,7 +122,6 @@ const DISEASES = [
   "Fever",
 ];
 
-// ── Known Indian state name variants ─────────────────────────────────────────
 const STATE_NAMES = [
   "Andaman and Nicobar Islands",
   "Andaman Nicobar Islands",
@@ -96,72 +162,38 @@ const STATE_NAMES = [
   "Uttar Pradesh",
   "Uttarakhand",
   "West Bengal",
-].sort((a, b) => b.length - a.length); // longest first for greedy match
+].sort((a, b) => b.length - a.length);
 
-/** Fix word-wrap breaks in PDF text, then normalize whitespace. */
 function normalizeChunk(raw: string): string {
   return raw
-    .replace(/([a-zA-Z])\n([a-zA-Z])/g, "$1$2") // join split words
-    .replace(/([a-zA-Z])\n([a-zA-Z])/g, "$1$2") // second pass for edge cases
+    .replace(/([a-zA-Z])\n([a-zA-Z])/g, "$1$2")
+    .replace(/([a-zA-Z])\n([a-zA-Z])/g, "$1$2")
     .replace(/\s+/g, " ")
     .trim();
 }
 
-/** Extract state name from the front of a text chunk. */
 function extractState(text: string): { state: string; rest: string } {
   for (const name of STATE_NAMES) {
     if (text.toLowerCase().startsWith(name.toLowerCase())) {
       return { state: name, rest: text.slice(name.length).trim() };
     }
   }
-  // Fallback: take first 1–3 words as state
   const words = text.split(" ");
   const guessLen = words[1]?.match(/^[A-Z]/) ? 2 : 1;
   return { state: words.slice(0, guessLen).join(" "), rest: words.slice(guessLen).join(" ") };
 }
 
-/** Find first matching disease name in the text. */
 function extractDisease(text: string): { disease: string; before: string; after: string } | null {
   for (const d of DISEASES) {
     const idx = text.toLowerCase().indexOf(d.toLowerCase());
     if (idx !== -1) {
-      return {
-        disease: d,
-        before: text.slice(0, idx).trim(),
-        after: text.slice(idx + d.length).trim(),
-      };
+      return { disease: d, before: text.slice(0, idx).trim(), after: text.slice(idx + d.length).trim() };
     }
   }
   return null;
 }
 
-/** Parse the week-10 style number from header text. */
-function parseWeekFromText(text: string): number {
-  const m = text.match(/(\d{1,2})(?:st|nd|rd|th)\s+[Ww]eek/);
-  if (m) return parseInt(m[1]);
-  const m2 = text.match(/[Ww]eek\s+(\d{1,2})/);
-  if (m2) return parseInt(m2[1]);
-  return 0;
-}
-
-/** Main parser. */
-export function parseIDSPReport(rawText: string): IDSPParsedReport {
-  // ── Header meta ─────────────────────────────────────────────────────────
-  const weekMatch = rawText.match(/(\d{1,2})(?:st|nd|rd|th)\s+[Ww]eek\s+(\d{4})/);
-  const week = weekMatch ? parseInt(weekMatch[1]) : parseWeekFromText(rawText);
-  const year = weekMatch ? parseInt(weekMatch[2]) : new Date().getFullYear();
-
-  // Date range: "2nd March 2026 to 8th March 2026"
-  const drm = rawText.match(
-    /(\d{1,2}(?:st|nd|rd|th)?\s+\w+\s+\d{4})\s+to\s+(\d{1,2}(?:st|nd|rd|th)?\s+\w+\s+\d{4})/i
-  );
-  const dateRange = drm ? `${drm[1]} – ${drm[2]}` : `Week ${week}, ${year}`;
-
-  // Reporting states count
-  const rsm = rawText.match(/Submitted outbreak report[^0-9]*(\d{1,2})/);
-  const reportingStates = rsm ? parseInt(rsm[1]) : 18;
-
-  // ── Parse individual outbreaks by Unique ID anchors ──────────────────────
+function regexParseOutbreaks(rawText: string, week: number, year: number): IDSPOutbreak[] {
   const UID_RE = /\b([A-Z]{2}\/[A-Z]{2,6}\/\d{4}\/\d{1,2}\/\d{3,4})\b/g;
   const matches: { uid: string; index: number }[] = [];
   let m: RegExpExecArray | null;
@@ -169,47 +201,47 @@ export function parseIDSPReport(rawText: string): IDSPParsedReport {
     matches.push({ uid: m[1], index: m.index });
   }
 
-  const outbreaks: IDSPOutbreak[] = [];
-
-  for (let i = 0; i < matches.length; i++) {
-    const { uid, index } = matches[i];
+  return matches.map(({ uid, index }, i) => {
     const end = i + 1 < matches.length ? matches[i + 1].index : rawText.length;
     const chunk = normalizeChunk(rawText.slice(index + uid.length, end));
-
-    // Extract disease
     const dis = extractDisease(chunk);
-    if (!dis) continue;
+    if (!dis) return null;
 
-    // State + district from text before disease
     const { state, rest: districtRaw } = extractState(dis.before);
     const district = districtRaw.replace(/^[,\s]+/, "").trim();
-
-    // Cases + deaths from text after disease (first two numbers)
     const numMatch = dis.after.match(/(\d+)\s+(\d+)/);
     const cases  = numMatch ? parseInt(numMatch[1]) : 0;
     const deaths = numMatch ? parseInt(numMatch[2]) : 0;
-
-    // Dates: DD-MM-YYYY
     const dates = [...dis.after.matchAll(/(\d{2}-\d{2}-\d{4})/g)].map(x => x[1]);
     const startDate  = dates[0] ?? "";
     const reportDate = dates[1] ?? dates[0] ?? "";
-
-    // Status
     const statusM = dis.after.match(/(Under Surveillance|Under Investigation|Ongoing|Closed|Active)/i);
     const status = statusM ? statusM[1] : "Under Surveillance";
-
-    // Week/year from UID (e.g. AP/EAS/2026/10/371)
-    const uidParts = uid.split("/");
-    const uidYear = parseInt(uidParts[2] ?? String(year));
-    const uidWeek = parseInt(uidParts[3] ?? String(week));
-
-    outbreaks.push({ uid, state, district, disease: dis.disease, cases, deaths, startDate, reportDate, status, week: uidWeek, year: uidYear });
-  }
-
-  return { week, year, dateRange, reportingStates, totalOutbreaks: outbreaks.length, outbreaks };
+    const parts = uid.split("/");
+    return {
+      uid, state, district, disease: dis.disease, cases, deaths, startDate, reportDate, status,
+      week: parseInt(parts[3] ?? String(week)),
+      year: parseInt(parts[2] ?? String(year)),
+    } as IDSPOutbreak;
+  }).filter(Boolean) as IDSPOutbreak[];
 }
 
-/** Fetch a PDF buffer and parse it. Requires pdf-parse@1.1.1. */
+// ── Meta extraction ───────────────────────────────────────────────────────────
+
+function extractMeta(rawText: string): { week: number; year: number; dateRange: string; reportingStates: number } {
+  const weekMatch = rawText.match(/(\d{1,2})(?:st|nd|rd|th)\s+[Ww]eek\s+(\d{4})/);
+  const week = weekMatch ? parseInt(weekMatch[1]) : 0;
+  const year = weekMatch ? parseInt(weekMatch[2]) : new Date().getFullYear();
+  const drm  = rawText.match(/(\d{1,2}(?:st|nd|rd|th)?\s+\w+\s+\d{4})\s+to\s+(\d{1,2}(?:st|nd|rd|th)?\s+\w+\s+\d{4})/i);
+  const dateRange = drm ? `${drm[1]} – ${drm[2]}` : `Week ${week}, ${year}`;
+  const rsm = rawText.match(/Submitted outbreak report[^0-9]*(\d{1,2})/);
+  const reportingStates = rsm ? parseInt(rsm[1]) : 18;
+  return { week, year, dateRange, reportingStates };
+}
+
+// ── Public API ────────────────────────────────────────────────────────────────
+
+/** Fetch a PDF, extract text, parse with Groq (or regex fallback). */
 export async function fetchAndParseIDSPPdf(pdfUrl: string): Promise<IDSPParsedReport | null> {
   try {
     const resp = await fetch(pdfUrl, {
@@ -218,10 +250,20 @@ export async function fetchAndParseIDSPPdf(pdfUrl: string): Promise<IDSPParsedRe
     });
     if (!resp.ok) return null;
     const buf = Buffer.from(await resp.arrayBuffer());
-    // Dynamic import to avoid edge-runtime issues
     const pdfParse = (await import("pdf-parse")).default;
-    const parsed = await pdfParse(buf);
-    return parseIDSPReport(parsed.text);
+    const parsed   = await pdfParse(buf);
+    const rawText  = parsed.text;
+
+    const { week, year, dateRange, reportingStates } = extractMeta(rawText);
+
+    // Try Groq first, fall back to regex
+    let outbreaks = await parseWithGroq(rawText, week, year);
+    if (!outbreaks || outbreaks.length === 0) {
+      console.log("Groq unavailable or returned 0, using regex fallback");
+      outbreaks = regexParseOutbreaks(rawText, week, year);
+    }
+
+    return { week, year, dateRange, reportingStates, totalOutbreaks: outbreaks.length, outbreaks };
   } catch (e) {
     console.error("IDSP PDF parse error:", e);
     return null;
