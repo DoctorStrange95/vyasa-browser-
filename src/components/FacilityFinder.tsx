@@ -1,7 +1,7 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-type FacilityType = "hospital" | "lab" | "pharmacy" | "bloodbank" | "ambulance" | "anganwadi" | "doctor";
+type FacilityType = "hospital" | "phc" | "chc" | "doctor" | "pharmacy" | "lab" | "bloodbank" | "ambulance" | "anganwadi";
 type LocMode = "gps" | "text";
 
 interface Place {
@@ -16,8 +16,25 @@ interface Place {
   geometry: { location: { lat: number; lng: number } };
 }
 
+interface SavedLoc { label: string; lat: number; lng: number; }
+
+const LS_KEY   = "ff_locs_v1";
+const MAX_SAVED = 6;
+
+function readSaved(): SavedLoc[] {
+  try { return JSON.parse(localStorage.getItem(LS_KEY) ?? "[]"); } catch { return []; }
+}
+function writeSaved(loc: SavedLoc) {
+  try {
+    const list = [loc, ...readSaved().filter(l => l.label !== loc.label)].slice(0, MAX_SAVED);
+    localStorage.setItem(LS_KEY, JSON.stringify(list));
+  } catch {}
+}
+
 const CATEGORIES: { type: FacilityType; icon: string; label: string; color: string }[] = [
   { type: "hospital",  icon: "🏥", label: "Hospital",      color: "#2dd4bf" },
+  { type: "phc",       icon: "🏛️", label: "PHC / Sub-Ctr", color: "#34d399" },
+  { type: "chc",       icon: "🏨", label: "CHC / Dist. Hosp", color: "#22c7bb" },
   { type: "doctor",    icon: "👨‍⚕️", label: "Doctor/Clinic", color: "#60a5fa" },
   { type: "pharmacy",  icon: "💊", label: "Pharmacy",      color: "#4ade80" },
   { type: "lab",       icon: "🔬", label: "Diagnostic Lab",color: "#818cf8" },
@@ -27,17 +44,23 @@ const CATEGORIES: { type: FacilityType; icon: string; label: string; color: stri
 ];
 
 export default function FacilityFinder() {
-  const [active,   setActive]   = useState<FacilityType>("hospital");
-  const [locMode,  setLocMode]  = useState<LocMode>("gps");
-  const [query,    setQuery]    = useState("");
-  const [places,   setPlaces]   = useState<Place[]>([]);
-  const [status,   setStatus]   = useState<"idle"|"locating"|"loading"|"done"|"error"|"nokey">("idle");
-  const [errMsg,   setErrMsg]   = useState("");
-  const [radius,   setRadius]   = useState("5000");
-  const [location, setLocation] = useState<string>("");
+  const [active,     setActive]    = useState<FacilityType>("hospital");
+  const [locMode,    setLocMode]   = useState<LocMode>("gps");
+  const [query,      setQuery]     = useState("");
+  const [places,     setPlaces]    = useState<Place[]>([]);
+  const [status,     setStatus]    = useState<"idle"|"locating"|"loading"|"done"|"error"|"nokey">("idle");
+  const [errMsg,     setErrMsg]    = useState("");
+  const [radius,     setRadius]    = useState("5000");
+  const [location,   setLocation]  = useState<string>("");
+  const [coords,     setCoords]    = useState<{lat:number;lng:number}|null>(null);
+  const [savedLocs,  setSavedLocs] = useState<SavedLoc[]>([]);
+  const [showSaved,  setShowSaved] = useState(false);
+
+  useEffect(() => { setSavedLocs(readSaved()); }, []);
 
   async function searchByCoords(lat: number, lng: number, type: FacilityType, rad: string) {
     setStatus("loading");
+    setCoords({ lat, lng });
     try {
       const res = await fetch(`/api/nearby-centres?lat=${lat}&lng=${lng}&radius=${rad}&type=${type}`);
       const d   = await res.json();
@@ -53,12 +76,15 @@ export default function FacilityFinder() {
 
   async function searchByText() {
     if (!query.trim()) return;
+    setShowSaved(false);
     setStatus("locating");
     try {
       const geo = await fetch(`/api/geocode?q=${encodeURIComponent(query)}`);
       const g   = await geo.json();
       if (g.error) { setErrMsg(g.error); setStatus("error"); return; }
       setLocation(g.formatted);
+      writeSaved({ label: g.formatted, lat: g.lat, lng: g.lng });
+      setSavedLocs(readSaved());
       searchByCoords(g.lat, g.lng, active, radius);
     } catch {
       setErrMsg("Could not locate. Try a different pincode or district name.");
@@ -81,31 +107,39 @@ export default function FacilityFinder() {
 
   function changeType(t: FacilityType) {
     setActive(t);
-    if (status === "done" && location) {
-      setStatus("loading");
-      fetch(`/api/geocode?q=${encodeURIComponent(location)}`).then(r => r.json()).then(g => {
-        if (!g.error) searchByCoords(g.lat, g.lng, t, radius);
-      }).catch(() => {});
+    // Re-search with stored coords — works for both GPS and text mode without re-geocoding
+    if (coords && status !== "idle") {
+      searchByCoords(coords.lat, coords.lng, t, radius);
     }
   }
 
+  function selectSavedLocation(loc: SavedLoc) {
+    setQuery(loc.label);
+    setLocation(loc.label);
+    setShowSaved(false);
+    searchByCoords(loc.lat, loc.lng, active, radius);
+  }
+
   const cat = CATEGORIES.find(c => c.type === active)!;
+  const filteredSaved = savedLocs.filter(l =>
+    !query || l.label.toLowerCase().includes(query.toLowerCase())
+  );
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%", gap: "0.75rem" }}>
-      {/* Category tabs — 7 categories in a scrollable row */}
+      {/* Category tabs */}
       <div style={{ display: "flex", gap: "0.4rem", flexShrink: 0, overflowX: "auto", paddingBottom: "2px" }}>
         {CATEGORIES.map(c => (
           <button key={c.type} onClick={() => changeType(c.type)} style={{
             display: "flex", flexDirection: "column", alignItems: "center", gap: "0.2rem",
-            padding: "0.5rem 0.6rem", flexShrink: 0, minWidth: "60px",
+            padding: "0.5rem 0.6rem", flexShrink: 0, minWidth: "58px",
             backgroundColor: active === c.type ? "#0f2040" : "#060d1a",
             border: `1px solid ${active === c.type ? c.color : "#1e3a5f"}`,
             borderBottom: `2px solid ${active === c.type ? c.color : "transparent"}`,
             borderRadius: "8px", cursor: "pointer", transition: "all 0.12s",
           }}>
             <span style={{ fontSize: "1.1rem" }}>{c.icon}</span>
-            <span style={{ fontSize: "0.58rem", color: active === c.type ? c.color : "#475569", fontWeight: active === c.type ? 700 : 400, textAlign: "center", lineHeight: 1.2, whiteSpace: "nowrap" }}>{c.label}</span>
+            <span style={{ fontSize: "0.56rem", color: active === c.type ? c.color : "#475569", fontWeight: active === c.type ? 700 : 400, textAlign: "center", lineHeight: 1.2, whiteSpace: "nowrap" }}>{c.label}</span>
           </button>
         ))}
       </div>
@@ -134,21 +168,40 @@ export default function FacilityFinder() {
 
       {/* Search bar */}
       {locMode === "text" ? (
-        <div style={{ display: "flex", gap: "0.4rem", flexShrink: 0 }}>
-          <input
-            type="text"
-            value={query}
-            onChange={e => setQuery(e.target.value)}
-            onKeyDown={e => e.key === "Enter" && searchByText()}
-            placeholder="6-digit pincode or district name (e.g. 400001, Kozhikode)"
-            style={{ flex: 1, backgroundColor: "#080f1e", border: "1px solid #1e3a5f", borderRadius: "7px", color: "#e2e8f0", fontSize: "0.78rem", padding: "0.45rem 0.75rem", fontFamily: "inherit", outline: "none" }}
-          />
-          <button onClick={searchByText} disabled={!query.trim() || status === "loading" || status === "locating"} style={{ fontSize: "0.75rem", backgroundColor: cat.color + "20", border: `1px solid ${cat.color}60`, color: cat.color, borderRadius: "7px", padding: "0.45rem 0.9rem", cursor: "pointer", fontFamily: "inherit", fontWeight: 600, flexShrink: 0 }}>
-            Search
-          </button>
+        <div style={{ position: "relative", flexShrink: 0 }}>
+          <div style={{ display: "flex", gap: "0.4rem" }}>
+            <input
+              type="text"
+              value={query}
+              onChange={e => { setQuery(e.target.value); setShowSaved(true); }}
+              onFocus={() => setShowSaved(true)}
+              onBlur={() => setTimeout(() => setShowSaved(false), 150)}
+              onKeyDown={e => e.key === "Enter" && searchByText()}
+              placeholder="6-digit pincode or district (e.g. 400001, Kozhikode)"
+              style={{ flex: 1, backgroundColor: "#080f1e", border: "1px solid #1e3a5f", borderRadius: "7px", color: "#e2e8f0", fontSize: "0.78rem", padding: "0.45rem 0.75rem", fontFamily: "inherit", outline: "none" }}
+            />
+            <button onClick={searchByText} disabled={!query.trim() || status === "loading" || status === "locating"} style={{ fontSize: "0.75rem", backgroundColor: cat.color + "20", border: `1px solid ${cat.color}60`, color: cat.color, borderRadius: "7px", padding: "0.45rem 0.9rem", cursor: "pointer", fontFamily: "inherit", fontWeight: 600, flexShrink: 0 }}>
+              Search
+            </button>
+          </div>
+          {/* Recent locations dropdown */}
+          {showSaved && filteredSaved.length > 0 && (
+            <div style={{ position: "absolute", top: "calc(100% + 2px)", left: 0, right: "80px", backgroundColor: "#080f1e", border: "1px solid #1e3a5f", borderRadius: "7px", zIndex: 20, overflow: "hidden", boxShadow: "0 4px 12px #00000060" }}>
+              <div style={{ fontSize: "0.6rem", color: "#334155", padding: "0.3rem 0.75rem", borderBottom: "1px solid #0f2040" }}>Recent searches</div>
+              {filteredSaved.map(loc => (
+                <button key={loc.label} onMouseDown={() => selectSavedLocation(loc)} style={{
+                  display: "block", width: "100%", textAlign: "left", padding: "0.45rem 0.75rem",
+                  fontSize: "0.72rem", color: "#94a3b8", backgroundColor: "transparent", border: "none",
+                  cursor: "pointer", borderBottom: "1px solid #0a1628", fontFamily: "inherit",
+                }}>
+                  🕐 {loc.label}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       ) : (
-        <button onClick={searchByGPS} disabled={status === "locating" || status === "loading"} style={{ fontSize: "0.8rem", backgroundColor: cat.color + "15", border: `1px solid ${cat.color}40`, color: cat.color, borderRadius: "8px", padding: "0.6rem", cursor: "pointer", fontFamily: "inherit", fontWeight: 600 }}>
+        <button onClick={searchByGPS} disabled={status === "locating" || status === "loading"} style={{ fontSize: "0.8rem", backgroundColor: cat.color + "15", border: `1px solid ${cat.color}40`, color: cat.color, borderRadius: "8px", padding: "0.6rem", cursor: "pointer", fontFamily: "inherit", fontWeight: 600, flexShrink: 0 }}>
           {status === "locating" ? "Getting location…" : `Find ${cat.label} near me`}
         </button>
       )}
@@ -160,13 +213,13 @@ export default function FacilityFinder() {
         </div>
       )}
       {status === "error" && (
-        <div style={{ fontSize: "0.75rem", color: "#f87171", backgroundColor: "#ef444415", border: "1px solid #ef444430", borderRadius: "8px", padding: "0.6rem 0.75rem" }}>
+        <div style={{ fontSize: "0.75rem", color: "#f87171", backgroundColor: "#ef444415", border: "1px solid #ef444430", borderRadius: "8px", padding: "0.6rem 0.75rem", flexShrink: 0 }}>
           ⚠ {errMsg}
           <button onClick={() => setStatus("idle")} style={{ marginLeft: "0.5rem", color: "#64748b", background: "none", border: "none", cursor: "pointer", fontSize: "0.7rem" }}>Dismiss</button>
         </div>
       )}
       {status === "nokey" && (
-        <div style={{ fontSize: "0.75rem", color: "#eab308", backgroundColor: "#eab30815", border: "1px solid #eab30830", borderRadius: "8px", padding: "0.6rem 0.75rem" }}>
+        <div style={{ fontSize: "0.75rem", color: "#eab308", backgroundColor: "#eab30815", border: "1px solid #eab30830", borderRadius: "8px", padding: "0.6rem 0.75rem", flexShrink: 0 }}>
           Google Places API key not configured. Add <code style={{ background: "#0f2040", padding: "0 0.3rem", borderRadius: "3px" }}>GOOGLE_PLACES_API_KEY</code> to .env.local.
         </div>
       )}
@@ -175,7 +228,7 @@ export default function FacilityFinder() {
       {status === "done" && (
         <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
           <div style={{ fontSize: "0.65rem", color: "#475569", flexShrink: 0 }}>
-            {places.length} {cat.label}s found {location ? `near ${location}` : ""}
+            {places.length} {cat.label}{places.length !== 1 ? "s" : ""} found {location ? `near ${location}` : ""}
           </div>
           {places.length === 0 ? (
             <div style={{ textAlign: "center", padding: "1.5rem", color: "#334155", fontSize: "0.8rem" }}>

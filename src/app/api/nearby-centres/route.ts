@@ -50,7 +50,7 @@ export async function GET(req: Request) {
       pharmacy:   "pharmacy",
       hospital:   "hospital",
       lab:        "health",
-      bloodbank:  "establishment",
+      bloodbank:  "health",
       ambulance:  "establishment",
       anganwadi:  "establishment",
       doctor:     "doctor",
@@ -75,7 +75,14 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: data.status, results: [] }, { status: 502 });
     }
 
-    const rawResults: PlaceResult[] = (data.results ?? []).slice(0, 12);
+    let rawResults: PlaceResult[] = (data.results ?? []).slice(0, 20);
+
+    // For blood banks: keep only results with "blood" in the name to exclude pathology labs
+    if (type === "bloodbank") {
+      const filtered = rawResults.filter(p => p.name?.toLowerCase().includes("blood"));
+      if (filtered.length >= 1) rawResults = filtered;
+    }
+    rawResults = rawResults.slice(0, 12);
 
     // Fetch details (phone, hours, address) for top 8 results
     const detailed = await Promise.all(

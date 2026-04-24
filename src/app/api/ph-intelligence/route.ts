@@ -1,79 +1,119 @@
 import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
-import { fsQuery, fsExists, fsSet } from "@/lib/firestore";
+import { fsGet, fsSet } from "@/lib/firestore";
 
-const CACHE_FILE = path.join(process.cwd(), "src/data/ph-intelligence-cache.json");
-const TTL_HOURS  = 24;
+// ── Constants ──────────────────────────────────────────────────────────────────
+const CACHE_FILE   = path.join(process.cwd(), "src/data/ph-intelligence-cache.json");
+const TTL_HOURS    = 24;
+const FS_CACHE_COL = "ph_cache";
+const FS_CACHE_ID  = "intelligence";
 
-function readJsonCache() {
-  try { return JSON.parse(fs.readFileSync(CACHE_FILE, "utf8")); }
-  catch { return { refreshedAt: null, items: [], sources: [], errors: [] }; }
+type PHItem = import("@/lib/phIntelligence").PHIntelligenceItem;
+
+interface CacheDoc {
+  refreshedAt: string;
+  items:       PHItem[];
+  sources:     string[];
+  errors:      string[];
 }
-function writeJsonCache(data: object) {
-  try { fs.writeFileSync(CACHE_FILE, JSON.stringify(data, null, 2)); } catch { /* read-only on Vercel */ }
-}
-function cacheAgeHours(ts: string | null): number {
+
+// ── Helpers ────────────────────────────────────────────────────────────────────
+function cacheAgeHours(ts: string | null | undefined): number {
   if (!ts) return Infinity;
   return (Date.now() - new Date(ts).getTime()) / 3_600_000;
 }
 
-type PHItem = import("@/lib/phIntelligence").PHIntelligenceItem;
-
-function itemDocId(item: PHItem): string {
-  const raw = `${item.type}::${item.disease ?? item.program ?? ""}::${item.location.state}::${item.title.slice(0, 40)}`;
-  return Buffer.from(raw).toString("base64").replace(/[/+=]/g, "_").slice(0, 100);
-}
-
-async function saveToFirestore(items: PHItem[]): Promise<void> {
-  for (const item of items) {
-    try {
-      const id  = itemDocId(item);
-      const exists = await fsExists("ph_intelligence", id);
-      if (!exists) {
-        await fsSet("ph_intelligence", id, {
-          ...item as unknown as Record<string, unknown>,
-          status: "pending",
-          scrapedAt: new Date().toISOString(),
-        });
-      }
-    } catch { /* silent — Firebase optional */ }
-  }
-}
-
-async function readLiveFromFirestore(): Promise<PHItem[] | null> {
+/** Read from Firestore — the authoritative live cache (survives Vercel deploys) */
+async function readFsCache(): Promise<CacheDoc | null> {
   try {
-    const rows = await fsQuery("ph_intelligence", "status", "live", 60);
-    if (!rows.length) return null;
-    return (rows as unknown as PHItem[]).sort((a, b) => (b.date ?? "").localeCompare(a.date ?? ""));
+    const doc = await fsGet(FS_CACHE_COL, FS_CACHE_ID);
+    if (!doc?.refreshedAt) return null;
+    return doc as unknown as CacheDoc;
   } catch { return null; }
 }
 
+/** Write to Firestore — called after every successful scrape */
+async function writeFsCache(data: CacheDoc): Promise<void> {
+  try {
+    await fsSet(FS_CACHE_COL, FS_CACHE_ID, data as unknown as Record<string, unknown>);
+  } catch { /* silent — app continues without cache write */ }
+}
+
+/** Fallback: static JSON file baked into the build (read-only on Vercel) */
+function readJsonFallback(): CacheDoc {
+  try { return JSON.parse(fs.readFileSync(CACHE_FILE, "utf8")); }
+  catch { return { refreshedAt: "", items: [], sources: [], errors: [] }; }
+}
+
+/** Save individual items to ph_intelligence collection for admin review */
+async function saveItemsForReview(items: PHItem[]): Promise<void> {
+  const { fsExists, fsSet: fsSave } = await import("@/lib/firestore");
+  const batchSize = 10;
+  for (let i = 0; i < Math.min(items.length, 50); i += batchSize) {
+    await Promise.allSettled(
+      items.slice(i, i + batchSize).map(async item => {
+        try {
+          const raw = `${item.type}::${item.disease ?? item.program ?? ""}::${item.location.state}::${item.title.slice(0, 40)}`;
+          const id  = Buffer.from(raw).toString("base64").replace(/[/+=]/g, "_").slice(0, 100);
+          if (!(await fsExists("ph_intelligence", id))) {
+            await fsSave("ph_intelligence", id, {
+              ...(item as unknown as Record<string, unknown>),
+              status:    "pending",
+              scrapedAt: new Date().toISOString(),
+            });
+          }
+        } catch { /* silent */ }
+      })
+    );
+  }
+}
+
+// ── GET handler ────────────────────────────────────────────────────────────────
 export async function GET(req: NextRequest) {
   const forceRefresh = req.nextUrl.searchParams.get("refresh") === "1";
 
+  // 1 — Try Firestore cache (primary, persists across Vercel deploys)
   if (!forceRefresh) {
-    const live = await readLiveFromFirestore();
-    if (live && live.length > 0) {
-      return NextResponse.json({ refreshedAt: new Date().toISOString(), items: live, sources: ["Firestore (admin-approved)"], errors: [], fromCache: true, fromFirestore: true });
+    const fsCache = await readFsCache();
+    if (fsCache && cacheAgeHours(fsCache.refreshedAt) < TTL_HOURS && fsCache.items.length > 0) {
+      return NextResponse.json({
+        ...fsCache,
+        fromCache:      true,
+        fromFirestore:  true,
+        cacheAgeHours:  Math.round(cacheAgeHours(fsCache.refreshedAt) * 10) / 10,
+      });
     }
   }
 
-  const cache = readJsonCache();
-  const ageH  = cacheAgeHours(cache.refreshedAt);
-  if (!forceRefresh && ageH < TTL_HOURS && cache.items.length > 0) {
-    return NextResponse.json({ ...cache, fromCache: true, cacheAgeHours: Math.round(ageH * 10) / 10 });
-  }
-
+  // 2 — Cache is stale / missing / forced — run a fresh scrape
   try {
     const { collectPHIntelligence } = await import("@/lib/phIntelligence");
-    const result  = await collectPHIntelligence();
-    await saveToFirestore(result.items);
-    const payload = { refreshedAt: new Date().toISOString(), items: result.items, sources: result.sources, errors: result.errors };
-    writeJsonCache(payload);
+    const result = await collectPHIntelligence();
+
+    const payload: CacheDoc = {
+      refreshedAt: new Date().toISOString(),
+      items:       result.items,
+      sources:     result.sources,
+      errors:      result.errors,
+    };
+
+    // Persist to Firestore (works on Vercel; JSON write is best-effort local only)
+    await writeFsCache(payload);
+    saveItemsForReview(result.items); // fire-and-forget, not awaited
+
     return NextResponse.json({ ...payload, fromCache: false, cacheAgeHours: 0 });
+
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
-    return NextResponse.json({ ...cache, fromCache: true, fetchError: msg }, { status: 200 });
+
+    // 3 — On scrape failure: serve whatever we have (Firestore stale or JSON fallback)
+    const stale = (await readFsCache()) ?? readJsonFallback();
+    return NextResponse.json({
+      ...stale,
+      fromCache:   true,
+      fetchError:  msg,
+      cacheAgeHours: Math.round(cacheAgeHours(stale.refreshedAt) * 10) / 10,
+    });
   }
 }

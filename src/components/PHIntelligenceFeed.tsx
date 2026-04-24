@@ -382,6 +382,23 @@ function ItemCard({ item, onSelect }: { item: PHItem; onSelect: () => void }) {
   );
 }
 
+// ── Session-level cache (prevents re-scraping on every page navigation) ───────
+const SESSION_KEY    = "ph_feed_v2";
+const SESSION_TTL_MS = 23 * 60 * 60 * 1000; // 23h — slightly under server TTL
+
+function getSessionCache(): FeedData | null {
+  try {
+    const raw = sessionStorage.getItem(SESSION_KEY);
+    if (!raw) return null;
+    const { data, ts } = JSON.parse(raw) as { data: FeedData; ts: number };
+    if (Date.now() - ts > SESSION_TTL_MS) { sessionStorage.removeItem(SESSION_KEY); return null; }
+    return data;
+  } catch { return null; }
+}
+function setSessionCache(data: FeedData): void {
+  try { sessionStorage.setItem(SESSION_KEY, JSON.stringify({ data, ts: Date.now() })); } catch { /* quota */ }
+}
+
 // ── Main feed ─────────────────────────────────────────────────────────────────
 export default function PHIntelligenceFeed({ maxItems }: { maxItems?: number } = {}) {
   const [data,      setData]      = useState<FeedData | null>(null);
@@ -394,6 +411,16 @@ export default function PHIntelligenceFeed({ maxItems }: { maxItems?: number } =
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const load = useCallback(async (refresh = false) => {
+    // Use session cache on normal loads — only bypass on explicit refresh
+    if (!refresh) {
+      const cached = getSessionCache();
+      if (cached?.items.length) {
+        setData(cached);
+        setLoading(false);
+        return;
+      }
+    }
+
     setLoading(true);
     setError(null);
     try {
@@ -403,10 +430,10 @@ export default function PHIntelligenceFeed({ maxItems }: { maxItems?: number } =
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const d = await res.json() as FeedData;
       setData(d);
+      setSessionCache(d);   // store so next navigation uses this
       setRefreshMsg(null);
     } catch (e: unknown) {
       if ((e as { name?: string }).name === "TimeoutError") {
-        /* Refresh is running server-side — poll for updated data */
         setRefreshMsg("Refresh running in background — polling for new data…");
         if (pollRef.current) clearInterval(pollRef.current);
         let attempts = 0;
@@ -417,7 +444,7 @@ export default function PHIntelligenceFeed({ maxItems }: { maxItems?: number } =
             if (r.ok) {
               const d = await r.json() as FeedData;
               setData(d);
-              /* Stop polling once we get data newer than before */
+              setSessionCache(d);
               if (attempts >= 3 || !d.fromCache) {
                 clearInterval(pollRef.current!);
                 pollRef.current = null;
