@@ -261,7 +261,7 @@ export default async function StatePage({ params }: { params: { slug: string } }
           </div>
 
           {/* Key stats bar */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))", gap: "0", borderTop: "1px solid #1e3a5f" }}>
+          <div className="header-stats-bar" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))", gap: "0" }}>
             {[
               { label: "IMR (2023)",    value: state.imr != null ? `${state.imr}` : "—",                              unit: "/1k LB",  color: state.imr != null && state.imr <= 20 ? "#22c55e" : "#f97316" },
               { label: "Vaccination",   value: state.vaccinationPct != null ? `${state.vaccinationPct}%` : "—",        unit: "coverage", color: "#2dd4bf" },
@@ -281,7 +281,7 @@ export default async function StatePage({ params }: { params: { slug: string } }
       </div>
 
       {/* ── PAGE BODY: SIDEBAR + CONTENT ─────────────────────────── */}
-      <div style={{ maxWidth: "1280px", margin: "0 auto", padding: "1.5rem 1.5rem 5rem", display: "flex", gap: "1.75rem", alignItems: "flex-start" }}>
+      <div className="page-body-wrapper">
 
         {/* Sidebar */}
         <PageSidebar sections={SIDEBAR_SECTIONS} backHref="/" backLabel="All States" />

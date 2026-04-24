@@ -1,57 +1,92 @@
 import { NextResponse } from "next/server";
 import { getAdminSession } from "@/lib/auth";
+import { fsGet, fsSet } from "@/lib/firestore";
+
+const COLLECTION = "feedback";
 
 export interface FeedbackItem {
   id: string;
+  mode: "feedback" | "report";
   type: "wrong_data" | "missing_data" | "new_hospital" | "general";
   page: string;
+  // Report issue fields
   field?: string;
   message: string;
   currentValue?: string;
   suggestedValue?: string;
+  // Submitter info
   submitterName?: string;
   submitterEmail?: string;
+  submitterPhone?: string;
+  wantsToJoin?: "yes" | "maybe" | "no" | "";
   timestamp: string;
   status: "open" | "reviewed" | "resolved";
   adminNote?: string;
 }
 
-// In production: replace with Vercel KV / Supabase / Neon
-// For now: in-memory store (resets on cold start, sufficient for dev + preview)
-const store: FeedbackItem[] = [];
+// In-memory fallback (resets on cold start)
+const memStore: FeedbackItem[] = [];
+
+async function loadAll(): Promise<FeedbackItem[]> {
+  try {
+    const doc = await fsGet(COLLECTION, "all") as { items: FeedbackItem[] } | null;
+    return doc?.items ?? memStore;
+  } catch {
+    return memStore;
+  }
+}
+
+async function saveAll(items: FeedbackItem[]) {
+  try {
+    await fsSet(COLLECTION, "all", { items } as unknown as Record<string, unknown>);
+  } catch {
+    // fallback: keep in memStore
+  }
+}
 
 export async function POST(req: Request) {
   const body = await req.json();
   const item: FeedbackItem = {
     id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+    mode: body.mode === "report" ? "report" : "feedback",
     type: body.type ?? "general",
     page: body.page ?? "",
-    field: body.field,
+    field: body.field || undefined,
     message: body.message ?? "",
-    currentValue: body.currentValue,
-    suggestedValue: body.suggestedValue,
-    submitterName: body.submitterName,
-    submitterEmail: body.submitterEmail,
+    currentValue: body.currentValue || undefined,
+    suggestedValue: body.suggestedValue || undefined,
+    submitterName: body.submitterName || body.name || undefined,
+    submitterEmail: body.submitterEmail || body.email || undefined,
+    submitterPhone: body.phone || undefined,
+    wantsToJoin: body.wantsToJoin || undefined,
     timestamp: new Date().toISOString(),
     status: "open",
   };
-  store.push(item);
+
+  const all = await loadAll();
+  all.push(item);
+  memStore.push(item);
+  await saveAll(all);
+
   return NextResponse.json({ ok: true, id: item.id });
 }
 
 export async function GET() {
   const isAdmin = await getAdminSession();
   if (!isAdmin) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  return NextResponse.json(store.slice().reverse()); // newest first
+  const all = await loadAll();
+  return NextResponse.json(all.slice().reverse());
 }
 
 export async function PATCH(req: Request) {
   const isAdmin = await getAdminSession();
   if (!isAdmin) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const { id, status, adminNote } = await req.json();
-  const item = store.find((f) => f.id === id);
+  const all = await loadAll();
+  const item = all.find((f) => f.id === id);
   if (!item) return NextResponse.json({ error: "Not found" }, { status: 404 });
   if (status) item.status = status;
   if (adminNote !== undefined) item.adminNote = adminNote;
+  await saveAll(all);
   return NextResponse.json({ ok: true, item });
 }

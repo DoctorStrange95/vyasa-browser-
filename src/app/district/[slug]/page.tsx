@@ -241,7 +241,7 @@ export default async function DistrictPage({ params }: { params: { slug: string 
       </div>
 
       {/* ── PAGE BODY: SIDEBAR + CONTENT ─────────────────────────── */}
-      <div style={{ maxWidth: "1280px", margin: "0 auto", padding: "1.5rem 1.5rem 5rem", display: "flex", gap: "1.75rem", alignItems: "flex-start" }}>
+      <div className="page-body-wrapper">
 
         {/* Sidebar */}
         <PageSidebar

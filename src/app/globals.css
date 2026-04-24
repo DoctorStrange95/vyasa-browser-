@@ -105,3 +105,71 @@ a { color: inherit; }
   0%, 100% { opacity: 1; box-shadow: 0 0 0 0 #2dd4bf50; }
   50%       { opacity: 0.5; box-shadow: 0 0 0 5px transparent; }
 }
+
+/* ── Page body layout (state / district pages) ─────────────── */
+.page-body-wrapper {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 1.5rem 1.5rem 5rem;
+  display: flex;
+  gap: 1.75rem;
+  align-items: flex-start;
+}
+@media (max-width: 900px) {
+  .page-body-wrapper {
+    padding: 1rem 0.85rem 6rem;
+    gap: 0;
+  }
+}
+
+/* ── Metric card grids inside health sections ───────────────── */
+@media (max-width: 560px) {
+  .page-body-wrapper section [style*="repeat(auto-fill"],
+  .page-body-wrapper div[style*="repeat(auto-fill"] {
+    grid-template-columns: 1fr 1fr !important;
+  }
+}
+
+/* ── State / district header stats bar ─────────────────────── */
+.header-stats-bar {
+  display: grid;
+  border-top: 1px solid #1e3a5f;
+}
+@media (max-width: 600px) {
+  .header-stats-bar {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    grid-template-columns: repeat(6, minmax(100px, 1fr)) !important;
+    scrollbar-width: none;
+  }
+  .header-stats-bar::-webkit-scrollbar { display: none; }
+}
+
+/* ── Breadcrumb bar ─────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .breadcrumb-bar { padding: 0 0.85rem !important; }
+  .breadcrumb-src { display: none !important; }
+}
+
+/* ── State / district header block ─────────────────────────── */
+@media (max-width: 600px) {
+  .page-header-inner { padding: 1.25rem 0.85rem 0 !important; }
+  .page-header-title { font-size: 1.7rem !important; }
+}
+
+/* ── IDSP outbreak table on mobile ─────────────────────────── */
+@media (max-width: 560px) {
+  .idsp-table-grid {
+    grid-template-columns: 1fr 1fr 48px 42px !important;
+  }
+  .idsp-table-grid span { font-size: 0.7rem !important; }
+}
+
+/* ── Floating action buttons ────────────────────────────────── */
+/* Sidebar FAB sits above feedback FAB */
+.sidebar-fab {
+  bottom: 5.5rem !important;
+}
+@media (min-width: 901px) {
+  .sidebar-fab { display: none !important; }
+}
