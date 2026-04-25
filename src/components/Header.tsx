@@ -1,12 +1,27 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 import VyasaLogo from "./VyasaLogo";
+
+const HOME_SECTIONS = [
+  { id: "sec-hero",       icon: "🏠", label: "Overview" },
+  { id: "sec-facilities", icon: "🏥", label: "Find Facilities" },
+  { id: "sec-intel",      icon: "📡", label: "Health Intel" },
+  { id: "sec-idsp",       icon: "📊", label: "IDSP Weekly" },
+  { id: "sec-leaders",    icon: "🏆", label: "Health Leaders" },
+  { id: "sec-states",     icon: "📋", label: "All States" },
+  { id: "sec-ncd",        icon: "🫀", label: "NCD Burden" },
+  { id: "sec-contribute", icon: "📎", label: "Contribute Data" },
+  { id: "sec-join",       icon: "🚀", label: "Join Vyasa" },
+];
 
 export interface HeaderUser { name: string; email: string; }
 
 export default function Header({ user }: { user?: HeaderUser | null }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const pathname = usePathname();
+  const isHome = pathname === "/";
 
   return (
     <header
@@ -89,25 +104,56 @@ export default function Header({ user }: { user?: HeaderUser | null }) {
       {/* Mobile menu */}
       {menuOpen && (
         <div
-          style={{
-            backgroundColor: "#0f2040",
-            borderTop: "1px solid #1e3a5f",
-            padding: "1rem 1.5rem",
-            display: "flex",
-            flexDirection: "column",
-            gap: "1rem",
-          }}
+          style={{ backgroundColor: "#0a1628", borderTop: "1px solid #1e3a5f", paddingBottom: "1.25rem" }}
           className="mobile-menu-panel"
         >
-          <Link href="/team" style={{ color: "#94a3b8", textDecoration: "none", fontSize: "0.875rem" }} onClick={() => setMenuOpen(false)}>
-            Our Team
-          </Link>
-          <Link href="/sources" style={{ color: "#94a3b8", textDecoration: "none", fontSize: "0.875rem" }} onClick={() => setMenuOpen(false)}>
-            Data Sources
-          </Link>
-          <Link href="/join" style={{ color: "#2dd4bf", textDecoration: "none", fontSize: "0.875rem", fontWeight: 700 }} onClick={() => setMenuOpen(false)}>
-            Join Vyasa →
-          </Link>
+          {/* Page links */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "0.15rem", padding: "0.75rem 1.25rem 0" }}>
+            <Link href="/team" style={{ color: "#94a3b8", textDecoration: "none", fontSize: "0.875rem", padding: "0.55rem 0", borderBottom: "1px solid #1e3a5f10" }} onClick={() => setMenuOpen(false)}>
+              Our Team
+            </Link>
+            <Link href="/sources" style={{ color: "#94a3b8", textDecoration: "none", fontSize: "0.875rem", padding: "0.55rem 0", borderBottom: "1px solid #1e3a5f10" }} onClick={() => setMenuOpen(false)}>
+              Data Sources
+            </Link>
+            <Link href="/contribute" style={{ color: "#94a3b8", textDecoration: "none", fontSize: "0.875rem", padding: "0.55rem 0", borderBottom: "1px solid #1e3a5f10" }} onClick={() => setMenuOpen(false)}>
+              Contribute
+            </Link>
+            <Link href="/join" style={{ color: "#2dd4bf", textDecoration: "none", fontSize: "0.875rem", fontWeight: 700, padding: "0.55rem 0" }} onClick={() => setMenuOpen(false)}>
+              Join Vyasa →
+            </Link>
+          </div>
+
+          {/* Section nav — only on homepage */}
+          {isHome && (
+            <>
+              <div style={{ margin: "0.75rem 1.25rem 0.6rem", borderTop: "1px solid #1e3a5f", paddingTop: "0.75rem" }}>
+                <div style={{ fontSize: "0.6rem", color: "#334155", textTransform: "uppercase", letterSpacing: "0.1em", fontWeight: 700, marginBottom: "0.5rem" }}>
+                  Jump to section
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.4rem" }}>
+                  {HOME_SECTIONS.map(s => (
+                    <button
+                      key={s.id}
+                      onClick={() => {
+                        document.getElementById(s.id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+                        setMenuOpen(false);
+                      }}
+                      style={{
+                        display: "flex", alignItems: "center", gap: "0.4rem",
+                        backgroundColor: "#0f2040", border: "1px solid #1e3a5f",
+                        borderRadius: "7px", padding: "0.45rem 0.65rem",
+                        color: "#94a3b8", fontSize: "0.75rem", fontWeight: 500,
+                        cursor: "pointer", fontFamily: "inherit", textAlign: "left",
+                      }}
+                    >
+                      <span style={{ fontSize: "0.8rem" }}>{s.icon}</span>
+                      <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{s.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
         </div>
       )}
 

@@ -47,7 +47,7 @@ export default function PageSidebar({
         className="sidebar-fab"
         aria-label="Jump to section"
         style={{
-          position: "fixed", bottom: "5.5rem", right: "1rem", zIndex: 200,
+          position: "fixed", bottom: "9rem", right: "1rem", zIndex: 200,
           backgroundColor: "#0d1f3c", color: "#e2e8f0",
           border: "1px solid #1e3a5f",
           borderRadius: "50px", padding: "0.45rem 0.85rem",

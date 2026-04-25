@@ -3,7 +3,7 @@ import Link from "next/link";
 import HealthTicker from "@/components/HealthTicker";
 import PHIntelligenceFeed from "@/components/PHIntelligenceFeed";
 import IDSPWeeklyReport from "@/components/IDSPWeeklyReport";
-import SidebarNav, { HomePillNav } from "@/components/SidebarNav";
+import SidebarNav from "@/components/SidebarNav";
 import StateTable from "@/components/StateTable";
 import JsonLd from "@/components/JsonLd";
 import states from "@/data/states.json";
@@ -68,9 +68,6 @@ export default function HomePage() {
         ],
       }} />
       <HealthTicker />
-
-      {/* ── MOBILE PILL NAV (hidden on desktop) ─────────────────── */}
-      <HomePillNav />
 
       {/* ── SIDEBAR + CONTENT LAYOUT ─────────────────────────────── */}
       <div style={{ display: "flex", alignItems: "flex-start" }}>

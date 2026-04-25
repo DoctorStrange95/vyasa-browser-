@@ -166,34 +166,11 @@ a { color: inherit; }
 }
 
 /* ── Floating action buttons ────────────────────────────────── */
-/* Sidebar FAB sits above feedback FAB */
-.sidebar-fab {
-  bottom: 5.5rem !important;
-}
+/* FAB stack (right side, bottom to top): Feedback → Facility → PageSidebar */
 @media (min-width: 901px) {
   .sidebar-fab { display: none !important; }
 }
 
-/* ── Homepage mobile pill nav ────────────────────────────────── */
-.home-pill-nav {
-  display: none;
-}
-@media (max-width: 900px) {
-  .home-pill-nav {
-    display: flex;
-    position: sticky;
-    top: 64px;
-    z-index: 30;
-    background: #060d1a;
-    border-bottom: 1px solid #1e3a5f;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    gap: 0.35rem;
-    padding: 0.5rem 0.85rem;
-  }
-  .home-pill-nav::-webkit-scrollbar { display: none; }
-}
 
 /* ── Homepage section padding on mobile ─────────────────────── */
 @media (max-width: 640px) {

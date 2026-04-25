@@ -89,10 +89,11 @@ export default function FacilityDrawer() {
         </div>
       </div>
 
-      {/* Floating trigger button */}
+      {/* Desktop side tab */}
       <button
         onClick={() => setOpen(o => !o)}
         aria-label="Find nearby health facilities"
+        className="facility-side-tab"
         style={{
           position: "fixed",
           right: open ? "408px" : "0",
@@ -126,13 +127,44 @@ export default function FacilityDrawer() {
         <span>FIND NEARBY</span>
       </button>
 
+      {/* Mobile FAB (round, bottom-right, second from bottom) */}
+      <button
+        onClick={() => setOpen(o => !o)}
+        aria-label="Find nearby health facilities"
+        className="facility-mobile-fab"
+        style={{
+          position: "fixed",
+          bottom: "5.25rem",
+          right: "1rem",
+          zIndex: 40,
+          width: "44px",
+          height: "44px",
+          borderRadius: "50%",
+          backgroundColor: "#0d9488",
+          border: "none",
+          color: "#fff",
+          fontSize: "1.2rem",
+          cursor: "pointer",
+          boxShadow: "0 4px 16px #0d948860",
+          display: "none",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        🏥
+      </button>
+
       <style>{`
         @keyframes tab-pulse {
           0%, 100% { background-color: #0d9488; box-shadow: -4px 0 16px #0d948840; }
           50%       { background-color: #0f766e; box-shadow: -4px 0 24px #0d948880; }
         }
-        @media (max-width: 640px) {
-          /* On mobile, drawer comes from bottom */
+        @media (max-width: 768px) {
+          .facility-side-tab { display: none !important; }
+          .facility-mobile-fab { display: flex !important; }
+        }
+        @media (min-width: 769px) {
+          .facility-mobile-fab { display: none !important; }
         }
       `}</style>
     </>
