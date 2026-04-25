@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import states from "@/data/states.json";
+import { AB_SPECIALITIES } from "@/data/ab-specialities";
 
 interface Hospital {
   id: string; name: string; type: string; address: string;
@@ -32,7 +33,8 @@ const DEFAULT_SERVICES: Record<string, string> = {
 };
 
 export default function HospitalsAdmin() {
-  const [tab, setTab]             = useState<"list" | "import">("import");
+  const [tab, setTab]             = useState<"list" | "import" | "specialities">("import");
+  const [specSearch, setSpecSearch] = useState("");
   const [hospitals, setHospitals] = useState<Hospital[]>([]);
   const [loading, setLoading]     = useState(true);
   const [showForm, setShowForm]   = useState(false);
@@ -114,9 +116,13 @@ export default function HospitalsAdmin() {
         <span style={{ color: "#1e3a5f" }}>|</span>
         <span style={{ color: "#e2e8f0", fontWeight: 600 }}>Manage Health Centres</span>
         <div style={{ marginLeft: "auto", display: "flex", gap: "0.5rem" }}>
-          {(["import", "list"] as const).map(t => (
+          {([
+            ["import",       "Import XLS"],
+            ["specialities", "Specialities"],
+            ["list",         "Manual List"],
+          ] as const).map(([t, label]) => (
             <button key={t} onClick={() => setTab(t)} style={{ backgroundColor: tab === t ? "#0d9488" : "transparent", border: `1px solid ${tab === t ? "#0d9488" : "#1e3a5f"}`, borderRadius: "7px", padding: "0.4rem 1rem", color: tab === t ? "#fff" : "#64748b", fontSize: "0.8rem", fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
-              {t === "import" ? "Import XLS" : "Manual List"}
+              {label}
             </button>
           ))}
         </div>
@@ -259,6 +265,72 @@ export default function HospitalsAdmin() {
             })()}
           </div>
         )}
+
+        {/* ── Specialities Tab ── */}
+        {tab === "specialities" && (() => {
+          const CAT_COLOR: Record<string, string> = {
+            Surgical: "#3b82f6", Medical: "#0d9488", Investigations: "#8b5cf6", Other: "#64748b",
+          };
+          const q = specSearch.toLowerCase();
+          const filtered = AB_SPECIALITIES.filter(s =>
+            !q || s.code.toLowerCase().includes(q) || s.name.toLowerCase().includes(q) || s.category.toLowerCase().includes(q)
+          );
+          const byCategory = (["Surgical", "Medical", "Investigations", "Other"] as const).map(cat => ({
+            cat,
+            items: filtered.filter(s => s.category === cat),
+          })).filter(g => g.items.length > 0);
+
+          return (
+            <div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.25rem", flexWrap: "wrap", gap: "0.75rem" }}>
+                <div>
+                  <div style={{ fontSize: "1rem", fontWeight: 700, color: "#e2e8f0", marginBottom: "0.2rem" }}>Ayushman Bharat Speciality Codes</div>
+                  <div style={{ fontSize: "0.78rem", color: "#64748b" }}>{AB_SPECIALITIES.length} codes · used in hospital empanelment XLS files</div>
+                </div>
+                <input
+                  value={specSearch}
+                  onChange={e => setSpecSearch(e.target.value)}
+                  placeholder="Search code or name…"
+                  style={{ backgroundColor: "#0f2040", border: "1px solid #1e3a5f", borderRadius: "7px", padding: "0.5rem 0.85rem", color: "#e2e8f0", fontSize: "0.82rem", outline: "none", fontFamily: "inherit", width: "220px" }}
+                />
+              </div>
+
+              {/* Summary pills */}
+              {!q && (
+                <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1.5rem", flexWrap: "wrap" }}>
+                  {(["Surgical", "Medical", "Investigations", "Other"] as const).map(cat => (
+                    <span key={cat} onClick={() => setSpecSearch(cat.toLowerCase())} style={{ fontSize: "0.72rem", backgroundColor: `${CAT_COLOR[cat]}20`, color: CAT_COLOR[cat], border: `1px solid ${CAT_COLOR[cat]}40`, borderRadius: "5px", padding: "0.2rem 0.7rem", cursor: "pointer", fontWeight: 600 }}>
+                      {cat} · {AB_SPECIALITIES.filter(s => s.category === cat).length}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+                {byCategory.map(({ cat, items }) => (
+                  <div key={cat}>
+                    <div style={{ fontSize: "0.68rem", fontWeight: 700, color: CAT_COLOR[cat], textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "0.6rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                      <span style={{ width: "28px", height: "2px", backgroundColor: CAT_COLOR[cat], display: "inline-block" }} />
+                      {cat} ({items.length})
+                    </div>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "0.4rem" }}>
+                      {items.map(s => (
+                        <div key={s.code} style={{ backgroundColor: "#0f2040", border: `1px solid ${CAT_COLOR[s.category]}20`, borderLeft: `3px solid ${CAT_COLOR[s.category]}`, borderRadius: "7px", padding: "0.55rem 0.85rem", display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                          <span style={{ fontSize: "0.75rem", fontWeight: 700, color: CAT_COLOR[s.category], minWidth: "38px", fontFamily: "monospace" }}>{s.code}</span>
+                          <span style={{ fontSize: "0.78rem", color: "#94a3b8", lineHeight: 1.3 }}>{s.name}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {filtered.length === 0 && (
+                <div style={{ textAlign: "center", padding: "3rem", color: "#475569", fontSize: "0.85rem" }}>No codes match &quot;{specSearch}&quot;</div>
+              )}
+            </div>
+          );
+        })()}
 
         {/* ── Manual List Tab ── */}
         {tab === "list" && (
