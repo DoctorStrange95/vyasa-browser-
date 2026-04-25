@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { fsQuery, fsAdd, fsUpdate } from "@/lib/firestore";
+import { adminQuery, adminAdd } from "@/lib/firestore-admin";
 import { signUserToken, USER_COOKIE } from "@/lib/userAuth";
 import crypto from "crypto";
 import { promisify } from "util";
@@ -28,20 +28,20 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Password must be at least 8 characters." }, { status: 400 });
   }
 
-  const existing = await fsQuery("users", "email", email.toLowerCase().trim(), 1);
+  const existing = await adminQuery("users", "email", email.toLowerCase().trim(), 1);
   if (existing.length > 0) {
     return NextResponse.json({ error: "This email is already registered. Please log in." }, { status: 409 });
   }
 
   const passwordHash = await hashPassword(password);
-  const uid = await fsAdd("users", {
-    name:         name.trim(),
-    age:          age ? Number(age) : null,
-    email:        email.toLowerCase().trim(),
-    phone:        phone?.trim() ?? "",
-    place:        place?.trim() ?? "",
+  const uid = await adminAdd("users", {
+    name:          name.trim(),
+    age:           age ? Number(age) : null,
+    email:         email.toLowerCase().trim(),
+    phone:         phone?.trim() ?? "",
+    place:         place?.trim() ?? "",
     passwordHash,
-    createdAt:    new Date().toISOString(),
+    createdAt:     new Date().toISOString(),
     contributions: 0,
   });
 
@@ -51,7 +51,5 @@ export async function POST(req: NextRequest) {
     httpOnly: true, secure: process.env.NODE_ENV === "production",
     sameSite: "lax", maxAge: 60 * 60 * 24 * 30, path: "/",
   });
-  // Suppress unused import warning
-  void fsUpdate;
   return res;
 }
