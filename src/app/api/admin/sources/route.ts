@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAdminSession } from "@/lib/auth";
-import { fsList, fsGet, fsQuery } from "@/lib/firestore";
+import { adminList, adminGet, adminQuery } from "@/lib/firestore-admin";
+import { fsGet } from "@/lib/firestore";
 
 export async function GET() {
   const isAdmin = await getAdminSession();
@@ -8,14 +9,14 @@ export async function GET() {
 
   const [phi, submissions, waitlist, idspRaw, feedbackDoc] = await Promise.allSettled([
     Promise.all([
-      fsQuery("ph_intelligence", "status", "live",     500),
-      fsQuery("ph_intelligence", "status", "pending",  200),
-      fsQuery("ph_intelligence", "status", "rejected", 200),
+      adminQuery("ph_intelligence", "status", "live",     500),
+      adminQuery("ph_intelligence", "status", "pending",  200),
+      adminQuery("ph_intelligence", "status", "rejected", 200),
     ]).then(([live, pending, rejected]) => [...live, ...pending, ...rejected]),
-    fsList("pendingSubmissions", 300),
-    fsList("waitlist", 500),
-    fsGet("idsp_weekly", "latest_v3"),
-    fsGet("feedback", "all"),
+    adminList("pendingSubmissions", 300),
+    adminList("waitlist", 500),
+    fsGet("idsp_weekly", "latest_v3"),           // public-readable, REST helper fine
+    adminGet("feedback", "all"),
   ]);
 
   return NextResponse.json({

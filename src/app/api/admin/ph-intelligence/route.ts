@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminSession } from "@/lib/auth";
-import { fsQuery, fsUpdate, fsBatchUpdate } from "@/lib/firestore";
+import { adminQuery, adminUpdate, adminBatchUpdate } from "@/lib/firestore-admin";
 
 export async function GET() {
   const isAdmin = await getAdminSession();
@@ -8,9 +8,9 @@ export async function GET() {
 
   try {
     const [pending, live, rejected] = await Promise.all([
-      fsQuery("ph_intelligence", "status", "pending", 100),
-      fsQuery("ph_intelligence", "status", "live",    500),
-      fsQuery("ph_intelligence", "status", "rejected",500),
+      adminQuery("ph_intelligence", "status", "pending", 100),
+      adminQuery("ph_intelligence", "status", "live",    500),
+      adminQuery("ph_intelligence", "status", "rejected",500),
     ]);
 
     const sorted = [...pending].sort((a, b) =>
@@ -33,7 +33,7 @@ export async function PATCH(req: NextRequest) {
   }
 
   const status = action === "approve" ? "live" : "rejected";
-  await fsUpdate("ph_intelligence", id, { status, reviewedAt: new Date().toISOString() });
+  await adminUpdate("ph_intelligence", id, { status, reviewedAt: new Date().toISOString() });
   return NextResponse.json({ ok: true, id, status });
 }
 
@@ -44,8 +44,8 @@ export async function DELETE(req: NextRequest) {
   const { action } = await req.json();
   if (action !== "approve_all") return NextResponse.json({ error: "Invalid action" }, { status: 400 });
 
-  const pending = await fsQuery("ph_intelligence", "status", "pending", 500);
+  const pending = await adminQuery("ph_intelligence", "status", "pending", 500);
   const ids     = pending.map(d => d._id as string).filter(Boolean);
-  await fsBatchUpdate("ph_intelligence", ids, { status: "live", reviewedAt: new Date().toISOString() });
+  await adminBatchUpdate("ph_intelligence", ids, { status: "live", reviewedAt: new Date().toISOString() });
   return NextResponse.json({ ok: true, approved: ids.length });
 }

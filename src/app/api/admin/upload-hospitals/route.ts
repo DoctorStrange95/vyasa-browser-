@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminSession } from "@/lib/auth";
-import { fsSet } from "@/lib/firestore";
+import { adminSet } from "@/lib/firestore-admin";
 import * as XLSX from "xlsx";
 
 export const maxDuration = 60;
@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
   const stateName = file.name.replace(/\.(xls|xlsx)$/i, "");
 
   if (save) {
-    await fsSet("hospitals", stateSlug, {
+    await adminSet("hospitals", stateSlug, {
       stateName,
       stateSlug,
       hospitals: rows,
