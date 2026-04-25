@@ -6,6 +6,7 @@ import IDSPWeeklyReport from "@/components/IDSPWeeklyReport";
 import SidebarNav from "@/components/SidebarNav";
 import StateTable from "@/components/StateTable";
 import JsonLd from "@/components/JsonLd";
+import HomeSearch from "@/components/HomeSearch";
 import states from "@/data/states.json";
 
 export const metadata: Metadata = {
@@ -117,6 +118,8 @@ export default function HomePage() {
                   ))}
                 </div>
               </div>
+              {/* ── Search bar ── */}
+              <HomeSearch />
             </div>
           </section>
 
