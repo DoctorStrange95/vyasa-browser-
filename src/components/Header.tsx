@@ -78,6 +78,7 @@ export default function Header({ user }: { user?: HeaderUser | null }) {
               Sign In →
             </Link>
           )}
+
         </nav>
 
         {/* Mobile hamburger */}
@@ -147,6 +148,7 @@ export default function Header({ user }: { user?: HeaderUser | null }) {
                 Sign In →
               </Link>
             )}
+
           </div>
 
           {/* Section nav — only on homepage */}

@@ -5,7 +5,7 @@ import states from "@/data/states.json";
 
 type Mode = "login" | "register";
 
-export default function AuthForm() {
+export default function AuthForm({ redirectTo = "/profile" }: { redirectTo?: string }) {
   const router = useRouter();
   const [mode,     setMode]     = useState<Mode>("login");
   const [name,     setName]     = useState("");
@@ -39,7 +39,7 @@ export default function AuthForm() {
 
       if (!res.ok) { setErrMsg(data.error ?? "Something went wrong"); setStatus("error"); return; }
       setStatus("done");
-      router.push("/profile");
+      router.push(redirectTo);
       router.refresh();
     } catch {
       setErrMsg("Network error. Please try again."); setStatus("error");
