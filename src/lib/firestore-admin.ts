@@ -105,3 +105,19 @@ export async function adminBatchUpdate(
   }
   await batch.commit();
 }
+
+export async function adminAdd(
+  col: string,
+  data: Record<string, unknown>,
+): Promise<string> {
+  const db  = getAdminDb();
+  const ref = await db.collection(col).add(data);
+  return ref.id;
+}
+
+export async function adminDelete(col: string, id: string): Promise<void> {
+  const db = getAdminDb();
+  await db.collection(col).doc(id).delete();
+}
+
+export { getAdminDb };

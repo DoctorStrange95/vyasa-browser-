@@ -53,6 +53,9 @@ export default function Header({ user }: { user?: HeaderUser | null }) {
 
         {/* Desktop nav */}
         <nav style={{ display: "flex", gap: "2rem", alignItems: "center" }} className="desktop-nav">
+          <Link href="/citizens" style={{ color: "#94a3b8", textDecoration: "none", fontSize: "0.875rem", fontWeight: 500 }}>
+            🏥 Citizens
+          </Link>
           <Link href="/team" style={{ color: "#94a3b8", textDecoration: "none", fontSize: "0.875rem", fontWeight: 500 }}>
             Our Team
           </Link>
@@ -109,6 +112,9 @@ export default function Header({ user }: { user?: HeaderUser | null }) {
         >
           {/* Page links */}
           <div style={{ display: "flex", flexDirection: "column", gap: "0.15rem", padding: "0.75rem 1.25rem 0" }}>
+            <Link href="/citizens" style={{ color: "#93c5fd", textDecoration: "none", fontSize: "0.875rem", padding: "0.55rem 0", borderBottom: "1px solid #1e3a5f10", fontWeight: 500 }} onClick={() => setMenuOpen(false)}>
+              🏥 Citizens Centre
+            </Link>
             <Link href="/team" style={{ color: "#94a3b8", textDecoration: "none", fontSize: "0.875rem", padding: "0.55rem 0", borderBottom: "1px solid #1e3a5f10" }} onClick={() => setMenuOpen(false)}>
               Our Team
             </Link>

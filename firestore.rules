@@ -31,7 +31,8 @@ service cloud.firestore {
     match /waitlist/{docId}             { allow read, write: if false; }
     match /pendingSubmissions/{docId}   { allow read, write: if false; }
     match /feedback/{docId}             { allow read, write: if false; }
-    match /hospitals/{docId}            { allow read, write: if false; }
+    match /hospitals/{docId}            { allow read: if true; allow write: if false; }
+    match /health_locker_files/{docId}  { allow read, write: if false; }
 
     // Deny everything else by default.
     match /{document=**} {
