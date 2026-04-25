@@ -49,7 +49,7 @@ function parseSpecialities(raw: string): string[] {
   return raw.split(/[,;\s\/]+/).map((s) => s.trim()).filter(Boolean);
 }
 
-export default function HospitalFinder() {
+export default function HospitalFinder({ isLoggedIn }: { isLoggedIn: boolean }) {
   const [states, setStates]       = useState<StateItem[]>([]);
   const [selectedState, setSelectedState] = useState("");
   const [districts, setDistricts] = useState<string[]>([]);
@@ -280,20 +280,32 @@ export default function HospitalFinder() {
                         </div>
                       )}
                     </div>
-                    <div style={{ textAlign: "right", flexShrink: 0 }}>
+                    <div style={{ textAlign: "right", flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "0.4rem" }}>
                       {h.type && (
-                        <span style={{ fontSize: "0.72rem", color: "#94a3b8", display: "block", marginBottom: "0.3rem" }}>
-                          {h.type}
-                        </span>
+                        <span style={{ fontSize: "0.72rem", color: "#94a3b8" }}>{h.type}</span>
                       )}
-                      {h.phone && (
+                      {h.phone && isLoggedIn ? (
                         <a
-                          href={`tel:${h.phone.replace(/\s/g, "")}`}
-                          style={{ fontSize: "0.78rem", color: "#38bdf8", textDecoration: "none" }}
+                          href={`tel:${h.phone.replace(/[\s\-]/g, "")}`}
+                          style={{
+                            display: "inline-flex", alignItems: "center", gap: "5px",
+                            background: "#166534", color: "#4ade80",
+                            border: "1px solid #15803d", borderRadius: "7px",
+                            padding: "0.4rem 0.75rem", fontSize: "0.8rem",
+                            fontWeight: 600, textDecoration: "none", whiteSpace: "nowrap",
+                          }}
                         >
-                          📞 {h.phone}
+                          📞 Register: {h.phone}
                         </a>
-                      )}
+                      ) : h.phone && !isLoggedIn ? (
+                        <span style={{
+                          fontSize: "0.75rem", color: "#475569",
+                          border: "1px dashed #1e3a5f", borderRadius: "6px",
+                          padding: "0.35rem 0.6rem",
+                        }}>
+                          Sign in to call & register
+                        </span>
+                      ) : null}
                     </div>
                   </div>
                 </div>

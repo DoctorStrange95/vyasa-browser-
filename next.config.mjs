@@ -21,7 +21,7 @@ const nextConfig = {
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
               "img-src 'self' data: https:",
-              "connect-src 'self' https://firestore.googleapis.com https://api.groq.com https://news.google.com https://idsp.mohfw.gov.in https://nominatim.openstreetmap.org https://overpass-api.de",
+              "connect-src 'self' https://firestore.googleapis.com https://api.groq.com https://news.google.com https://idsp.mohfw.gov.in https://nominatim.openstreetmap.org https://overpass-api.de https://wa.me",
               "frame-src 'none'",
               "object-src 'none'",
               "base-uri 'self'",
