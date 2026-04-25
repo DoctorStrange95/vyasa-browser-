@@ -78,91 +78,49 @@ export async function POST(req: NextRequest) {
     ? `\nARTICLE CONTENT (extracted):\n${articleText}`
     : `\nNote: Article content could not be fetched — use metadata only.`;
 
-  /* ── Category-specific format blocks ─────────────────────────────── */
-  const formatByCategory: Record<string, string> = {
+  /* ── Category-specific prose instructions ────────────────────────── */
+  const instructionByCategory: Record<string, string> = {
 
-    OUTBREAK: `FORMAT YOUR RESPONSE AS:
-**${state}${district ? ", " + district : ""}** — ${topic} outbreak update
+    OUTBREAK: `Write a flowing 2–3 paragraph intelligence brief in the style of a WHO Disease Outbreak News or IDSP Rapid Risk Assessment.
 
-KEY FACTS:
-- Confirmed cases: [number from source, or "Case count not disclosed in source"]
-- Deaths: [number] | CFR: [calculate as (deaths/cases)×100 if both available]
-- Affected area: [specific districts/blocks/radius if mentioned]
-- Response measures: [culling, quarantine, vaccination campaign, contact tracing, etc.]
-- Timeline: [first detection date, spread pattern if known]
+Paragraph 1 — Situation: Open with **${state}${district ? ", " + district : ""}** in bold, then in one or two sentences describe what is happening: the disease, where, how many cases and deaths (state exact numbers or "case count not disclosed"), and when it started. If cases or deaths are not specified, say so — do not invent.
 
-CONTEXT:
-Compare to baseline or flag if unusual timing/location (e.g., "First human case in this district in 5 years"). If no baseline available, state that.
+Paragraph 2 — Epidemiology & response: Cover the affected area (districts, blocks, radius), any high-risk groups, the timeline of spread, and what containment measures are under way (culling, quarantine, contact tracing, vaccination drives). Include CFR if both cases and deaths are known: (deaths÷cases)×100%.
 
-PUBLIC HEALTH ACTIONS:
-- Surveillance: [contact tracing priorities, sentinel sites, lab testing required]
-- Prevention: [vaccination, vector control, food safety, water safety advisories]
-- Resources: [PPE requirements, drugs needed, diagnostic kits]
+Paragraph 3 — Significance & actions needed: Note whether this is unusual for the season or location. Flag any baseline comparison if inferable ("first detected in this district", "above seasonal average"). Close with one or two specific surveillance or prevention actions that district health officers should prioritise.
 
-AVOID vague statements. Use numbers. Only report confirmed data.`,
+Use no section headings. Write as continuous prose. Be specific — numbers over adjectives.`,
 
-    NCD: `FORMAT YOUR RESPONSE AS:
-${topic} burden update — ${locationStr}
+    NCD: `Write a flowing 2–3 paragraph intelligence brief in the style of an ICMR epidemiology bulletin or NPCDCS state-level briefing note.
 
-EPIDEMIOLOGICAL DATA:
-- Prevalence: [% in which population]
-- Absolute numbers: [if available in source]
-- High-risk groups: [age, gender, urban/rural, socioeconomic profile]
-- Trend: ↑ ↓ → vs [previous year/national average — state the baseline used]
+Paragraph 1 — Burden snapshot: State the condition, location (${locationStr}), prevalence or absolute numbers from the source, and which population is most affected (age band, sex, urban/rural). Cite the baseline or comparison period if available; otherwise note the gap.
 
-CLINICAL SIGNIFICANCE:
-What does this mean for frontline doctors? Give a specific, actionable statement (e.g., "Screen all adults >40 for CKD in coastal Karnataka").
+Paragraph 2 — Trend & risk profile: Describe whether burden is rising, stable, or declining versus the previous year or national average. Name the primary risk factors mentioned in the source. If high-risk sub-groups are identified, be specific.
 
-POLICY IMPLICATIONS:
-- Screening program gaps identified
-- Treatment access barriers
-- Prevention opportunities (diet, exercise, awareness, early detection)
+Paragraph 3 — Actionable implications: Give one concrete clinical recommendation for frontline doctors (e.g., "Screen adults over 40 for CKD in coastal ${state}"). Note any screening program gaps, treatment access barriers, or prevention opportunities the source highlights.
 
-AVOID generic statements. Give specific, actionable insights only.`,
+Use no section headings. Write as continuous prose. Be specific and actionable.`,
 
-    PROGRAM: `FORMAT YOUR RESPONSE AS:
-${topic} — ${source}
+    PROGRAM: `Write a focused 2-paragraph programme brief in the style of a National Health Mission state-level circular summary.
 
-WHAT IT IS:
-One sentence: what this program/initiative does.
+Paragraph 1 — What and why: Name the programme or initiative, the organisation behind it, and in one sentence what it does. Then describe the specific public health problem it addresses, who it targets (patients, health workers, administrators, researchers), and any measurable outcomes stated in the source.
 
-RELEVANCE TO PUBLIC HEALTH:
-- Problem addressed: [specific disease burden, surveillance gap, or infrastructure issue]
-- Target population: [patients / health workers / researchers / administrators]
-- Expected impact: [measurable outcomes if stated in source]
+Paragraph 2 — What frontline staff need to know: Cover key dates (application deadline, implementation window, eligibility criteria). Close with a direct statement on clinical or operational impact — either "No immediate change to clinical practice" or exactly what changes for PHC or district hospital staff.
 
-KEY DATES & ACTIONS:
-- Application/registration deadline: [date or "not specified"]
-- Implementation timeline: [start–end dates]
-- Eligibility: [who can apply or participate]
+Use no section headings. Write as continuous prose.`,
 
-FRONTLINE UTILITY:
-Does this affect clinical practice, surveillance reporting, or resource availability?
-If NO → state: "Administrative update — no immediate clinical impact."
-If YES → state exactly what changes for PHC/district hospital staff.`,
+    POLICY: `Write a focused 2-paragraph policy brief in the style of a Ministry of Health & Family Welfare office memorandum summary.
 
-    POLICY: `FORMAT YOUR RESPONSE AS:
-${topic} — ${source}
+Paragraph 1 — What changed: Describe the previous guideline or baseline (or note this is new), what the revised policy now mandates, and when it takes effect. Be specific about the drug, protocol, notification form, or threshold that changed.
 
-WHAT CHANGED:
-- Previous policy/guideline: [brief description, or "New guideline — no previous version"]
-- New policy: [brief description of what changed]
-- Effective date: [when it takes effect, or "not specified"]
+Paragraph 2 — Ground-level impact and compliance: Explain what this means day-to-day for PHC and district hospital staff — updated reporting timelines, revised treatment protocols, new surveillance obligations. State any compliance deadline explicitly, or note "No compliance deadline specified" if the source does not mention one.
 
-IMPACT ON GROUND-LEVEL HEALTH WORKERS:
-- Reporting requirements: [new forms, timelines, platforms affected]
-- Treatment protocols: [drug changes, dosage updates, referral criteria]
-- Surveillance obligations: [new diseases to report, notification timelines]
-
-COMPLIANCE DEADLINES:
-[When must hospitals/PHCs/doctors comply — or "No compliance deadline stated"]
-
-AVOID quoting full policy text. Extract only what changes day-to-day practice.`,
+Use no section headings. Write as continuous prose. Extract only what changes practice.`,
   };
 
-  const formatBlock = formatByCategory[catLabel] ?? formatByCategory.OUTBREAK;
+  const instruction = instructionByCategory[catLabel] ?? instructionByCategory.OUTBREAK;
 
-  const prompt = `You are a public health intelligence analyst providing actionable briefings for Indian health officials.
+  const prompt = `You are a public health intelligence analyst writing briefings for Indian district and state health officers.
 
 ITEM METADATA:
 Category: ${catLabel}
@@ -179,20 +137,15 @@ ${articleBlock}
 
 ---
 
-INSTRUCTIONS:
-${formatBlock}
+WRITING INSTRUCTIONS:
+${instruction}
 
-GENERAL RULES (apply to all categories):
-1. Lead with location for outbreaks: **Kerala, Kozhikode** — H5N1 detected...
-2. Use numbers, not adjectives: "450 cases" not "significant outbreak"
-3. Calculate rates when possible: CFR = (deaths/cases) × 100
-4. Flag data gaps explicitly: "Case count not disclosed in source"
-5. No speculation — only report confirmed data from the source
-6. Action-oriented language: "Screen all contacts" not "screening may be considered"
-7. Compare to baselines when possible: "23% above 5-year average"
-8. District-level specificity whenever the source provides it
-
-Keep response under 400 words. Be factual, specific, and actionable.`;
+RULES (all categories):
+- Use exact numbers from the source. Never fabricate figures.
+- Flag missing data explicitly: "case count not disclosed in source".
+- No markdown headers, no bullet lists, no bold section labels like KEY FACTS or CONTEXT.
+- Bold only proper nouns and location names where it aids quick scanning.
+- Under 300 words total. Every sentence must earn its place.`;
 
   const client = new Groq({ apiKey });
 
