@@ -346,7 +346,7 @@ export default function HomePage() {
                 <div style={{ flex: 1, minWidth: "260px", position: "relative" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", marginBottom: "0.75rem" }}>
                     <span style={{ width: "7px", height: "7px", borderRadius: "50%", backgroundColor: "#2dd4bf", display: "inline-block", animation: "pulseGlow 2s infinite" }} />
-                    <span style={{ fontSize: "0.62rem", color: "#2dd4bf", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>Early Access · Limited Seats</span>
+                    <span style={{ fontSize: "0.62rem", color: "#2dd4bf", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>Early Access</span>
                   </div>
                   <h2 style={{ fontSize: "1.55rem", fontWeight: 700, color: "#fff", marginBottom: "0.5rem", lineHeight: 1.25, letterSpacing: "-0.01em" }}>
                     Built from the ward,<br />not the boardroom.

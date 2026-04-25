@@ -60,7 +60,7 @@ export default function JoinPage() {
         <div style={{ maxWidth: "820px", margin: "0 auto", textAlign: "center" }}>
           <div style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", backgroundColor: "#0d948815", border: "1px solid #0d948840", borderRadius: "6px", padding: "0.3rem 0.9rem", marginBottom: "1.5rem" }}>
             <span style={{ width: "6px", height: "6px", borderRadius: "50%", backgroundColor: "#2dd4bf", display: "inline-block", animation: "pulseGlow 2s infinite" }} />
-            <span style={{ fontSize: "0.68rem", color: "#2dd4bf", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>Early Access · Limited Seats</span>
+            <span style={{ fontSize: "0.68rem", color: "#2dd4bf", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase" }}>Early Access</span>
           </div>
 
           <h1 style={{ fontSize: "clamp(2rem,5vw,3.2rem)", fontWeight: 700, color: "#fff", lineHeight: 1.15, marginBottom: "0.75rem", letterSpacing: "-0.02em" }}>
