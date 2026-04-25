@@ -7,11 +7,15 @@ interface Props {
   metrics: Record<string, number | null | string | undefined>;
 }
 
+function escHtml(s: string): string {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
 function parseMarkdown(text: string): string {
-  return text
-    .replace(/^## (.+)$/gm, '<div style="font-size:0.82rem;font-weight:700;color:#2dd4bf;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:0.5rem;margin-top:0.25rem">$1</div>')
-    .replace(/\*\*([^*]+)\*\*/g, '<strong style="color:#e2e8f0">$1</strong>')
-    .replace(/^- (.+)$/gm, '<div style="display:flex;gap:0.4rem;margin:0.2rem 0"><span style="color:#2dd4bf;flex-shrink:0">▸</span><span>$1</span></div>')
+  // Escape raw HTML before applying markdown transforms so LLM output can't inject scripts.
+  return escHtml(text)
+    .replace(/^## (.+)$/gm,     '<div style="font-size:0.82rem;font-weight:700;color:#2dd4bf;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:0.5rem;margin-top:0.25rem">$1</div>')
+    .replace(/\*\*([^*]+)\*\*/g,'<strong style="color:#e2e8f0">$1</strong>')
+    .replace(/^- (.+)$/gm,      '<div style="display:flex;gap:0.4rem;margin:0.2rem 0"><span style="color:#2dd4bf;flex-shrink:0">▸</span><span>$1</span></div>')
     .replace(/\n\n/g, '<div style="margin:0.4rem 0"></div>')
     .replace(/\n/g, " ");
 }

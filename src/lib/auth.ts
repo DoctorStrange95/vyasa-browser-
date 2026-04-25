@@ -1,9 +1,14 @@
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 
-const SECRET = new TextEncoder().encode(
-  process.env.ADMIN_JWT_SECRET ?? "healthforindia-admin-secret-change-this"
-);
+function getSecret(): Uint8Array {
+  const s = process.env.ADMIN_JWT_SECRET;
+  if (!s) {
+    if (process.env.NODE_ENV === "production") throw new Error("ADMIN_JWT_SECRET is required in production");
+    return new TextEncoder().encode("healthforindia-admin-secret-dev-only");
+  }
+  return new TextEncoder().encode(s);
+}
 
 const COOKIE_NAME = "hfi_admin_session";
 
@@ -12,12 +17,12 @@ export async function signAdminToken(): Promise<string> {
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime("8h")
-    .sign(SECRET);
+    .sign(getSecret());
 }
 
 export async function verifyAdminToken(token: string): Promise<boolean> {
   try {
-    await jwtVerify(token, SECRET);
+    await jwtVerify(token, getSecret());
     return true;
   } catch {
     return false;

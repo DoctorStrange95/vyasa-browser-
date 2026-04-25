@@ -12,6 +12,9 @@ const ALLOWED: Record<string, string> = {
 };
 
 export async function GET(req: Request) {
+  const isAdmin = await getAdminSession();
+  if (!isAdmin) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   const { searchParams } = new URL(req.url);
   const section = searchParams.get("section") ?? "";
   const file = ALLOWED[section];

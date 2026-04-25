@@ -21,9 +21,42 @@ function extractText(html: string): string {
     .slice(0, 6000);
 }
 
+// Allowlist of trusted public news/health domains — no internal or metadata endpoints
+const ALLOWED_FETCH_HOSTS = new Set([
+  "www.who.int", "who.int",
+  "mohfw.gov.in", "www.mohfw.gov.in",
+  "idsp.mohfw.gov.in",
+  "pib.gov.in", "www.pib.gov.in",
+  "icmr.gov.in", "www.icmr.gov.in",
+  "nhm.gov.in", "www.nhm.gov.in",
+  "niti.gov.in", "www.niti.gov.in",
+  "thehindu.com", "www.thehindu.com",
+  "hindustantimes.com", "www.hindustantimes.com",
+  "timesofindia.com", "www.timesofindia.com", "timesofindia.indiatimes.com",
+  "ndtv.com", "www.ndtv.com",
+  "indianexpress.com", "www.indianexpress.com",
+  "theprint.in", "www.theprint.in",
+  "scroll.in", "www.scroll.in",
+  "wire.in", "www.wire.in", "thewire.in",
+  "livemint.com", "www.livemint.com",
+  "businessstandard.com", "www.businessstandard.com",
+  "telegraphindia.com", "www.telegraphindia.com",
+  "deccanherald.com", "www.deccanherald.com",
+  "thestatesman.com", "www.thestatesman.com",
+  "outbreaknewstoday.com", "www.outbreaknewstoday.com",
+  "promedmail.org", "www.promedmail.org",
+  "healthforindia.in", "www.healthforindia.in",
+  "vyasaa.com", "www.vyasaa.com",
+]);
+
 // Best-effort article fetch — returns empty string on any failure
 async function fetchArticleText(url: string): Promise<string> {
-  if (!url || url.startsWith("https://news.google.com")) return "";
+  if (!url) return "";
+  let parsed: URL;
+  try { parsed = new URL(url); } catch { return ""; }
+  // Only allow https and known public news/health hosts
+  if (parsed.protocol !== "https:") return "";
+  if (!ALLOWED_FETCH_HOSTS.has(parsed.hostname)) return "";
   try {
     const res = await fetch(url, {
       headers: {

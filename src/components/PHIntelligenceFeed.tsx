@@ -50,13 +50,17 @@ const CATEGORY_ICONS: Record<string, string> = {
 };
 
 // ── Simple markdown renderer (bold, italic, headers, bullets) ─────────────────
+function escHtml(s: string): string {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
 function renderMarkdown(text: string): string {
-  return text
-    .replace(/^## (.+)$/gm, "<h3 style='color:#e2e8f0;font-size:0.9rem;font-weight:700;margin:1rem 0 0.35rem'>$1</h3>")
-    .replace(/^### (.+)$/gm, "<h4 style='color:#cbd5e1;font-size:0.82rem;font-weight:600;margin:0.75rem 0 0.25rem'>$1</h4>")
-    .replace(/\*\*(.+?)\*\*/g, "<strong style='color:#e2e8f0'>$1</strong>")
-    .replace(/\*(.+?)\*/g,     "<em style='color:#94a3b8'>$1</em>")
-    .replace(/^- (.+)$/gm,    "<li style='color:#94a3b8;margin:0.2rem 0 0.2rem 1rem;list-style:disc'>$1</li>")
+  // Escape first so any raw HTML in LLM output is inert, then apply safe markdown transforms.
+  return escHtml(text)
+    .replace(/^## (.+)$/gm,   "<h3 style='color:#e2e8f0;font-size:0.9rem;font-weight:700;margin:1rem 0 0.35rem'>$1</h3>")
+    .replace(/^### (.+)$/gm,  "<h4 style='color:#cbd5e1;font-size:0.82rem;font-weight:600;margin:0.75rem 0 0.25rem'>$1</h4>")
+    .replace(/\*\*(.+?)\*\*/g,"<strong style='color:#e2e8f0'>$1</strong>")
+    .replace(/\*(.+?)\*/g,    "<em style='color:#94a3b8'>$1</em>")
+    .replace(/^- (.+)$/gm,   "<li style='color:#94a3b8;margin:0.2rem 0 0.2rem 1rem;list-style:disc'>$1</li>")
     .replace(/\n\n/g, "<br/><br/>")
     .replace(/\n/g, "<br/>");
 }

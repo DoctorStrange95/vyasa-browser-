@@ -1,39 +1,57 @@
 import { NextRequest, NextResponse } from "next/server";
-import { fsQuery, fsAdd } from "@/lib/firestore";
+import { fsQuery, fsAdd, fsUpdate } from "@/lib/firestore";
 import { signUserToken, USER_COOKIE } from "@/lib/userAuth";
 import crypto from "crypto";
+import { promisify } from "util";
 
-function hash(pw: string) {
-  return crypto.createHash("sha256").update(pw + process.env.USER_JWT_SECRET).digest("hex");
+const scrypt = promisify(crypto.scrypt);
+
+async function hashPassword(pw: string): Promise<string> {
+  const salt = crypto.randomBytes(32).toString("hex");
+  const buf  = await scrypt(pw, salt, 64) as Buffer;
+  return `scrypt:${salt}:${buf.toString("hex")}`;
 }
 
 export async function POST(req: NextRequest) {
-  const { name, age, email, phone, place, password } = await req.json() as {
-    name: string; age: number; email: string; phone: string; place: string; password: string;
-  };
+  const body = await req.json().catch(() => null);
+  if (!body) return NextResponse.json({ error: "Invalid request." }, { status: 400 });
 
-  if (!name || !email || !password) {
+  const { name, age, email, phone, place, password } = body as Record<string, string>;
+
+  if (!name?.trim() || !email?.trim() || !password) {
     return NextResponse.json({ error: "Name, email and password are required." }, { status: 400 });
   }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return NextResponse.json({ error: "Invalid email address." }, { status: 400 });
+  }
+  if (password.length < 8) {
+    return NextResponse.json({ error: "Password must be at least 8 characters." }, { status: 400 });
+  }
 
-  const existing = await fsQuery("users", "email", email, 1);
+  const existing = await fsQuery("users", "email", email.toLowerCase().trim(), 1);
   if (existing.length > 0) {
     return NextResponse.json({ error: "This email is already registered. Please log in." }, { status: 409 });
   }
 
+  const passwordHash = await hashPassword(password);
   const uid = await fsAdd("users", {
-    name, age: age ?? null, email,
-    phone: phone ?? "", place: place ?? "",
-    passwordHash: hash(password),
-    createdAt: new Date().toISOString(),
+    name:         name.trim(),
+    age:          age ? Number(age) : null,
+    email:        email.toLowerCase().trim(),
+    phone:        phone?.trim() ?? "",
+    place:        place?.trim() ?? "",
+    passwordHash,
+    createdAt:    new Date().toISOString(),
     contributions: 0,
   });
 
-  const token = await signUserToken({ uid, name, email });
-  const res   = NextResponse.json({ success: true, name, email });
+  const token = await signUserToken({ uid, name: name.trim(), email: email.toLowerCase().trim() });
+  const res   = NextResponse.json({ success: true, name: name.trim(), email: email.toLowerCase().trim() });
   res.cookies.set(USER_COOKIE, token, {
     httpOnly: true, secure: process.env.NODE_ENV === "production",
     sameSite: "lax", maxAge: 60 * 60 * 24 * 30, path: "/",
   });
+  // Suppress unused import warning
+  void fsUpdate;
   return res;
 }
