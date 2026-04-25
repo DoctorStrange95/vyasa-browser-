@@ -3,6 +3,26 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import type { IDSPWeeklyMeta } from "@/app/api/idsp-weekly/route";
 import type { IDSPOutbreak } from "@/lib/idspPDFParser";
+
+interface PHIItem {
+  type: string;
+  title: string;
+  disease?: string;
+  location: { state?: string; district?: string };
+  summary: string;
+  source: string;
+  sourceUrl?: string;
+  date?: string;
+}
+
+function matchesPHI(o: IDSPOutbreak, items: PHIItem[]): PHIItem[] {
+  const dis = o.disease.toLowerCase();
+  const st  = o.state.toLowerCase().slice(0, 5);
+  return items.filter(item => {
+    const t = (item.title + " " + (item.disease ?? "") + " " + (item.location?.state ?? "")).toLowerCase();
+    return t.includes(dis.slice(0, 6)) || (st && t.includes(st));
+  }).slice(0, 3);
+}
 import districts from "@/data/districts.json";
 import states from "@/data/states.json";
 
@@ -65,15 +85,22 @@ function ordinal(n: number): string {
 }
 
 export default function IDSPWeeklyReport() {
-  const [data,    setData]    = useState<IDSPWeeklyMeta | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [data,     setData]     = useState<IDSPWeeklyMeta | null>(null);
+  const [loading,  setLoading]  = useState(true);
   const [expanded, setExpanded] = useState(false);
+  const [phiItems, setPhiItems] = useState<PHIItem[]>([]);
+  const [openNews, setOpenNews] = useState<string | null>(null); // uid of expanded card
 
   useEffect(() => {
     fetch("/api/idsp-weekly")
       .then(r => r.json())
       .then(d => { setData(d as IDSPWeeklyMeta); setLoading(false); })
       .catch(() => setLoading(false));
+    // Also load PHI feed for cross-referencing
+    fetch("/api/ph-intelligence")
+      .then(r => r.json())
+      .then(d => { if (Array.isArray(d?.items)) setPhiItems(d.items as PHIItem[]); })
+      .catch(() => {});
   }, []);
 
   const outbreaks: IDSPOutbreak[] = data?.outbreaks ?? [];
@@ -262,37 +289,92 @@ export default function IDSPWeeklyReport() {
           </div>
           <div style={{ display: "flex", gap: "0.75rem", overflowX: "auto", paddingBottom: "6px" }}>
             {outbreaks.slice(0, 20).map((o, i) => {
-              const color = diseaseColor(o.disease);
-              const href  = resolveLink(o.district, o.state);
+              const color    = diseaseColor(o.disease);
+              const href     = resolveLink(o.district, o.state);
+              const news     = o.newsLinks ?? [];
+              const phi      = matchesPHI(o, phiItems);
+              const totalCov = news.length + phi.length;
+              const isOpen   = openNews === o.uid;
               return (
-                <Link key={i} href={href} style={{ textDecoration: "none", flexShrink: 0 }}>
-                  <div style={{
-                    minWidth: "210px", maxWidth: "240px",
-                    backgroundColor: "#080f1e", border: `1px solid ${color}30`, borderTop: `3px solid ${color}`,
-                    borderRadius: "10px", padding: "0.85rem 1rem",
-                    display: "flex", flexDirection: "column", gap: "0.3rem",
-                    cursor: "pointer", transition: "border-color 0.15s, box-shadow 0.15s",
-                  }}
-                    onMouseEnter={e => { e.currentTarget.style.borderColor = color; e.currentTarget.style.boxShadow = `0 4px 16px ${color}25`; }}
-                    onMouseLeave={e => { e.currentTarget.style.borderColor = `${color}30`; e.currentTarget.style.boxShadow = "none"; }}
-                  >
-                    <span style={{ fontSize: "0.58rem", fontWeight: 800, color, textTransform: "uppercase", letterSpacing: "0.08em", fontFamily: "monospace" }}>
-                      {o.disease}
-                    </span>
-                    <div style={{ fontSize: "0.73rem", fontWeight: 600, color: "#e2e8f0", lineHeight: 1.3 }}>
-                      {o.district}{o.district && o.state ? ", " : ""}{o.state}
+                <div key={i} style={{ flexShrink: 0, minWidth: "220px", maxWidth: "250px", display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+                  <Link href={href} style={{ textDecoration: "none" }}>
+                    <div style={{
+                      backgroundColor: "#080f1e", border: `1px solid ${color}30`, borderTop: `3px solid ${color}`,
+                      borderRadius: "10px", padding: "0.85rem 1rem",
+                      display: "flex", flexDirection: "column", gap: "0.3rem",
+                      cursor: "pointer", transition: "border-color 0.15s, box-shadow 0.15s",
+                    }}
+                      onMouseEnter={e => { e.currentTarget.style.borderColor = color; e.currentTarget.style.boxShadow = `0 4px 16px ${color}25`; }}
+                      onMouseLeave={e => { e.currentTarget.style.borderColor = `${color}30`; e.currentTarget.style.boxShadow = "none"; }}
+                    >
+                      <span style={{ fontSize: "0.58rem", fontWeight: 800, color, textTransform: "uppercase", letterSpacing: "0.08em", fontFamily: "monospace" }}>
+                        {o.disease}
+                      </span>
+                      <div style={{ fontSize: "0.73rem", fontWeight: 600, color: "#e2e8f0", lineHeight: 1.3 }}>
+                        {o.district}{o.district && o.state ? ", " : ""}{o.state}
+                      </div>
+                      <div style={{ display: "flex", gap: "0.6rem", fontSize: "0.63rem", marginTop: "0.1rem" }}>
+                        <span style={{ color: "#fb923c" }}>Cases: <b>{o.cases}</b></span>
+                        {o.deaths > 0 && <span style={{ color: "#f87171" }}>Deaths: <b>{o.deaths}</b></span>}
+                      </div>
+                      {o.startDate && <span style={{ fontSize: "0.58rem", color: "#334155" }}>Started: {o.startDate}</span>}
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "0.35rem" }}>
+                        <span style={{ fontSize: "0.56rem", color: "#1e3a5f", fontFamily: "monospace" }}>{o.uid}</span>
+                        <span style={{ fontSize: "0.6rem", color: "#2dd4bf" }}>Profile →</span>
+                      </div>
                     </div>
-                    <div style={{ display: "flex", gap: "0.6rem", fontSize: "0.63rem", marginTop: "0.1rem" }}>
-                      <span style={{ color: "#fb923c" }}>Cases: <b>{o.cases}</b></span>
-                      {o.deaths > 0 && <span style={{ color: "#f87171" }}>Deaths: <b>{o.deaths}</b></span>}
+                  </Link>
+
+                  {/* News coverage button */}
+                  {totalCov > 0 && (
+                    <button
+                      onClick={() => setOpenNews(isOpen ? null : o.uid)}
+                      style={{
+                        background: isOpen ? "#0d948830" : "#0f2040",
+                        border: `1px solid ${isOpen ? "#0d9488" : "#1e3a5f"}`,
+                        borderRadius: "7px", padding: "0.35rem 0.65rem",
+                        color: isOpen ? "#2dd4bf" : "#64748b",
+                        fontSize: "0.68rem", fontWeight: 600, cursor: "pointer",
+                        fontFamily: "inherit", textAlign: "left",
+                        display: "flex", alignItems: "center", gap: "0.4rem",
+                        width: "100%", transition: "all 0.15s",
+                      }}
+                    >
+                      <span>📰</span>
+                      <span>{totalCov} coverage item{totalCov !== 1 ? "s" : ""}</span>
+                      <span style={{ marginLeft: "auto", fontSize: "0.6rem" }}>{isOpen ? "▲" : "▼"}</span>
+                    </button>
+                  )}
+
+                  {/* Expanded news panel */}
+                  {isOpen && (
+                    <div style={{
+                      backgroundColor: "#060d1a", border: "1px solid #1e3a5f",
+                      borderRadius: "8px", padding: "0.6rem 0.75rem",
+                      display: "flex", flexDirection: "column", gap: "0.5rem",
+                    }}>
+                      {news.map((n, ni) => (
+                        <a key={ni} href={n.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
+                          <div style={{ padding: "0.4rem 0", borderBottom: ni < news.length - 1 || phi.length > 0 ? "1px solid #1e3a5f20" : "none" }}>
+                            <div style={{ fontSize: "0.68rem", color: "#e2e8f0", lineHeight: 1.4, marginBottom: "0.15rem" }}>{n.title}</div>
+                            <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+                              <span style={{ fontSize: "0.58rem", color: "#0d9488", fontWeight: 600 }}>{n.source}</span>
+                              {n.publishedAt && <span style={{ fontSize: "0.56rem", color: "#334155" }}>{new Date(n.publishedAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}</span>}
+                              <span style={{ fontSize: "0.56rem", color: "#475569", marginLeft: "auto" }}>↗ Read</span>
+                            </div>
+                          </div>
+                        </a>
+                      ))}
+                      {phi.map((p, pi) => (
+                        <div key={`phi-${pi}`} style={{ padding: "0.4rem 0", borderTop: pi === 0 && news.length > 0 ? "1px solid #1e3a5f" : "none" }}>
+                          <div style={{ fontSize: "0.58rem", color: "#6366f1", fontWeight: 700, marginBottom: "0.1rem", textTransform: "uppercase", letterSpacing: "0.06em" }}>PHI Feed</div>
+                          <div style={{ fontSize: "0.68rem", color: "#94a3b8", lineHeight: 1.4 }}>{p.title}</div>
+                          <div style={{ fontSize: "0.58rem", color: "#475569", marginTop: "0.1rem" }}>{p.source}</div>
+                        </div>
+                      ))}
                     </div>
-                    {o.startDate && <span style={{ fontSize: "0.58rem", color: "#334155" }}>Started: {o.startDate}</span>}
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "auto" }}>
-                      <span style={{ fontSize: "0.56rem", color: "#1e3a5f", fontFamily: "monospace" }}>{o.uid}</span>
-                      <span style={{ fontSize: "0.6rem", color: "#2dd4bf" }}>View profile →</span>
-                    </div>
-                  </div>
-                </Link>
+                  )}
+                </div>
               );
             })}
           </div>

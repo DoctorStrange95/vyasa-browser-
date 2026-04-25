@@ -4,6 +4,13 @@
  * Fallback: regex parsing.
  */
 
+export interface IDSPNewsLink {
+  title: string;
+  url: string;
+  source: string;
+  publishedAt: string;
+}
+
 export interface IDSPOutbreak {
   uid: string;
   state: string;
@@ -16,6 +23,7 @@ export interface IDSPOutbreak {
   status: string;
   week: number;
   year: number;
+  newsLinks?: IDSPNewsLink[];
 }
 
 export interface IDSPParsedReport {
