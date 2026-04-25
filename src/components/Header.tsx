@@ -124,9 +124,29 @@ export default function Header({ user }: { user?: HeaderUser | null }) {
             <Link href="/contribute" style={{ color: "#94a3b8", textDecoration: "none", fontSize: "0.875rem", padding: "0.55rem 0", borderBottom: "1px solid #1e3a5f10" }} onClick={() => setMenuOpen(false)}>
               Contribute
             </Link>
-            <Link href="/join" style={{ color: "#2dd4bf", textDecoration: "none", fontSize: "0.875rem", fontWeight: 700, padding: "0.55rem 0" }} onClick={() => setMenuOpen(false)}>
+            <Link href="/join" style={{ color: "#2dd4bf", textDecoration: "none", fontSize: "0.875rem", fontWeight: 700, padding: "0.55rem 0", borderBottom: "1px solid #1e3a5f10" }} onClick={() => setMenuOpen(false)}>
               Join Vyasa →
             </Link>
+            {user ? (
+              <Link
+                href="/profile"
+                onClick={() => setMenuOpen(false)}
+                style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "#94a3b8", textDecoration: "none", fontSize: "0.875rem", padding: "0.55rem 0" }}
+              >
+                <span style={{ width: "22px", height: "22px", borderRadius: "50%", background: "#0d948840", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: "0.7rem", fontWeight: 700, color: "#2dd4bf" }}>
+                  {user.name[0].toUpperCase()}
+                </span>
+                {user.name.split(" ")[0]}
+              </Link>
+            ) : (
+              <Link
+                href="/auth"
+                onClick={() => setMenuOpen(false)}
+                style={{ display: "inline-block", background: "#0d9488", color: "#fff", borderRadius: "8px", padding: "0.55rem 1.25rem", fontSize: "0.875rem", fontWeight: 600, textDecoration: "none", marginTop: "0.4rem", textAlign: "center" }}
+              >
+                Sign In →
+              </Link>
+            )}
           </div>
 
           {/* Section nav — only on homepage */}

@@ -22,24 +22,24 @@ const CATEGORY_COLORS: Record<ABSpeciality["category"], string> = {
 };
 
 function SpecialityBadge({ code }: { code: string }) {
-  const sp = AB_SPECIALITIES.find((s) => s.code === code.trim().toUpperCase());
-  if (!sp) return (
-    <span style={{ background: "#1e3a5f", color: "#94a3b8", fontSize: "0.65rem", padding: "2px 6px", borderRadius: "4px" }}>
-      {code}
-    </span>
-  );
+  const clean = code.trim().toUpperCase();
+  const sp = AB_SPECIALITIES.find((s) => s.code === clean);
+  const color = sp ? CATEGORY_COLORS[sp.category] : "#64748b";
   return (
     <span
-      title={sp.name}
       style={{
-        background: CATEGORY_COLORS[sp.category] + "22",
-        color: CATEGORY_COLORS[sp.category],
-        border: `1px solid ${CATEGORY_COLORS[sp.category]}55`,
-        fontSize: "0.65rem", padding: "2px 6px", borderRadius: "4px",
-        cursor: "default", whiteSpace: "nowrap",
+        background: color + "18",
+        color,
+        border: `1px solid ${color}44`,
+        fontSize: "0.72rem", padding: "3px 8px", borderRadius: "4px",
+        display: "inline-flex", alignItems: "center", gap: "4px",
+        whiteSpace: "nowrap",
       }}
     >
-      {code.trim().toUpperCase()}
+      <span style={{ fontWeight: 600, letterSpacing: "0.02em" }}>{clean}</span>
+      {sp && (
+        <span style={{ opacity: 0.85, fontWeight: 400 }}>{sp.name}</span>
+      )}
     </span>
   );
 }
