@@ -117,15 +117,20 @@ type TabId = typeof TABS[number]["id"];
 
 /* ══════════════════════════════════════════════════════════════════════════ */
 export default function SourcesSheet() {
-  const [data,    setData]    = useState<AllData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [tab,     setTab]     = useState<TabId>("phi");
-  const [search,  setSearch]  = useState("");
+  const [data,       setData]       = useState<AllData | null>(null);
+  const [adminError, setAdminError] = useState<string | null>(null);
+  const [loading,    setLoading]    = useState(true);
+  const [tab,        setTab]        = useState<TabId>("phi");
+  const [search,     setSearch]     = useState("");
 
   useEffect(() => {
     fetch("/api/admin/sources")
       .then(r => r.json())
-      .then(d => { setData(d as AllData); setLoading(false); });
+      .then((d: AllData & { _error?: string }) => {
+        if (d._error) setAdminError(d._error);
+        setData(d as AllData);
+        setLoading(false);
+      });
   }, []);
 
   /* ── counts for tab badges ── */
@@ -148,6 +153,21 @@ export default function SourcesSheet() {
 
   return (
     <div style={{ maxWidth: "1300px", margin: "0 auto", padding: "1.5rem 1.5rem 4rem" }}>
+
+      {/* Service-account error banner */}
+      {adminError && (
+        <div style={{ backgroundColor: "#f9731615", border: "1px solid #f9731640", borderRadius: "10px", padding: "1rem 1.25rem", marginBottom: "1.25rem", display: "flex", gap: "0.75rem", alignItems: "flex-start" }}>
+          <span style={{ fontSize: "1.1rem", flexShrink: 0 }}>⚠️</span>
+          <div>
+            <div style={{ fontWeight: 700, color: "#f97316", fontSize: "0.85rem", marginBottom: "0.3rem" }}>Admin SDK not configured — data cannot be loaded</div>
+            <div style={{ fontSize: "0.78rem", color: "#94a3b8", lineHeight: 1.6 }}>
+              Add <code style={{ backgroundColor: "#1e3a5f", borderRadius: "4px", padding: "0.1rem 0.4rem", color: "#2dd4bf" }}>FIREBASE_SERVICE_ACCOUNT_KEY</code> to Vercel environment variables, then redeploy.
+              <br />
+              <strong style={{ color: "#e2e8f0" }}>Steps:</strong> Firebase Console → Project Settings (⚙️) → Service Accounts → Generate new private key → copy the full JSON → paste as env var value.
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.25rem", flexWrap: "wrap", gap: "0.75rem" }}>

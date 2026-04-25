@@ -19,7 +19,18 @@ export async function GET() {
     adminGet("feedback", "all"),
   ]);
 
+  // Surface service-account errors so the admin UI can show an actionable banner
+  const firstErr = [phi, submissions, waitlist, feedbackDoc]
+    .find(r => r.status === "rejected")
+    ?.reason as Error | undefined;
+  const adminError = firstErr?.message?.includes("FIREBASE_SERVICE_ACCOUNT_KEY")
+    ? "FIREBASE_SERVICE_ACCOUNT_KEY is not configured in Vercel environment variables. Go to Vercel → your project → Settings → Environment Variables, add FIREBASE_SERVICE_ACCOUNT_KEY (paste the full service account JSON from Firebase Console → Project Settings → Service Accounts → Generate new private key), then redeploy."
+    : firstErr
+    ? `Admin SDK error: ${firstErr.message}`
+    : null;
+
   return NextResponse.json({
+    _error:      adminError,
     phi:         phi.status         === "fulfilled" ? phi.value         : [],
     submissions: submissions.status === "fulfilled" ? submissions.value : [],
     waitlist:    waitlist.status    === "fulfilled" ? waitlist.value    : [],

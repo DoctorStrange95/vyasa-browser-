@@ -38,13 +38,12 @@ export default function HospitalsAdmin() {
   const [showForm, setShowForm]   = useState(false);
   const [form, setForm]           = useState({ name: "", type: "PHC", address: "", district: "", stateSlug: "", pincode: "", phone: "", phone2: "", lat: "", lng: "", services: "", beds: "", doctors: "", openHours: "", website: "", addedBy: "Admin", notes: "" });
 
-  const fileRef                     = useRef<HTMLInputElement>(null);
-  const [fileName, setFileName]     = useState("");
-  const [importing, setImporting]   = useState(false);
-  const [importErr, setImportErr]   = useState("");
-  const [preview, setPreview]       = useState<ImportPreview | null>(null);
-  const [saving, setSaving]         = useState(false);
-  const [savedMsg, setSavedMsg]     = useState("");
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  type FileStatus = "pending" | "previewing" | "ready" | "saving" | "saved" | "error";
+  interface FileEntry { file: File; status: FileStatus; preview?: ImportPreview; error?: string; }
+  const [queue, setQueue]         = useState<FileEntry[]>([]);
+  const [bulkRunning, setBulkRun] = useState(false);
 
   useEffect(() => {
     fetch("/api/admin/hospitals").then(r => r.json()).then(d => { setHospitals(Array.isArray(d) ? d : []); setLoading(false); });
@@ -77,42 +76,35 @@ export default function HospitalsAdmin() {
     setHospitals(h => h.filter(x => x.id !== id));
   }
 
-  async function handlePreview() {
-    const file = fileRef.current?.files?.[0];
-    if (!file) { setImportErr("Select a file first"); return; }
-    setImportErr(""); setPreview(null); setImporting(true); setSavedMsg("");
+  function updateEntry(idx: number, patch: Partial<FileEntry>) {
+    setQueue(q => q.map((e, i) => i === idx ? { ...e, ...patch } : e));
+  }
+
+  async function uploadOne(entry: FileEntry, idx: number, save: boolean): Promise<boolean> {
+    updateEntry(idx, { status: save ? "saving" : "previewing" });
     const fd = new FormData();
-    fd.append("file", file);
-    fd.append("save", "false");
+    fd.append("file", entry.file);
+    fd.append("save", save ? "true" : "false");
     try {
       const res  = await fetch("/api/admin/upload-hospitals", { method: "POST", body: fd });
       const data = await res.json();
-      if (!res.ok) setImportErr(data.error ?? "Upload failed");
-      else setPreview(data);
+      if (!res.ok) { updateEntry(idx, { status: "error", error: data.error ?? "Upload failed" }); return false; }
+      updateEntry(idx, { status: save ? "saved" : "ready", preview: data });
+      return true;
     } catch {
-      setImportErr("Network error — try again");
-    } finally {
-      setImporting(false);
+      updateEntry(idx, { status: "error", error: "Network error" });
+      return false;
     }
   }
 
-  async function handleSave() {
-    const file = fileRef.current?.files?.[0];
-    if (!file || !preview) return;
-    setSaving(true); setSavedMsg("");
-    const fd = new FormData();
-    fd.append("file", file);
-    fd.append("save", "true");
-    try {
-      const res  = await fetch("/api/admin/upload-hospitals", { method: "POST", body: fd });
-      const data = await res.json();
-      if (!res.ok) setImportErr(data.error ?? "Save failed");
-      else { setSavedMsg(`Saved ${data.count.toLocaleString()} hospitals for ${data.stateName} to Firestore.`); setPreview({ ...data, saved: true }); }
-    } catch {
-      setImportErr("Network error — try again");
-    } finally {
-      setSaving(false);
+  async function handleImportAll() {
+    if (bulkRunning) return;
+    setBulkRun(true);
+    for (let i = 0; i < queue.length; i++) {
+      if (queue[i].status === "saved") continue;
+      await uploadOne(queue[i], i, true);
     }
+    setBulkRun(false);
   }
 
   return (
@@ -137,111 +129,134 @@ export default function HospitalsAdmin() {
           <div>
             <div style={{ marginBottom: "1.5rem" }}>
               <div style={{ fontSize: "1rem", fontWeight: 700, color: "#e2e8f0", marginBottom: "0.35rem" }}>Import Ayushman Bharat Hospital Data</div>
-              <div style={{ fontSize: "0.8rem", color: "#64748b" }}>Upload one state .xls file at a time. Preview columns and confirm before saving to Firestore.</div>
+              <div style={{ fontSize: "0.8rem", color: "#64748b" }}>Select one or all 36 state .xls files at once — pan-India import supported.</div>
             </div>
 
-            <div style={{ backgroundColor: "#0f2040", border: "2px dashed #1e3a5f", borderRadius: "12px", padding: "2rem", marginBottom: "1.5rem", display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem" }}>
+            {/* Drop zone */}
+            <div
+              style={{ backgroundColor: "#0f2040", border: "2px dashed #1e3a5f", borderRadius: "12px", padding: "2rem", marginBottom: "1.25rem", display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem" }}
+              onDragOver={e => e.preventDefault()}
+              onDrop={e => {
+                e.preventDefault();
+                const files = Array.from(e.dataTransfer.files).filter(f => f.name.match(/\.(xls|xlsx)$/i));
+                if (files.length) setQueue(files.map(f => ({ file: f, status: "pending" })));
+              }}
+            >
               <div style={{ fontSize: "2rem" }}>📂</div>
               <input
                 ref={fileRef}
                 type="file"
                 accept=".xls,.xlsx"
+                multiple
                 style={{ display: "none" }}
-                onChange={e => { setPreview(null); setSavedMsg(""); setImportErr(""); setFileName(e.target.files?.[0]?.name ?? ""); }}
+                onChange={e => {
+                  const files = Array.from(e.target.files ?? []);
+                  if (files.length) setQueue(files.map(f => ({ file: f, status: "pending" as FileStatus })));
+                }}
               />
               <button
                 onClick={() => fileRef.current?.click()}
                 style={{ backgroundColor: "#1e3a5f", border: "none", borderRadius: "8px", padding: "0.6rem 1.4rem", color: "#e2e8f0", fontSize: "0.88rem", fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}
               >
-                Choose .xls / .xlsx file
+                Choose files (select all 36 at once)
               </button>
-              <div style={{ fontSize: "0.78rem", color: "#475569" }}>One state file at a time — e.g. Maharastra.xls</div>
-              {fileName && (
-                <div style={{ fontSize: "0.8rem", color: "#2dd4bf", backgroundColor: "#0d948815", borderRadius: "6px", padding: "0.35rem 0.9rem" }}>
-                  Selected: {fileName}
-                </div>
-              )}
+              <div style={{ fontSize: "0.75rem", color: "#475569" }}>Or drag &amp; drop XLS files here</div>
             </div>
 
-            <div style={{ display: "flex", gap: "0.75rem", marginBottom: "1.5rem", flexWrap: "wrap" }}>
-              <button
-                onClick={handlePreview}
-                disabled={importing}
-                style={{ backgroundColor: "#0d9488", border: "none", borderRadius: "8px", padding: "0.6rem 1.4rem", color: "#fff", fontSize: "0.88rem", fontWeight: 600, cursor: importing ? "wait" : "pointer", fontFamily: "inherit", opacity: importing ? 0.7 : 1 }}
-              >
-                {importing ? "Parsing…" : "Preview Columns"}
-              </button>
-              {preview && !preview.saved && (
-                <button
-                  onClick={handleSave}
-                  disabled={saving}
-                  style={{ backgroundColor: "#1d4ed8", border: "none", borderRadius: "8px", padding: "0.6rem 1.4rem", color: "#fff", fontSize: "0.88rem", fontWeight: 600, cursor: saving ? "wait" : "pointer", fontFamily: "inherit", opacity: saving ? 0.7 : 1 }}
-                >
-                  {saving ? "Saving…" : `Save ${preview.count.toLocaleString()} hospitals to Firestore`}
-                </button>
-              )}
-            </div>
-
-            {importErr && (
-              <div style={{ backgroundColor: "#ef444415", border: "1px solid #ef444440", borderRadius: "8px", padding: "0.75rem 1rem", color: "#ef4444", fontSize: "0.82rem", marginBottom: "1rem" }}>
-                {importErr}
-              </div>
-            )}
-
-            {savedMsg && (
-              <div style={{ backgroundColor: "#22c55e15", border: "1px solid #22c55e40", borderRadius: "8px", padding: "0.75rem 1rem", color: "#22c55e", fontSize: "0.82rem", marginBottom: "1rem" }}>
-                {savedMsg}
-              </div>
-            )}
-
-            {preview && (
-              <div style={{ backgroundColor: "#0f2040", border: "1px solid #1e3a5f", borderRadius: "12px", padding: "1.5rem" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", flexWrap: "wrap", gap: "0.5rem" }}>
-                  <div>
-                    <span style={{ fontSize: "0.88rem", fontWeight: 700, color: "#e2e8f0" }}>{preview.stateName}</span>
-                    <span style={{ fontSize: "0.75rem", color: "#64748b", marginLeft: "0.75rem" }}>{preview.count.toLocaleString()} rows · {preview.columns.length} columns</span>
+            {/* Queue list */}
+            {queue.length > 0 && (
+              <div style={{ marginBottom: "1.25rem" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.75rem" }}>
+                  <span style={{ fontSize: "0.8rem", color: "#64748b" }}>{queue.length} file{queue.length > 1 ? "s" : ""} selected · {queue.filter(e => e.status === "saved").length} saved</span>
+                  <div style={{ display: "flex", gap: "0.5rem" }}>
+                    <button
+                      onClick={() => setQueue([])}
+                      style={{ backgroundColor: "transparent", border: "1px solid #1e3a5f", borderRadius: "6px", padding: "0.35rem 0.85rem", color: "#475569", fontSize: "0.75rem", cursor: "pointer", fontFamily: "inherit" }}
+                    >
+                      Clear
+                    </button>
+                    <button
+                      onClick={handleImportAll}
+                      disabled={bulkRunning}
+                      style={{ backgroundColor: "#1d4ed8", border: "none", borderRadius: "7px", padding: "0.4rem 1.1rem", color: "#fff", fontSize: "0.82rem", fontWeight: 600, cursor: bulkRunning ? "wait" : "pointer", fontFamily: "inherit", opacity: bulkRunning ? 0.7 : 1 }}
+                    >
+                      {bulkRunning ? "Importing…" : `Import All ${queue.length} States to Firestore`}
+                    </button>
                   </div>
-                  {preview.saved && <span style={{ fontSize: "0.7rem", backgroundColor: "#22c55e20", color: "#22c55e", borderRadius: "5px", padding: "0.15rem 0.6rem", fontWeight: 700 }}>Saved to Firestore</span>}
                 </div>
 
-                <div style={{ marginBottom: "1.25rem" }}>
-                  <div style={{ fontSize: "0.68rem", color: "#64748b", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: "0.5rem" }}>Columns ({preview.columns.length})</div>
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem" }}>
-                    {preview.columns.map((col, i) => (
-                      <span key={i} style={{ fontSize: "0.72rem", backgroundColor: "#0d948820", color: "#2dd4bf", border: "1px solid #0d948840", borderRadius: "5px", padding: "0.2rem 0.55rem" }}>
-                        {col}
-                      </span>
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+                  {queue.map((entry, idx) => {
+                    const statusColor: Record<string, string> = { pending: "#475569", previewing: "#eab308", ready: "#2dd4bf", saving: "#eab308", saved: "#22c55e", error: "#ef4444" };
+                    const statusLabel: Record<string, string> = { pending: "Pending", previewing: "Reading…", ready: "Ready", saving: "Saving…", saved: "Saved", error: "Error" };
+                    const col = statusColor[entry.status] ?? "#475569";
+                    return (
+                      <div key={idx} style={{ backgroundColor: "#0f2040", border: `1px solid ${col}30`, borderLeft: `3px solid ${col}`, borderRadius: "8px", padding: "0.65rem 1rem", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "0.75rem" }}>
+                        <div style={{ minWidth: 0 }}>
+                          <div style={{ fontSize: "0.82rem", color: "#e2e8f0", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{entry.file.name}</div>
+                          {entry.preview && (
+                            <div style={{ fontSize: "0.7rem", color: "#475569", marginTop: "0.15rem" }}>
+                              {entry.preview.count.toLocaleString()} hospitals · {entry.preview.columns.length} columns
+                            </div>
+                          )}
+                          {entry.error && <div style={{ fontSize: "0.7rem", color: "#ef4444", marginTop: "0.15rem" }}>{entry.error}</div>}
+                        </div>
+                        <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", flexShrink: 0 }}>
+                          <span style={{ fontSize: "0.65rem", backgroundColor: `${col}20`, color: col, border: `1px solid ${col}40`, borderRadius: "4px", padding: "0.1rem 0.45rem", fontWeight: 700 }}>
+                            {statusLabel[entry.status] ?? entry.status}
+                          </span>
+                          {entry.status === "pending" && (
+                            <button
+                              onClick={() => uploadOne(entry, idx, true)}
+                              style={{ backgroundColor: "transparent", border: "1px solid #1e3a5f", borderRadius: "5px", padding: "0.2rem 0.6rem", color: "#2dd4bf", fontSize: "0.68rem", cursor: "pointer", fontFamily: "inherit" }}
+                            >
+                              Save
+                            </button>
+                          )}
+                          {entry.status === "error" && (
+                            <button
+                              onClick={() => uploadOne(entry, idx, true)}
+                              style={{ backgroundColor: "transparent", border: "1px solid #ef444440", borderRadius: "5px", padding: "0.2rem 0.6rem", color: "#ef4444", fontSize: "0.68rem", cursor: "pointer", fontFamily: "inherit" }}
+                            >
+                              Retry
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Column preview for first ready/saved entry */}
+            {(() => {
+              const first = queue.find(e => e.preview && (e.status === "ready" || e.status === "saved"));
+              if (!first?.preview) return null;
+              const p = first.preview;
+              return (
+                <div style={{ backgroundColor: "#0f2040", border: "1px solid #1e3a5f", borderRadius: "12px", padding: "1.5rem" }}>
+                  <div style={{ fontSize: "0.75rem", color: "#64748b", marginBottom: "0.75rem" }}>Column structure (from {first.file.name})</div>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem", marginBottom: "1.25rem" }}>
+                    {p.columns.map((col, i) => (
+                      <span key={i} style={{ fontSize: "0.72rem", backgroundColor: "#0d948820", color: "#2dd4bf", border: "1px solid #0d948840", borderRadius: "5px", padding: "0.2rem 0.55rem" }}>{col}</span>
                     ))}
                   </div>
-                </div>
-
-                <div>
-                  <div style={{ fontSize: "0.68rem", color: "#64748b", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: "0.5rem" }}>First 5 rows (sample)</div>
                   <div style={{ overflowX: "auto" }}>
                     <table style={{ borderCollapse: "collapse", fontSize: "0.7rem", minWidth: "100%" }}>
                       <thead>
-                        <tr>
-                          {preview.columns.map((col, i) => (
-                            <th key={i} style={{ textAlign: "left", padding: "0.4rem 0.7rem", color: "#94a3b8", borderBottom: "1px solid #1e3a5f", whiteSpace: "nowrap" }}>{col}</th>
-                          ))}
-                        </tr>
+                        <tr>{p.columns.map((col, i) => <th key={i} style={{ textAlign: "left", padding: "0.4rem 0.7rem", color: "#94a3b8", borderBottom: "1px solid #1e3a5f", whiteSpace: "nowrap" }}>{col}</th>)}</tr>
                       </thead>
                       <tbody>
-                        {preview.preview.map((row, ri) => (
-                          <tr key={ri}>
-                            {preview.columns.map((col, ci) => (
-                              <td key={ci} style={{ padding: "0.4rem 0.7rem", color: "#64748b", borderBottom: "1px solid #0f1e3a", whiteSpace: "nowrap", maxWidth: "180px", overflow: "hidden", textOverflow: "ellipsis" }}>
-                                {String(row[col] ?? "")}
-                              </td>
-                            ))}
-                          </tr>
+                        {p.preview.map((row, ri) => (
+                          <tr key={ri}>{p.columns.map((col, ci) => <td key={ci} style={{ padding: "0.4rem 0.7rem", color: "#64748b", borderBottom: "1px solid #0f1e3a", whiteSpace: "nowrap", maxWidth: "180px", overflow: "hidden", textOverflow: "ellipsis" }}>{String(row[col] ?? "")}</td>)}</tr>
                         ))}
                       </tbody>
                     </table>
                   </div>
                 </div>
-              </div>
-            )}
+              );
+            })()}
           </div>
         )}
 
