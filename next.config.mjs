@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // firebase-admin uses native Node.js modules — must not be bundled by webpack
+  serverExternalPackages: ["firebase-admin", "google-auth-library"],
+
   async headers() {
     return [
       {

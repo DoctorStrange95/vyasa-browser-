@@ -28,10 +28,16 @@ function getAdminDb(): Firestore {
     }
   }
 
-  if (getApps().length === 0) {
+  // Vercel env vars double-escape \n as \\n — fix the private key so JWT signing works
+  if (typeof parsed.private_key === "string") {
+    parsed.private_key = parsed.private_key.replace(/\\n/g, "\n");
+  }
+
+  const existingApps = getApps();
+  if (existingApps.length === 0) {
     _app = initializeApp({ credential: cert(parsed as Parameters<typeof cert>[0]) });
   } else {
-    _app = getApps()[0];
+    _app = existingApps[0];
   }
 
   _db = getFirestore(_app);
