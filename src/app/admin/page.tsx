@@ -5,10 +5,11 @@ import AdminLogout from "./AdminLogout";
 import VyasaLogo from "@/components/VyasaLogo";
 
 const MENU = [
-  { href: "/admin/submissions",   icon: "📥", label: "Community Submissions",  desc: "Review AI-extracted health data uploaded by users" },
-  { href: "/admin/intelligence",  icon: "🛰", label: "Intelligence Review",    desc: "Approve or reject scraped PH alerts before they go live" },
-  { href: "/admin/feedback",     icon: "💬", label: "Feedback & Reports",    desc: "View data correction requests and user reports" },
-  { href: "/admin/hospitals",    icon: "🏥", label: "Manage Health Centres", desc: "Add PHCs, CHCs, hospitals with address & services" },
+  { href: "/admin/sources",      icon: "🗂", label: "Sources & Data Sheets",  desc: "All scraped and user-submitted data in tabbed spreadsheet view" },
+  { href: "/admin/submissions",  icon: "📥", label: "Community Submissions",  desc: "Review AI-extracted health data uploaded by users" },
+  { href: "/admin/intelligence", icon: "🛰", label: "Intelligence Review",    desc: "Approve or reject scraped PH alerts before they go live" },
+  { href: "/admin/feedback",     icon: "💬", label: "Feedback & Reports",     desc: "View data correction requests and user reports" },
+  { href: "/admin/hospitals",    icon: "🏥", label: "Manage Health Centres",  desc: "Add PHCs, CHCs, hospitals with address & services" },
   { href: "/admin/data",         icon: "📊", label: "Upload Health Data",     desc: "Update state/district statistics before going live" },
   { href: "/admin/contributors", icon: "👥", label: "Contributors & Sponsors", desc: "Manage data authors, sponsors, acknowledgements" },
   { href: "/sources",            icon: "📚", label: "Data Sources (public)",   desc: "View live public-facing data sources page" },
