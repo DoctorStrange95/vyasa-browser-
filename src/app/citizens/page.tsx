@@ -26,6 +26,22 @@ interface StateStat {
   district?: { slug: string; name: string; aqi?: number; aqiLabel?: string } | null;
 }
 
+interface LocationCtx {
+  city: string; district: string; state: string;
+  lat: number; lon: number;
+}
+
+interface IDSPOutbreak {
+  state: string; district: string; disease: string;
+  cases: number; deaths: number; status: string; week: number; year: number;
+}
+
+interface IntelItem {
+  title: string; summary: string; disease: string; date: string;
+  source: string; sourceUrl?: string;
+  location: { state: string; district: string; village: string };
+}
+
 // ── Helpers ─────────────────────────────────────────────────────────────────
 function scoreColor(v: number) {
   if (v >= 80) return "#22c55e";
@@ -74,6 +90,9 @@ function CitizenStats() {
   const [manualSuggestions, setManualSuggestions] = useState<StateStat[]>([]);
   const [pinnedSlugs,    setPinnedSlugs]    = useState<string[]>([]);
   const [pinnedStats,    setPinnedStats]    = useState<StateStat[]>([]);
+  const [locationCtx,    setLocationCtx]    = useState<LocationCtx | null>(null);
+  const [localOutbreaks, setLocalOutbreaks] = useState<IDSPOutbreak[]>([]);
+  const [localIntel,     setLocalIntel]     = useState<IntelItem[]>([]);
 
   useEffect(() => {
     Promise.all([
@@ -126,6 +145,37 @@ function CitizenStats() {
     });
   }, [pinnedSlugs, allStats]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Fetch IDSP outbreaks + intel feed filtered by detected location
+  useEffect(() => {
+    if (!locationCtx) return;
+    const stateLow = locationCtx.state.toLowerCase().split(" ")[0];
+    const keywords = [locationCtx.city, locationCtx.district, locationCtx.state]
+      .map(s => s.toLowerCase().trim()).filter(s => s.length > 3);
+
+    fetch("/api/idsp-weekly")
+      .then(r => r.json())
+      .then(d => {
+        const filtered: IDSPOutbreak[] = (d.outbreaks ?? []).filter((o: IDSPOutbreak) =>
+          o.state.toLowerCase().includes(stateLow)
+        );
+        setLocalOutbreaks(filtered.slice(0, 8));
+      }).catch(() => {});
+
+    fetch("/api/ph-intelligence")
+      .then(r => r.json())
+      .then(d => {
+        const items: IntelItem[] = d.items ?? [];
+        const filtered = items.filter(item => {
+          const haystack = [
+            item.title, item.summary,
+            item.location?.state, item.location?.district, item.location?.village,
+          ].join(" ").toLowerCase();
+          return keywords.some(k => haystack.includes(k));
+        });
+        setLocalIntel(filtered.slice(0, 6));
+      }).catch(() => {});
+  }, [locationCtx]); // eslint-disable-line react-hooks/exhaustive-deps
+
   function togglePin(slug: string) {
     setPinnedSlugs(prev => {
       const next = prev.includes(slug) ? prev.filter(s => s !== slug) : [...prev, slug];
@@ -146,24 +196,31 @@ function CitizenStats() {
   const detectState = useCallback(() => {
     if (!navigator.geolocation) { setGeoStatus("error"); return; }
     setGeoStatus("detecting");
+    setLocalOutbreaks([]);
+    setLocalIntel([]);
     navigator.geolocation.getCurrentPosition(
       async pos => {
         try {
           const { latitude: lat, longitude: lon } = pos.coords;
           const geo = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&accept-language=en`,
+            `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&accept-language=en&zoom=14`,
             { headers: { "User-Agent": "HealthForIndia/2.0" } }
           ).then(r => r.json());
 
-          const rawState    = geo?.address?.state ?? "";
-          const rawDistrict = (geo?.address?.county ?? geo?.address?.state_district ?? geo?.address?.district ?? "")
+          const addr         = geo?.address ?? {};
+          const rawState     = addr.state ?? "";
+          const rawDistrict  = (addr.county ?? addr.state_district ?? addr.district ?? "")
             .replace(/\s+district$/i, "").trim();
+          const rawCity      = addr.city ?? addr.town ?? addr.suburb ?? addr.village ?? addr.hamlet ?? "";
 
           const matchStat = allStats.find(s =>
             s.name.toLowerCase().includes(rawState.toLowerCase().split(" ")[0]) ||
             rawState.toLowerCase().includes(s.name.toLowerCase().split(" ")[0])
           );
           if (!matchStat) { setGeoStatus("done"); return; }
+
+          // Store full location context for personalized feed
+          setLocationCtx({ city: rawCity, district: rawDistrict, state: rawState, lat, lon });
 
           const params = new URLSearchParams({ state: matchStat.slug });
           if (rawDistrict) params.set("district", rawDistrict);
@@ -173,7 +230,7 @@ function CitizenStats() {
         } catch { setGeoStatus("error"); }
       },
       () => setGeoStatus("error"),
-      { timeout: 8000, maximumAge: 30000 }
+      { timeout: 15000, maximumAge: 0, enableHighAccuracy: true }  // GPS-grade accuracy
     );
   }, [allStats]);
 
@@ -426,6 +483,118 @@ function CitizenStats() {
           </div>
         </div>
       </div>
+
+      {/* ── Personalised Location Feed ─────────────────────────────────── */}
+      {locationCtx && (
+        <div style={{ marginBottom: "1.25rem" }}>
+
+          {/* Location breadcrumb */}
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap", marginBottom: "1rem", background: "#071428", border: "1px solid #1e3a5f", borderRadius: "10px", padding: "0.75rem 1rem" }}>
+            <span style={{ fontSize: "1rem" }}>📍</span>
+            <div style={{ display: "flex", gap: "0.35rem", alignItems: "center", flexWrap: "wrap" }}>
+              {locationCtx.city && (
+                <>
+                  <span style={{ fontSize: "0.88rem", fontWeight: 600, color: "#e2e8f0" }}>{locationCtx.city}</span>
+                  <span style={{ color: "#1e3a5f" }}>·</span>
+                </>
+              )}
+              {locationCtx.district && (
+                <>
+                  <span style={{ fontSize: "0.88rem", color: "#94a3b8" }}>{locationCtx.district}</span>
+                  <span style={{ color: "#1e3a5f" }}>·</span>
+                </>
+              )}
+              <span style={{ fontSize: "0.88rem", color: "#94a3b8" }}>{locationCtx.state}</span>
+            </div>
+            <span style={{ marginLeft: "auto", fontSize: "0.65rem", color: "#334155", background: "#0a1628", borderRadius: "4px", padding: "0.15rem 0.5rem", border: "1px solid #1e3a5f" }}>GPS</span>
+          </div>
+
+          {/* IDSP Disease Surveillance */}
+          {localOutbreaks.length > 0 && (
+            <div style={{ background: "#071428", border: "1px solid #ef444440", borderRadius: "12px", padding: "1.1rem 1.25rem", marginBottom: "0.85rem" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.85rem" }}>
+                <span style={{ fontSize: "1rem" }}>🦠</span>
+                <div style={{ fontWeight: 700, color: "#fca5a5", fontSize: "0.88rem" }}>Disease Surveillance · {locationCtx.state}</div>
+                <span style={{ marginLeft: "auto", fontSize: "0.6rem", color: "#64748b", background: "#0a1628", borderRadius: "4px", padding: "0.1rem 0.4rem", border: "1px solid #1e3a5f" }}>IDSP</span>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                {localOutbreaks.map((o, i) => (
+                  <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: "0.75rem", background: "#060e1c", borderRadius: "8px", padding: "0.6rem 0.85rem", borderLeft: "3px solid #ef444460" }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: "0.82rem", fontWeight: 600, color: "#fca5a5" }}>{o.disease}</div>
+                      <div style={{ fontSize: "0.72rem", color: "#64748b", marginTop: "0.15rem" }}>
+                        {o.district ? `${o.district}, ` : ""}{o.state} &nbsp;·&nbsp; W{o.week}/{o.year}
+                      </div>
+                    </div>
+                    <div style={{ textAlign: "right", flexShrink: 0 }}>
+                      <div style={{ fontSize: "0.78rem", fontWeight: 700, color: "#fca5a5" }}>{o.cases} cases</div>
+                      {o.deaths > 0 && <div style={{ fontSize: "0.68rem", color: "#ef4444" }}>{o.deaths} deaths</div>}
+                      <div style={{ fontSize: "0.6rem", color: o.status === "active" ? "#fbbf24" : "#22c55e", marginTop: "0.1rem", textTransform: "capitalize" }}>{o.status}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Health Intelligence Feed */}
+          {localIntel.length > 0 && (
+            <div style={{ background: "#071428", border: "1px solid #3b82f640", borderRadius: "12px", padding: "1.1rem 1.25rem", marginBottom: "0.85rem" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.85rem" }}>
+                <span style={{ fontSize: "1rem" }}>📡</span>
+                <div style={{ fontWeight: 700, color: "#93c5fd", fontSize: "0.88rem" }}>Health Intelligence Near You</div>
+                <span style={{ marginLeft: "auto", fontSize: "0.6rem", color: "#64748b", background: "#0a1628", borderRadius: "4px", padding: "0.1rem 0.4rem", border: "1px solid #1e3a5f" }}>LIVE</span>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
+                {localIntel.map((item, i) => (
+                  <div key={i} style={{ background: "#060e1c", borderRadius: "8px", padding: "0.7rem 0.9rem", borderLeft: "3px solid #3b82f660" }}>
+                    <div style={{ display: "flex", alignItems: "flex-start", gap: "0.5rem", justifyContent: "space-between" }}>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: "0.82rem", fontWeight: 600, color: "#93c5fd", lineHeight: 1.3, marginBottom: "0.25rem" }}>{item.title}</div>
+                        {item.summary && (
+                          <div style={{ fontSize: "0.72rem", color: "#64748b", lineHeight: 1.5, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                            {item.summary}
+                          </div>
+                        )}
+                        <div style={{ fontSize: "0.65rem", color: "#334155", marginTop: "0.35rem", display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+                          {item.disease && <span style={{ color: "#fbbf2480" }}>{item.disease}</span>}
+                          {item.location?.district && <span>{item.location.district}</span>}
+                          {item.date && <span>{item.date}</span>}
+                          {item.source && <span style={{ color: "#475569" }}>· {item.source}</span>}
+                        </div>
+                      </div>
+                      {item.sourceUrl && (
+                        <a href={item.sourceUrl} target="_blank" rel="noopener noreferrer" style={{ flexShrink: 0, fontSize: "0.7rem", color: "#475569", marginLeft: "0.5rem", textDecoration: "none" }}>↗</a>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* District deep-link */}
+          {locationCtx.district && (
+            <Link
+              href={`/district/${locationCtx.district.toLowerCase().trim().replace(/\s+/g, "-")}`}
+              style={{ display: "flex", alignItems: "center", gap: "0.5rem", background: "#071428", border: "1px solid #1e3a5f", borderRadius: "9px", padding: "0.65rem 1rem", textDecoration: "none", marginBottom: "0.85rem" }}
+            >
+              <span style={{ fontSize: "0.9rem" }}>🗺️</span>
+              <div>
+                <div style={{ fontSize: "0.82rem", fontWeight: 600, color: "#e2e8f0" }}>View {locationCtx.district} District Dashboard</div>
+                <div style={{ fontSize: "0.68rem", color: "#475569", marginTop: "0.1rem" }}>AQI, local health data, nearby facilities</div>
+              </div>
+              <span style={{ marginLeft: "auto", color: "#3b82f6", fontSize: "0.8rem" }}>→</span>
+            </Link>
+          )}
+
+          {localOutbreaks.length === 0 && localIntel.length === 0 && (
+            <div style={{ background: "#071428", border: "1px solid #1e3a5f", borderRadius: "10px", padding: "0.85rem 1rem", fontSize: "0.82rem", color: "#475569" }}>
+              No active outbreaks or health alerts found for {locationCtx.state}. Your region looks clear.
+            </div>
+          )}
+        </div>
+      )}
 
       {/* ── All States grid ─────────────────────────────────────────────── */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.6rem" }}>

@@ -139,13 +139,16 @@ function PhotoInput({ value, onChange }: { value: string; onChange: (v: string) 
     const img = new window.Image();
     const url = URL.createObjectURL(f);
     img.onload = () => {
-      const MAX = 200;
+      const MAX = 400;
       const scale = Math.min(MAX / img.width, MAX / img.height, 1);
       const canvas = document.createElement("canvas");
       canvas.width  = Math.round(img.width  * scale);
       canvas.height = Math.round(img.height * scale);
-      canvas.getContext("2d")!.drawImage(img, 0, 0, canvas.width, canvas.height);
-      onChange(canvas.toDataURL("image/jpeg", 0.80));
+      const ctx = canvas.getContext("2d")!;
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      onChange(canvas.toDataURL("image/jpeg", 0.85));
       URL.revokeObjectURL(url);
     };
     img.src = url;
