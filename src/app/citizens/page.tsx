@@ -364,34 +364,36 @@ export default function CitizensPage() {
   return (
     <div style={{ backgroundColor: "#070f1e", minHeight: "100vh" }}>
       {/* Hero */}
-      <div style={{ borderBottom: "1px solid #1e3a5f", padding: "2rem 1.5rem 1.5rem" }}>
+      <div style={{ borderBottom: "1px solid #1e3a5f", padding: "2.5rem 1.5rem 2rem", background: "linear-gradient(180deg, #071830 0%, #070f1e 100%)" }}>
         <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.4rem" }}>
-            <span style={{ fontSize: "1.6rem" }}>🏥</span>
-            <h1 className="font-display" style={{ fontSize: "1.6rem", fontWeight: 700, color: "#fff", margin: 0 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.85rem", marginBottom: "0.6rem" }}>
+            <span style={{ fontSize: "2rem" }}>🏥</span>
+            <h1 className="font-display" style={{ fontSize: "2.2rem", fontWeight: 700, color: "#fff", margin: 0, lineHeight: 1.15 }}>
               Citizens Health Centre
             </h1>
           </div>
-          <p style={{ color: "#64748b", fontSize: "0.85rem", margin: 0 }}>
-            Find Ayushman Bharat hospitals · State &amp; district health stats · Secure health locker
+          <p style={{ color: "#94a3b8", fontSize: "1rem", margin: "0 0 0 2.85rem", lineHeight: 1.6 }}>
+            Find Ayushman Bharat empanelled hospitals · State &amp; district health stats · Secure health locker
           </p>
         </div>
       </div>
 
       {/* Tabs */}
-      <div style={{ borderBottom: "1px solid #1e3a5f" }}>
-        <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 1.5rem", display: "flex", overflowX: "auto" }}>
+      <div style={{ borderBottom: "1px solid #1e3a5f", backgroundColor: "#060d1b" }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 1.5rem", display: "flex", overflowX: "auto", scrollbarWidth: "none" }}>
           {TABS.map((tab) => (
             <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{
-              padding: "0.85rem 1.25rem", border: "none", background: "transparent",
+              padding: "1rem 1.5rem", border: "none", background: "transparent",
               color: activeTab === tab.id ? "#93c5fd" : "#64748b",
-              borderBottom: activeTab === tab.id ? "2px solid #3b82f6" : "2px solid transparent",
-              fontWeight: activeTab === tab.id ? 600 : 400,
-              fontSize: "0.88rem", cursor: "pointer", whiteSpace: "nowrap",
+              borderBottom: activeTab === tab.id ? "3px solid #3b82f6" : "3px solid transparent",
+              fontWeight: activeTab === tab.id ? 700 : 500,
+              fontSize: "0.95rem", cursor: "pointer", whiteSpace: "nowrap",
+              fontFamily: "inherit", minHeight: "54px", letterSpacing: activeTab === tab.id ? "-0.01em" : "0",
+              transition: "color 0.15s",
             }}>
               {tab.label}
               {tab.id === "locker" && !isLoggedIn && (
-                <span style={{ marginLeft: "4px", fontSize: "0.65rem", color: "#475569" }}>🔒</span>
+                <span style={{ marginLeft: "6px", fontSize: "0.7rem", color: "#475569" }}>🔒</span>
               )}
             </button>
           ))}
