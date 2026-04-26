@@ -7,6 +7,7 @@ import FeedbackButton from "@/components/FeedbackButton";
 import FacilityDrawer from "@/components/FacilityDrawer";
 import CookieConsent from "@/components/CookieConsent";
 import { getUserSession } from "@/lib/userAuth";
+import { Analytics } from "@vercel/analytics/next";
 
 const BASE_URL = "https://healthforindia.vyasa.health";
 
@@ -78,6 +79,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <FeedbackButton />
         <FacilityDrawer />
         <CookieConsent />
+        <Analytics />
       </body>
     </html>
   );
