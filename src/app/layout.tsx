@@ -8,6 +8,7 @@ import FacilityDrawer from "@/components/FacilityDrawer";
 import CookieConsent from "@/components/CookieConsent";
 import { getUserSession } from "@/lib/userAuth";
 import PageTracker from "@/components/PageTracker";
+import PWASetup from "@/components/PWASetup";
 import { getSiteConfig } from "@/lib/siteConfig";
 
 const BASE_URL = "https://healthforindia.vyasa.health";
@@ -67,6 +68,14 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap"
           rel="stylesheet"
         />
+        {/* PWA */}
+        <meta name="application-name" content="HealthForIndia" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="HealthForIndia" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="theme-color" content="#0d9488" />
+        <link rel="apple-touch-icon" href="/icons/icon.svg" />
       </head>
       <body>
         <Header user={session} uiConfig={uiConfig} />
@@ -78,6 +87,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           </div>
         </div>
         <PageTracker />
+        <PWASetup />
         <FeedbackButton />
         <FacilityDrawer />
         <CookieConsent />
