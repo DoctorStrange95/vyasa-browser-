@@ -43,6 +43,26 @@ interface IntelItem {
 }
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
+function weekToDateRange(week: number, year: number): string {
+  const w = week > 0 ? week : (() => {
+    const now = new Date();
+    const jan4 = new Date(now.getFullYear(), 0, 4);
+    const w1 = new Date(jan4);
+    w1.setDate(jan4.getDate() - ((jan4.getDay() + 6) % 7));
+    return Math.ceil((now.getTime() - w1.getTime()) / (7 * 86400000)) + 1;
+  })();
+  const y = week > 0 ? year : new Date().getFullYear();
+  const jan4 = new Date(y, 0, 4);
+  const w1 = new Date(jan4);
+  w1.setDate(jan4.getDate() - ((jan4.getDay() + 6) % 7));
+  const start = new Date(w1);
+  start.setDate(w1.getDate() + (w - 1) * 7);
+  const end = new Date(start);
+  end.setDate(start.getDate() + 6);
+  const fmt = (d: Date) => d.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+  return `W${w} · ${fmt(start)}–${fmt(end)}`;
+}
+
 function scoreColor(v: number) {
   if (v >= 80) return "#22c55e";
   if (v >= 65) return "#84cc16";
@@ -523,7 +543,7 @@ function CitizenStats() {
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: "0.82rem", fontWeight: 600, color: "#fca5a5" }}>{o.disease}</div>
                       <div style={{ fontSize: "0.72rem", color: "#64748b", marginTop: "0.15rem" }}>
-                        {o.district ? `${o.district}, ` : ""}{o.state} &nbsp;·&nbsp; W{o.week}/{o.year}
+                        {o.district ? `${o.district}, ` : ""}{o.state} &nbsp;·&nbsp; {weekToDateRange(o.week, o.year)}
                       </div>
                     </div>
                     <div style={{ textAlign: "right", flexShrink: 0 }}>
@@ -609,7 +629,11 @@ function CitizenStats() {
       />
 
       {loading ? (
-        <div style={{ color: "#475569", textAlign: "center", padding: "2rem", fontSize: "0.88rem" }}>Loading…</div>
+        <div style={{ color: "#475569", textAlign: "center", padding: "2.5rem 1rem" }}>
+          <div style={{ fontSize: "1.5rem", marginBottom: "0.5rem" }}>⏳</div>
+          <div style={{ fontSize: "0.88rem", color: "#64748b", marginBottom: "0.25rem" }}>Please wait, fetching state health data…</div>
+          <div style={{ fontSize: "0.72rem", color: "#334155" }}>Loading NFHS-5 · SRS 2023 · AB-PMJAY data for all 36 states &amp; UTs</div>
+        </div>
       ) : (() => {
         const PREVIEW = 12;
         const isSearching = search.trim().length > 0;

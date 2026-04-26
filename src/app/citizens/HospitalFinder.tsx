@@ -339,8 +339,10 @@ export default function HospitalFinder({ isLoggedIn }: { isLoggedIn: boolean }) 
 
       {/* Results */}
       {loading && (
-        <div style={{ color: "#64748b", padding: "2rem 0", textAlign: "center", fontSize: "0.88rem" }}>
-          Searching hospitals…
+        <div style={{ padding: "2.5rem 1rem", textAlign: "center" }}>
+          <div style={{ fontSize: "1.5rem", marginBottom: "0.5rem" }}>⏳</div>
+          <div style={{ fontSize: "0.88rem", color: "#64748b", marginBottom: "0.2rem" }}>Please wait, searching Ayushman Bharat empanelled hospitals…</div>
+          <div style={{ fontSize: "0.72rem", color: "#334155" }}>Querying AB-PMJAY database · This may take a moment</div>
         </div>
       )}
 

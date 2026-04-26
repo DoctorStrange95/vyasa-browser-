@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { HeaderUser } from "./Header";
+import type { UIConfig } from "@/lib/siteConfig";
 
 const HOME_SECTIONS = [
   { id: "sec-hero",       icon: "🏠", label: "Overview" },
@@ -39,17 +40,9 @@ function useActiveSection(enabled: boolean) {
 }
 
 function NavLink({
-  href,
-  icon,
-  label,
-  active,
-  onClick,
+  href, icon, label, active, onClick,
 }: {
-  href: string;
-  icon: string;
-  label: string;
-  active: boolean;
-  onClick?: () => void;
+  href: string; icon: string; label: string; active: boolean; onClick?: () => void;
 }) {
   return (
     <Link
@@ -63,12 +56,19 @@ function NavLink({
   );
 }
 
-export default function GlobalSidebar({ user }: { user?: HeaderUser | null }) {
+export default function GlobalSidebar({ user, uiConfig }: { user?: HeaderUser | null; uiConfig?: UIConfig | null }) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const isHome = pathname === "/";
   const activeSection = useActiveSection(isHome);
+
+  const showFindNearby       = uiConfig?.sidebar.showFindNearby       ?? true;
+  const showSignInCTA        = uiConfig?.sidebar.showSignInCTA        ?? true;
+  const showJoinProfessional = uiConfig?.sidebar.showJoinProfessional ?? true;
+  const showAbout            = uiConfig?.sidebar.showAbout            ?? true;
+  const showHomeSections     = uiConfig?.sidebar.showHomeSections     ?? true;
+  const showFAB              = uiConfig?.mobile.showFAB               ?? true;
 
   function openFacilityDrawer() {
     window.dispatchEvent(new Event("open-facility-drawer"));
@@ -89,17 +89,18 @@ export default function GlobalSidebar({ user }: { user?: HeaderUser | null }) {
           Navigation
         </div>
 
-        <NavLink href="/"         icon="🏠" label="Home"             active={pathname === "/"} onClick={() => setMobileOpen(false)} />
-        <NavLink href="/citizens" icon="🏥" label="Citizens Centre"  active={pathname.startsWith("/citizens")} onClick={() => setMobileOpen(false)} />
+        <NavLink href="/"         icon="🏠" label="Home"            active={pathname === "/"} onClick={() => setMobileOpen(false)} />
+        <NavLink href="/citizens" icon="🏥" label="Citizens Centre" active={pathname.startsWith("/citizens")} onClick={() => setMobileOpen(false)} />
         {user && (
           <NavLink href="/citizens?tab=stats" icon="📊" label="My Dashboard" active={false} onClick={() => setMobileOpen(false)} />
         )}
 
-        {/* Find Nearby — triggers FacilityDrawer */}
-        <button onClick={openFacilityDrawer} className="gsidebar-link gsidebar-btn">
-          <span style={{ fontSize: "1rem", flexShrink: 0 }}>📍</span>
-          <span style={{ whiteSpace: "nowrap" }}>Find Nearby</span>
-        </button>
+        {showFindNearby && (
+          <button onClick={openFacilityDrawer} className="gsidebar-link gsidebar-btn">
+            <span style={{ fontSize: "1rem", flexShrink: 0 }}>📍</span>
+            <span style={{ whiteSpace: "nowrap" }}>Find Nearby</span>
+          </button>
+        )}
 
         {user ? (
           <NavLink href="/profile" icon="👤" label={user.name.split(" ")[0]} active={pathname === "/profile"} onClick={() => setMobileOpen(false)} />
@@ -108,8 +109,8 @@ export default function GlobalSidebar({ user }: { user?: HeaderUser | null }) {
         )}
       </div>
 
-      {/* ── Homepage section shortcuts (adaptive) ────── */}
-      {isHome && (
+      {/* ── Homepage section shortcuts ────── */}
+      {isHome && showHomeSections && (
         <div style={{ padding: "0.75rem 0", borderBottom: "1px solid #1e3a5f" }}>
           <div style={{ fontSize: "0.55rem", color: "#334155", textTransform: "uppercase", letterSpacing: "0.12em", fontWeight: 700, marginBottom: "0.5rem", paddingLeft: "1.1rem" }}>
             Page Sections
@@ -133,20 +134,21 @@ export default function GlobalSidebar({ user }: { user?: HeaderUser | null }) {
         </div>
       )}
 
-      {/* ── Platform links ───────────────────────────── */}
-      <div style={{ padding: "0.75rem 0" }}>
-        <div style={{ fontSize: "0.55rem", color: "#334155", textTransform: "uppercase", letterSpacing: "0.12em", fontWeight: 700, marginBottom: "0.5rem", paddingLeft: "1.1rem" }}>
-          About
+      {/* ── About section ───────────────────────────── */}
+      {showAbout && (
+        <div style={{ padding: "0.75rem 0" }}>
+          <div style={{ fontSize: "0.55rem", color: "#334155", textTransform: "uppercase", letterSpacing: "0.12em", fontWeight: 700, marginBottom: "0.5rem", paddingLeft: "1.1rem" }}>
+            About
+          </div>
+          <NavLink href="/team"    icon="👥" label="Our Team"     active={pathname === "/team"}    onClick={() => setMobileOpen(false)} />
+          <NavLink href="/sources" icon="📊" label="Data Sources" active={pathname === "/sources"} onClick={() => setMobileOpen(false)} />
+          <NavLink href="/contact" icon="✉️"  label="Contact"      active={pathname === "/contact"} onClick={() => setMobileOpen(false)} />
         </div>
-        <NavLink href="/team"    icon="👥" label="Our Team"     active={pathname === "/team"}    onClick={() => setMobileOpen(false)} />
-        <NavLink href="/sources" icon="📊" label="Data Sources" active={pathname === "/sources"} onClick={() => setMobileOpen(false)} />
-        <NavLink href="/contact" icon="✉️"  label="Contact"      active={pathname === "/contact"} onClick={() => setMobileOpen(false)} />
-      </div>
+      )}
 
       {/* ── CTA block ────────────────────────────────── */}
       <div style={{ padding: "0 0.85rem 1rem", marginTop: "auto", borderTop: "1px solid #1e3a5f", paddingTop: "0.85rem" }}>
-        {/* Sign In CTA — only when not logged in */}
-        {!user && (
+        {!user && showSignInCTA && (
           <Link
             href="/auth"
             onClick={() => setMobileOpen(false)}
@@ -161,20 +163,21 @@ export default function GlobalSidebar({ user }: { user?: HeaderUser | null }) {
             Sign In — See Your State →
           </Link>
         )}
-        {/* Join — for healthcare professionals */}
-        <Link
-          href="/join#join-form"
-          onClick={() => setMobileOpen(false)}
-          style={{
-            display: "block", textAlign: "center",
-            backgroundColor: "transparent", border: "1px solid #1e3a5f",
-            color: "#475569",
-            padding: "0.5rem 1rem", borderRadius: "8px",
-            textDecoration: "none", fontSize: "0.75rem", fontWeight: 500,
-          }}
-        >
-          Join as Professional (Doctors)
-        </Link>
+        {showJoinProfessional && (
+          <Link
+            href="/join#join-form"
+            onClick={() => setMobileOpen(false)}
+            style={{
+              display: "block", textAlign: "center",
+              backgroundColor: "transparent", border: "1px solid #1e3a5f",
+              color: "#475569",
+              padding: "0.5rem 1rem", borderRadius: "8px",
+              textDecoration: "none", fontSize: "0.75rem", fontWeight: 500,
+            }}
+          >
+            Join as Professional (Doctors)
+          </Link>
+        )}
         <div style={{ fontSize: "0.56rem", color: "#1e3a5f", lineHeight: 1.5, marginTop: "0.65rem", textAlign: "center" }}>
           IDSP · NFHS-5 · SRS 2023 · MoHFW
         </div>
@@ -184,53 +187,24 @@ export default function GlobalSidebar({ user }: { user?: HeaderUser | null }) {
 
   return (
     <>
-      {/* Desktop sidebar */}
-      <aside className="global-sidebar-desktop">
-        {navContent}
-      </aside>
+      <aside className="global-sidebar-desktop">{navContent}</aside>
 
-      {/* Mobile FAB */}
-      <button
-        className="global-sidebar-fab"
-        onClick={() => setMobileOpen(true)}
-        aria-label="Open navigation"
-      >
-        ☰
-      </button>
+      {showFAB && (
+        <button className="global-sidebar-fab" onClick={() => setMobileOpen(true)} aria-label="Open navigation">☰</button>
+      )}
 
-      {/* Mobile drawer */}
       {mobileOpen && (
-        <div
-          onClick={() => setMobileOpen(false)}
-          style={{ position: "fixed", inset: 0, zIndex: 300, display: "flex" }}
-        >
+        <div onClick={() => setMobileOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 300, display: "flex" }}>
           <div style={{ position: "absolute", inset: 0, backgroundColor: "#00000088" }} />
           <div
             onClick={e => e.stopPropagation()}
-            style={{
-              position: "relative",
-              width: "260px",
-              backgroundColor: "#060d1a",
-              borderRight: "1px solid #1e3a5f",
-              zIndex: 1,
-              paddingTop: "64px",
-              height: "100vh",
-              overflowY: "auto",
-              scrollbarWidth: "none",
-            }}
+            style={{ position: "relative", width: "260px", backgroundColor: "#060d1a", borderRight: "1px solid #1e3a5f", zIndex: 1, paddingTop: "64px", height: "100vh", overflowY: "auto", scrollbarWidth: "none" }}
           >
             <button
               onClick={() => setMobileOpen(false)}
-              style={{
-                position: "absolute", top: "0.85rem", right: "0.85rem",
-                background: "none", border: "none",
-                color: "#94a3b8", fontSize: "1.25rem",
-                cursor: "pointer", padding: "0.25rem",
-              }}
+              style={{ position: "absolute", top: "0.85rem", right: "0.85rem", background: "none", border: "none", color: "#94a3b8", fontSize: "1.25rem", cursor: "pointer", padding: "0.25rem" }}
               aria-label="Close navigation"
-            >
-              ✕
-            </button>
+            >✕</button>
             {navContent}
           </div>
         </div>
@@ -238,80 +212,41 @@ export default function GlobalSidebar({ user }: { user?: HeaderUser | null }) {
 
       <style>{`
         .global-sidebar-desktop {
-          position: sticky;
-          top: 64px;
-          height: calc(100vh - 64px);
-          width: 240px;
-          flex-shrink: 0;
-          background-color: #060d1a;
+          position: sticky; top: 64px;
+          height: calc(100vh - 64px); width: 240px;
+          flex-shrink: 0; background-color: #060d1a;
           border-right: 1px solid #1e3a5f;
-          display: flex;
-          flex-direction: column;
-          overflow: hidden;
-          z-index: 10;
+          display: flex; flex-direction: column;
+          overflow: hidden; z-index: 10;
         }
         .global-sidebar-desktop::-webkit-scrollbar { display: none; }
         .global-sidebar-fab { display: none !important; }
-
         .gsidebar-link {
-          display: flex;
-          align-items: center;
-          gap: 0.7rem;
+          display: flex; align-items: center; gap: 0.7rem;
           padding: 0.5rem 0.85rem 0.5rem 1.1rem;
-          background: transparent;
-          border: none;
+          background: transparent; border: none;
           border-left: 3px solid transparent;
-          color: #94a3b8;
-          text-decoration: none;
-          font-family: inherit;
-          font-size: 0.82rem;
-          font-weight: 500;
-          cursor: pointer;
-          text-align: left;
-          width: 100%;
-          border-radius: 0 8px 8px 0;
-          min-height: 40px;
+          color: #94a3b8; text-decoration: none;
+          font-family: inherit; font-size: 0.82rem; font-weight: 500;
+          cursor: pointer; text-align: left; width: 100%;
+          border-radius: 0 8px 8px 0; min-height: 40px;
           transition: background 0.12s, color 0.12s, border-color 0.12s;
         }
-        .gsidebar-link:hover {
-          background: #0f2040;
-          color: #e2e8f0;
-        }
-        .gsidebar-link--active {
-          background: #0f2040 !important;
-          border-left-color: #2dd4bf !important;
-          color: #e2e8f0 !important;
-          font-weight: 600;
-        }
-        .gsidebar-link--muted {
-          color: #475569;
-        }
-        .gsidebar-link--muted:hover {
-          color: #94a3b8;
-        }
-        .gsidebar-btn {
-          font-family: inherit;
-        }
-
+        .gsidebar-link:hover { background: #0f2040; color: #e2e8f0; }
+        .gsidebar-link--active { background: #0f2040 !important; border-left-color: #2dd4bf !important; color: #e2e8f0 !important; font-weight: 600; }
+        .gsidebar-link--muted { color: #475569; }
+        .gsidebar-link--muted:hover { color: #94a3b8; }
+        .gsidebar-btn { font-family: inherit; }
         @media (max-width: 900px) {
           .global-sidebar-desktop { display: none !important; }
           .global-sidebar-fab {
-            display: flex !important;
-            position: fixed;
-            bottom: 1.25rem;
-            left: 1rem;
-            z-index: 100;
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            background-color: #0d9488;
-            border: none;
-            color: #fff;
-            font-size: 1.2rem;
-            cursor: pointer;
+            display: flex !important; position: fixed;
+            bottom: 1.25rem; left: 1rem; z-index: 100;
+            width: 48px; height: 48px; border-radius: 50%;
+            background-color: #0d9488; border: none; color: #fff;
+            font-size: 1.2rem; cursor: pointer;
             box-shadow: 0 4px 16px #0d948860;
-            align-items: center;
-            justify-content: center;
+            align-items: center; justify-content: center;
           }
         }
       `}</style>

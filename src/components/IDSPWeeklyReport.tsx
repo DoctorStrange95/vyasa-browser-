@@ -84,12 +84,36 @@ function ordinal(n: number): string {
   return n + (s[(v - 20) % 10] ?? s[v] ?? s[0]);
 }
 
+function currentISOWeek(): number {
+  const now = new Date();
+  const jan4 = new Date(now.getFullYear(), 0, 4);
+  const dayOfWeek = jan4.getDay();
+  const week1Mon = new Date(jan4);
+  week1Mon.setDate(jan4.getDate() - ((dayOfWeek + 6) % 7));
+  return Math.ceil((now.getTime() - week1Mon.getTime()) / (7 * 86400000)) + 1;
+}
+
+function weekToDateRange(week: number, year: number): string {
+  const w = week > 0 ? week : currentISOWeek();
+  const y = week > 0 ? year : new Date().getFullYear();
+  const jan4 = new Date(y, 0, 4);
+  const week1Mon = new Date(jan4);
+  week1Mon.setDate(jan4.getDate() - ((jan4.getDay() + 6) % 7));
+  const start = new Date(week1Mon);
+  start.setDate(week1Mon.getDate() + (w - 1) * 7);
+  const end = new Date(start);
+  end.setDate(start.getDate() + 6);
+  const fmt = (d: Date) => d.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+  return `${fmt(start)} – ${fmt(end)}, ${y}`;
+}
+
 export default function IDSPWeeklyReport() {
-  const [data,     setData]     = useState<IDSPWeeklyMeta | null>(null);
-  const [loading,  setLoading]  = useState(true);
-  const [expanded, setExpanded] = useState(false);
-  const [phiItems, setPhiItems] = useState<PHIItem[]>([]);
-  const [openNews, setOpenNews] = useState<string | null>(null); // uid of expanded card
+  const [data,             setData]             = useState<IDSPWeeklyMeta | null>(null);
+  const [loading,          setLoading]          = useState(true);
+  const [expanded,         setExpanded]         = useState(false);
+  const [phiItems,         setPhiItems]         = useState<PHIItem[]>([]);
+  const [openNews,         setOpenNews]         = useState<string | null>(null);
+  const [selectedDisease,  setSelectedDisease]  = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/idsp-weekly")
@@ -143,7 +167,7 @@ export default function IDSPWeeklyReport() {
           <div style={{ textAlign: "center" }}>
             <div style={{ fontSize: "0.55rem", color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "0.15rem" }}>IDSP Week</div>
             <div style={{ fontSize: "2.2rem", fontWeight: 800, color: "#ef4444", lineHeight: 1, fontFamily: "monospace" }}>
-              {loading ? "–" : data?.week ? ordinal(data.week) : "–"}
+              {loading ? "–" : data?.week ? ordinal(data.week) : ordinal(currentISOWeek())}
             </div>
             <div style={{ fontSize: "0.6rem", color: "#475569" }}>{data?.year ?? new Date().getFullYear()}</div>
           </div>
@@ -152,7 +176,10 @@ export default function IDSPWeeklyReport() {
 
           <div>
             <div style={{ fontSize: "0.65rem", color: "#64748b", marginBottom: "0.3rem" }}>
-              {loading ? "Fetching & parsing official PDF…" : data?.dateRange ? `📅 ${data.dateRange}` : "Weekly Outbreak Report"}
+              {loading
+                ? "⏳ Please wait, loading IDSP outbreak data…"
+                : `📅 ${data?.dateRange ?? weekToDateRange(data?.week ?? 0, data?.year ?? new Date().getFullYear())}`
+              }
             </div>
             <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
               <span style={{ fontSize: "0.72rem", backgroundColor: "#ef444420", border: "1px solid #ef444440", color: "#f87171", borderRadius: "5px", padding: "0.2rem 0.6rem", fontWeight: 700 }}>
@@ -201,28 +228,70 @@ export default function IDSPWeeklyReport() {
       {!loading && outbreaks.length > 0 && (
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }} className="idsp-grid">
 
-          {/* Disease frequency chart */}
+          {/* Disease frequency chart — clickable */}
           <div style={{ backgroundColor: "#080f1e", border: "1px solid #1e3a5f", borderRadius: "12px", padding: "1.1rem 1.25rem" }}>
             <div style={{ fontSize: "0.68rem", color: "#64748b", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "0.85rem", fontWeight: 700 }}>
               Disease Distribution · This Week
+              <span style={{ marginLeft: "0.5rem", color: "#334155", fontWeight: 400, textTransform: "none" }}>— click to see affected areas</span>
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.55rem" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
               {sorted.map(([disease, count]) => {
-                const color = diseaseColor(disease);
-                const pct = (count / maxCount) * 100;
+                const color    = diseaseColor(disease);
+                const pct      = (count / maxCount) * 100;
+                const isOpen   = selectedDisease === disease;
+                const affected = outbreaks.filter(o => o.disease === disease);
                 return (
                   <div key={disease}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.2rem" }}>
-                      <span style={{ fontSize: "0.7rem", color: "#94a3b8", fontWeight: 500 }}>{disease}</span>
-                      <span style={{ fontSize: "0.68rem", color, fontWeight: 700, fontFamily: "monospace" }}>{count}</span>
-                    </div>
-                    <div style={{ height: "6px", backgroundColor: "#0f2040", borderRadius: "3px" }}>
-                      <div style={{
-                        height: "100%", width: `${pct}%`, borderRadius: "3px",
-                        background: `linear-gradient(90deg, ${color}90, ${color})`,
-                        transition: "width 0.6s ease",
-                      }} />
-                    </div>
+                    {/* Clickable bar row */}
+                    <button
+                      onClick={() => setSelectedDisease(isOpen ? null : disease)}
+                      style={{ width: "100%", background: isOpen ? "#0f2040" : "transparent", border: "none", borderRadius: "6px", padding: "0.35rem 0.4rem", cursor: "pointer", fontFamily: "inherit" }}
+                    >
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.2rem" }}>
+                        <span style={{ fontSize: "0.7rem", color: isOpen ? color : "#94a3b8", fontWeight: isOpen ? 700 : 500 }}>{disease}</span>
+                        <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                          <span style={{ fontSize: "0.68rem", color, fontWeight: 700, fontFamily: "monospace" }}>{count}</span>
+                          <span style={{ fontSize: "0.6rem", color: "#334155" }}>{isOpen ? "▲" : "▼"}</span>
+                        </div>
+                      </div>
+                      <div style={{ height: "6px", backgroundColor: "#0f2040", borderRadius: "3px" }}>
+                        <div style={{
+                          height: "100%", width: `${pct}%`, borderRadius: "3px",
+                          background: `linear-gradient(90deg, ${color}90, ${color})`,
+                          transition: "width 0.6s ease",
+                        }} />
+                      </div>
+                    </button>
+
+                    {/* Expanded: state/district breakdown */}
+                    {isOpen && (
+                      <div style={{ marginTop: "0.35rem", marginBottom: "0.35rem", background: "#060e1c", border: `1px solid ${color}30`, borderRadius: "8px", padding: "0.6rem 0.75rem", display: "flex", flexDirection: "column", gap: "0.35rem" }}>
+                        <div style={{ fontSize: "0.6rem", color: color, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "0.1rem" }}>
+                          {count} outbreak{count !== 1 ? "s" : ""} · {affected.reduce((s, o) => s + o.cases, 0).toLocaleString()} cases total
+                        </div>
+                        {affected.map((o, i) => (
+                          <Link
+                            key={i}
+                            href={resolveLink(o.district, o.state)}
+                            style={{ textDecoration: "none", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0.3rem 0.5rem", background: "#0a1628", borderRadius: "6px", border: "1px solid #1e3a5f" }}
+                          >
+                            <div>
+                              <span style={{ fontSize: "0.72rem", color: "#e2e8f0", fontWeight: 600 }}>
+                                {o.district ? `${o.district}, ` : ""}{o.state}
+                              </span>
+                              {o.startDate && (
+                                <span style={{ fontSize: "0.6rem", color: "#334155", marginLeft: "0.4rem" }}>since {o.startDate}</span>
+                              )}
+                            </div>
+                            <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+                              <span style={{ fontSize: "0.68rem", color: "#fb923c" }}>{o.cases} cases</span>
+                              {o.deaths > 0 && <span style={{ fontSize: "0.65rem", color: "#ef4444" }}>{o.deaths} ☠</span>}
+                              <span style={{ fontSize: "0.6rem", color: "#2dd4bf" }}>→</span>
+                            </div>
+                          </Link>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 );
               })}

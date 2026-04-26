@@ -1,10 +1,13 @@
 "use client";
 import Link from "next/link";
 import VyasaLogo from "./VyasaLogo";
+import type { UIConfig } from "@/lib/siteConfig";
 
 export interface HeaderUser { name: string; email: string; }
 
-export default function Header({ user }: { user?: HeaderUser | null }) {
+export default function Header({ user, uiConfig }: { user?: HeaderUser | null; uiConfig?: UIConfig | null }) {
+  const showForDoctors = uiConfig?.header.showForDoctors ?? true;
+
   function openFacilityDrawer() {
     window.dispatchEvent(new Event("open-facility-drawer"));
   }
@@ -37,7 +40,7 @@ export default function Header({ user }: { user?: HeaderUser | null }) {
 
         {/* Right-side actions */}
         <div style={{ display: "flex", gap: "0.65rem", alignItems: "center" }}>
-          {/* Find Nearby — mobile shortcut (hidden on desktop since GlobalSidebar shows it) */}
+          {/* Find Nearby — mobile shortcut */}
           <button
             onClick={openFacilityDrawer}
             className="header-find-nearby"
@@ -57,15 +60,17 @@ export default function Header({ user }: { user?: HeaderUser | null }) {
             📍 Find
           </button>
 
-          {/* For professionals only */}
-          <Link
-            href="/join#join-form"
-            className="header-join-btn"
-            title="Join Vyasa Health Platform — for healthcare professionals"
-            style={{ backgroundColor: "#0d948815", border: "1px solid #0d948840", color: "#64748b", padding: "0.55rem 0.9rem", borderRadius: "6px", textDecoration: "none", fontSize: "0.82rem", fontWeight: 500, minHeight: "44px", display: "inline-flex", alignItems: "center" }}
-          >
-            For Doctors
-          </Link>
+          {/* For professionals only — visibility controlled by admin */}
+          {showForDoctors && (
+            <Link
+              href="/join#join-form"
+              className="header-join-btn"
+              title="Join Vyasa Health Platform — for healthcare professionals"
+              style={{ backgroundColor: "#0d948815", border: "1px solid #0d948840", color: "#64748b", padding: "0.55rem 0.9rem", borderRadius: "6px", textDecoration: "none", fontSize: "0.82rem", fontWeight: 500, minHeight: "44px", display: "inline-flex", alignItems: "center" }}
+            >
+              For Doctors
+            </Link>
+          )}
 
           {user ? (
             <Link

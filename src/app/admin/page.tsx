@@ -7,6 +7,7 @@ import { getAdminDb } from "@/lib/firestore-admin";
 
 const MENU = [
   { href: "/admin/analytics",    icon: "📈", label: "Site Analytics",          desc: "Page views, daily traffic chart and top pages for the last 14 days" },
+  { href: "/admin/ui-settings",  icon: "🎛️", label: "UI Visibility Settings",   desc: "Show/hide header buttons, sidebar sections, mobile FAB, content tabs" },
   { href: "/admin/sources",      icon: "🗂", label: "Sources & Data Sheets",  desc: "All scraped and user-submitted data in tabbed spreadsheet view" },
   { href: "/admin/submissions",  icon: "📥", label: "Community Submissions",  desc: "Review AI-extracted health data uploaded by users" },
   { href: "/admin/intelligence", icon: "🛰", label: "Intelligence Review",    desc: "Approve or reject scraped PH alerts before they go live" },

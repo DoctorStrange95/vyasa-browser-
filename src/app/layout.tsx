@@ -8,6 +8,7 @@ import FacilityDrawer from "@/components/FacilityDrawer";
 import CookieConsent from "@/components/CookieConsent";
 import { getUserSession } from "@/lib/userAuth";
 import PageTracker from "@/components/PageTracker";
+import { getSiteConfig } from "@/lib/siteConfig";
 
 const BASE_URL = "https://healthforindia.vyasa.health";
 
@@ -56,7 +57,7 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const session = await getUserSession();
+  const [session, uiConfig] = await Promise.all([getUserSession(), getSiteConfig()]);
   return (
     <html lang="en">
       <head>
@@ -68,9 +69,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         />
       </head>
       <body>
-        <Header user={session} />
+        <Header user={session} uiConfig={uiConfig} />
         <div style={{ display: "flex", alignItems: "flex-start" }}>
-          <GlobalSidebar user={session} />
+          <GlobalSidebar user={session} uiConfig={uiConfig} />
           <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", minHeight: "calc(100vh - 64px)" }}>
             <main style={{ flex: 1 }}>{children}</main>
             <Footer />
