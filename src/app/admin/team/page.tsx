@@ -131,37 +131,61 @@ function Field({ l, children }: { l: string; children: React.ReactNode }) {
 // ── PhotoInput ────────────────────────────────────────────────────────────────
 function PhotoInput({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   const ref = useRef<HTMLInputElement>(null);
+  const [processing, setProcessing] = useState(false);
+
   function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
     if (!f) return;
     e.target.value = "";
-    // Resize to max 200×200 and compress to JPEG to keep Firestore doc under 1MB
-    const img = new window.Image();
-    const url = URL.createObjectURL(f);
-    img.onload = () => {
-      const MAX = 400;
-      const scale = Math.min(MAX / img.width, MAX / img.height, 1);
-      const canvas = document.createElement("canvas");
-      canvas.width  = Math.round(img.width  * scale);
-      canvas.height = Math.round(img.height * scale);
-      const ctx = canvas.getContext("2d")!;
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      onChange(canvas.toDataURL("image/jpeg", 0.85));
-      URL.revokeObjectURL(url);
+    setProcessing(true);
+
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const src = ev.target?.result as string;
+      if (!src) { setProcessing(false); return; }
+
+      const img = new window.Image();
+      img.onload = () => {
+        try {
+          const MAX = 400;
+          const scale = Math.min(MAX / img.width, MAX / img.height, 1);
+          const canvas = document.createElement("canvas");
+          canvas.width  = Math.round(img.width  * scale);
+          canvas.height = Math.round(img.height * scale);
+          const ctx = canvas.getContext("2d")!;
+          ctx.fillStyle = "#ffffff";
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          onChange(canvas.toDataURL("image/jpeg", 0.85));
+        } catch {
+          onChange(src); // fallback: use original
+        }
+        setProcessing(false);
+      };
+      img.onerror = () => {
+        onChange(src); // fallback: use original data URL
+        setProcessing(false);
+      };
+      img.src = src;
     };
-    img.src = url;
+    reader.onerror = () => setProcessing(false);
+    reader.readAsDataURL(f);
   }
+
   return (
     <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-      {value && (
+      {value && !processing && (
         <img src={value} alt="" style={{ width: 40, height: 40, borderRadius: "50%", objectFit: "cover", border: "1px solid #1e3a5f", flexShrink: 0 }} />
+      )}
+      {processing && (
+        <div style={{ width: 40, height: 40, borderRadius: "50%", border: "1px solid #a78bfa40", background: "#0d1f3c", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.6rem", color: "#a78bfa" }}>…</div>
       )}
       <div style={{ flex: 1 }}>
         <input style={inp} value={value} onChange={e => onChange(e.target.value)} placeholder="/team/photo.jpg or https://…" />
       </div>
-      <button type="button" onClick={() => ref.current?.click()} style={btn("#a78bfa")}>Upload</button>
+      <button type="button" onClick={() => ref.current?.click()} disabled={processing} style={{ ...btn("#a78bfa"), opacity: processing ? 0.6 : 1 }}>
+        {processing ? "Processing…" : "Upload"}
+      </button>
       <input ref={ref} type="file" accept="image/*" style={{ display: "none" }} onChange={handleFile} />
     </div>
   );
