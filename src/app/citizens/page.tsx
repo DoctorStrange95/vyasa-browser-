@@ -9,6 +9,7 @@ import CitizenAuthBar, { CitizenUser } from "./CitizenAuthBar";
 const TABS = [
   { id: "hospitals", label: "🏥 Find Hospital" },
   { id: "stats",     label: "📊 My State" },
+  { id: "ayushman",  label: "🛡️ Ayushman Card" },
   { id: "locker",    label: "🔐 Health Locker" },
 ];
 
@@ -78,9 +79,30 @@ function CitizenStats() {
     Promise.all([
       fetch("/api/citizens/hospitals?states=true").then(r => r.json()),
       fetch("/api/citizens/state-stats").then(r => r.json()),
-    ]).then(([ayush, stats]) => {
+      fetch("/api/citizens/me").then(r => r.ok ? r.json() : null).catch(() => null),
+    ]).then(([ayush, stats, me]) => {
+      const statsList: StateStat[] = Array.isArray(stats) ? stats : [];
       setAyushmanStates(Array.isArray(ayush) ? ayush : []);
-      setAllStats(Array.isArray(stats) ? stats : []);
+      setAllStats(statsList);
+      // Auto-fill state from profile place (same logic as HospitalFinder)
+      if (me?.place && statsList.length) {
+        const parts = (me.place as string).split(",").map((p: string) => p.trim()).reverse();
+        let match: StateStat | undefined;
+        for (const part of parts) {
+          const low = part.toLowerCase();
+          match = statsList.find(s =>
+            s.name.toLowerCase().includes(low.split(" ")[0]) ||
+            low.includes(s.name.toLowerCase().split(" ")[0])
+          );
+          if (match) break;
+        }
+        if (match) {
+          fetch(`/api/citizens/state-stats?state=${match.slug}`)
+            .then(r => r.json())
+            .then(d => setDetected(d))
+            .catch(() => {});
+        }
+      }
     }).catch(() => {}).finally(() => setLoading(false));
   }, []);
 
@@ -170,10 +192,23 @@ function CitizenStats() {
     setDetected(detail);
   }
 
-  const ayushMap = Object.fromEntries(ayushmanStates.map(s => [s.stateSlug, s.count]));
+  // Build a resilient ayush lookup: keyed by raw slug, normalised slug, and normalised name
+  function normKey(s: string) {
+    return s.toLowerCase().trim().replace(/[\s_]+/g, "-").replace(/[^a-z0-9-]/g, "");
+  }
+  const ayushMap: Record<string, number> = {};
+  ayushmanStates.forEach(a => {
+    ayushMap[a.stateSlug]          = a.count;
+    ayushMap[normKey(a.stateSlug)] = a.count;
+    ayushMap[normKey(a.stateName)] = a.count;
+  });
+  function getAyush(slug: string, name?: string): number {
+    return ayushMap[slug] ?? ayushMap[normKey(slug)] ?? (name ? ayushMap[normKey(name)] : undefined) ?? 0;
+  }
+
   const totalHospitals = ayushmanStates.reduce((acc, s) => acc + s.count, 0);
 
-  const merged = allStats.map(s => ({ ...s, ayushCount: ayushMap[s.slug] ?? 0 }));
+  const merged = allStats.map(s => ({ ...s, ayushCount: getAyush(s.slug, s.name) }));
   const filtered = merged.filter(s => !search || s.name.toLowerCase().includes(search.toLowerCase()));
   const sorted   = [...filtered].sort((a, b) => a.rank - b.rank);
 
@@ -318,7 +353,7 @@ function CitizenStats() {
               <div style={{ flex: 1, minWidth: "140px", background: "#060e1c", border: "1px solid #f59e0b40", borderRadius: "8px", padding: "0.65rem 0.85rem" }}>
                 <div style={{ fontSize: "0.72rem", color: "#92400e", fontWeight: 600, letterSpacing: "0.04em" }}>🛡️ AYUSHMAN EMPANELLED</div>
                 <div style={{ fontSize: "1.35rem", fontWeight: 800, color: "#f59e0b", marginTop: "0.25rem" }}>
-                  {(ayushMap[detected.slug] ?? 0).toLocaleString("en-IN")}
+                  {getAyush(detected.slug, detected.name).toLocaleString("en-IN")}
                 </div>
                 <div style={{ fontSize: "0.72rem", color: "#475569", marginTop: "0.15rem" }}>hospitals in {detected.name}</div>
               </div>
@@ -477,10 +512,118 @@ function CitizenStats() {
   );
 }
 
+// ── Ayushman Card tab ────────────────────────────────────────────────────────
+function AyushmanCardInfo() {
+  return (
+    <div>
+      <div style={{ background: "#071428", border: "1px solid #fbbf2440", borderRadius: "14px", padding: "1.5rem", marginBottom: "1.25rem" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1rem" }}>
+          <span style={{ fontSize: "2rem" }}>🛡️</span>
+          <div>
+            <h2 style={{ margin: 0, fontSize: "1.3rem", fontWeight: 700, color: "#fbbf24" }}>Ayushman Bharat PM-JAY Card</h2>
+            <div style={{ fontSize: "0.78rem", color: "#64748b", marginTop: "0.2rem" }}>Pradhan Mantri Jan Arogya Yojana — ₹5 lakh annual health cover</div>
+          </div>
+        </div>
+        <p style={{ color: "#94a3b8", fontSize: "0.9rem", lineHeight: 1.7, margin: 0 }}>
+          Ayushman Bharat PM-JAY is India&apos;s flagship public health insurance scheme providing free secondary and tertiary healthcare coverage of up to <strong style={{ color: "#fbbf24" }}>₹5 lakh per family per year</strong> at any empanelled government or private hospital. It covers over <strong style={{ color: "#e2e8f0" }}>1,929 procedures</strong> including surgeries, medical treatments, and day-care procedures.
+        </p>
+      </div>
+
+      {/* Eligibility */}
+      <div style={{ background: "#071428", border: "1px solid #1e3a5f", borderRadius: "14px", padding: "1.25rem", marginBottom: "1rem" }}>
+        <div style={{ fontWeight: 700, color: "#93c5fd", fontSize: "0.95rem", marginBottom: "0.85rem" }}>✅ Who Is Eligible?</div>
+        <ul style={{ color: "#94a3b8", fontSize: "0.88rem", lineHeight: 2, paddingLeft: "1.25rem", margin: 0 }}>
+          <li>Families listed in <strong style={{ color: "#e2e8f0" }}>SECC 2011 database</strong> (Socio-Economic Caste Census)</li>
+          <li>Active <strong style={{ color: "#e2e8f0" }}>RSBY beneficiaries</strong></li>
+          <li>Beneficiaries identified by <strong style={{ color: "#e2e8f0" }}>state government schemes</strong> (varies by state)</li>
+          <li>No cap on family size or age</li>
+          <li>Coverage is <strong style={{ color: "#e2e8f0" }}>portable</strong> across India — use at any empanelled hospital nationwide</li>
+        </ul>
+      </div>
+
+      {/* Steps */}
+      <div style={{ background: "#071428", border: "1px solid #1e3a5f", borderRadius: "14px", padding: "1.25rem", marginBottom: "1rem" }}>
+        <div style={{ fontWeight: 700, color: "#93c5fd", fontSize: "0.95rem", marginBottom: "0.85rem" }}>📋 Steps to Get Your Card</div>
+        <ol style={{ color: "#94a3b8", fontSize: "0.88rem", lineHeight: 2.1, paddingLeft: "1.25rem", margin: 0 }}>
+          <li><strong style={{ color: "#e2e8f0" }}>Check eligibility</strong> on the official portal using your mobile number, Aadhaar, or ration card</li>
+          <li><strong style={{ color: "#e2e8f0" }}>Visit your nearest Common Service Centre (CSC)</strong>, empanelled hospital, or Ayushman Mitra</li>
+          <li>Carry <strong style={{ color: "#e2e8f0" }}>Aadhaar card</strong> and one family ID (ration card / voter ID)</li>
+          <li>Get <strong style={{ color: "#e2e8f0" }}>e-KYC done</strong> (biometric or OTP-based) at the centre</li>
+          <li><strong style={{ color: "#e2e8f0" }}>Download or print</strong> your Ayushman Bharat card (PM-JAY Health Card)</li>
+          <li>Show the card at any <strong style={{ color: "#e2e8f0" }}>AB-PMJAY empanelled hospital</strong> to avail cashless treatment</li>
+        </ol>
+      </div>
+
+      {/* Official links */}
+      <div style={{ background: "#071428", border: "1px solid #1e3a5f", borderRadius: "14px", padding: "1.25rem", marginBottom: "1rem" }}>
+        <div style={{ fontWeight: 700, color: "#93c5fd", fontSize: "0.95rem", marginBottom: "0.85rem" }}>🔗 Official Links</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.65rem" }}>
+          <a href="https://beneficiary.nha.gov.in" target="_blank" rel="noopener noreferrer"
+            style={{ display: "flex", alignItems: "center", gap: "0.6rem", background: "#0f2040", border: "1px solid #1e3a5f", borderRadius: "9px", padding: "0.75rem 1rem", textDecoration: "none", color: "#93c5fd" }}>
+            <span style={{ fontSize: "1.1rem" }}>🔍</span>
+            <div>
+              <div style={{ fontWeight: 600, fontSize: "0.88rem" }}>beneficiary.nha.gov.in</div>
+              <div style={{ fontSize: "0.72rem", color: "#475569", marginTop: "0.1rem" }}>Check your eligibility by mobile / Aadhaar / ration card</div>
+            </div>
+            <span style={{ marginLeft: "auto", color: "#475569", fontSize: "0.8rem" }}>↗</span>
+          </a>
+          <a href="https://pmjay.gov.in" target="_blank" rel="noopener noreferrer"
+            style={{ display: "flex", alignItems: "center", gap: "0.6rem", background: "#0f2040", border: "1px solid #1e3a5f", borderRadius: "9px", padding: "0.75rem 1rem", textDecoration: "none", color: "#93c5fd" }}>
+            <span style={{ fontSize: "1.1rem" }}>🏛️</span>
+            <div>
+              <div style={{ fontWeight: 600, fontSize: "0.88rem" }}>pmjay.gov.in</div>
+              <div style={{ fontSize: "0.72rem", color: "#475569", marginTop: "0.1rem" }}>Official PM-JAY portal — scheme details, news, empanelled hospitals</div>
+            </div>
+            <span style={{ marginLeft: "auto", color: "#475569", fontSize: "0.8rem" }}>↗</span>
+          </a>
+          <a href="https://hospitals.pmjay.gov.in" target="_blank" rel="noopener noreferrer"
+            style={{ display: "flex", alignItems: "center", gap: "0.6rem", background: "#0f2040", border: "1px solid #1e3a5f", borderRadius: "9px", padding: "0.75rem 1rem", textDecoration: "none", color: "#93c5fd" }}>
+            <span style={{ fontSize: "1.1rem" }}>🏥</span>
+            <div>
+              <div style={{ fontWeight: 600, fontSize: "0.88rem" }}>hospitals.pmjay.gov.in</div>
+              <div style={{ fontSize: "0.72rem", color: "#475569", marginTop: "0.1rem" }}>Find empanelled hospitals near you by state / district</div>
+            </div>
+            <span style={{ marginLeft: "auto", color: "#475569", fontSize: "0.8rem" }}>↗</span>
+          </a>
+        </div>
+      </div>
+
+      {/* Helpline */}
+      <div style={{ background: "#071428", border: "1px solid #22c55e30", borderRadius: "14px", padding: "1.25rem" }}>
+        <div style={{ fontWeight: 700, color: "#4ade80", fontSize: "0.95rem", marginBottom: "0.65rem" }}>📞 Helpline</div>
+        <div style={{ display: "flex", alignItems: "center", gap: "1rem", flexWrap: "wrap" }}>
+          <div style={{ background: "#0f2040", border: "1px solid #22c55e20", borderRadius: "9px", padding: "0.75rem 1.25rem" }}>
+            <div style={{ fontSize: "1.6rem", fontWeight: 800, color: "#4ade80", fontFamily: "monospace" }}>14555</div>
+            <div style={{ fontSize: "0.72rem", color: "#475569", marginTop: "0.2rem" }}>PM-JAY Toll Free — 24×7</div>
+          </div>
+          <div style={{ background: "#0f2040", border: "1px solid #22c55e20", borderRadius: "9px", padding: "0.75rem 1.25rem" }}>
+            <div style={{ fontSize: "1.6rem", fontWeight: 800, color: "#4ade80", fontFamily: "monospace" }}>1800-111-565</div>
+            <div style={{ fontSize: "0.72rem", color: "#475569", marginTop: "0.2rem" }}>NHA Helpline — Toll Free</div>
+          </div>
+        </div>
+        <div style={{ marginTop: "0.85rem", background: "#0d1f3c", borderRadius: "8px", padding: "0.75rem 1rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+          <span style={{ fontSize: "1rem" }}>🔔</span>
+          <div style={{ fontSize: "0.78rem", color: "#64748b" }}>
+            <strong style={{ color: "#94a3b8" }}>HealthForIndia Helpline — Coming Soon.</strong> We&apos;re building a dedicated citizen helpline to guide you through the Ayushman card process in your local language.
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Main page ───────────────────────────────────────────────────────────────
 export default function CitizensPage() {
   const [user, setUser]           = useState<CitizenUser | null | "loading">("loading");
   const [activeTab, setActiveTab] = useState("hospitals");
+
+  useEffect(() => {
+    // Read ?tab= from URL on mount without useSearchParams (avoids Suspense requirement)
+    if (typeof window !== "undefined") {
+      const tab = new URLSearchParams(window.location.search).get("tab");
+      if (tab && TABS.find(t => t.id === tab)) setActiveTab(tab);
+    }
+  }, []);
 
   useEffect(() => {
     fetch("/api/citizens/me")
@@ -536,6 +679,7 @@ export default function CitizensPage() {
 
         {activeTab === "hospitals" && <HospitalFinder isLoggedIn={isLoggedIn} />}
         {activeTab === "stats"     && <CitizenStats />}
+        {activeTab === "ayushman"  && <AyushmanCardInfo />}
         {activeTab === "locker"    && <HealthLocker user={isLoggedIn ? (user as CitizenUser) : null} />}
       </div>
     </div>

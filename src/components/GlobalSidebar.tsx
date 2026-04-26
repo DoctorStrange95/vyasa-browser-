@@ -91,6 +91,9 @@ export default function GlobalSidebar({ user }: { user?: HeaderUser | null }) {
 
         <NavLink href="/"         icon="🏠" label="Home"             active={pathname === "/"} onClick={() => setMobileOpen(false)} />
         <NavLink href="/citizens" icon="🏥" label="Citizens Centre"  active={pathname.startsWith("/citizens")} onClick={() => setMobileOpen(false)} />
+        {user && (
+          <NavLink href="/citizens?tab=stats" icon="📊" label="My Dashboard" active={false} onClick={() => setMobileOpen(false)} />
+        )}
 
         {/* Find Nearby — triggers FacilityDrawer */}
         <button onClick={openFacilityDrawer} className="gsidebar-link gsidebar-btn">

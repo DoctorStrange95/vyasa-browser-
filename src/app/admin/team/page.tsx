@@ -134,10 +134,21 @@ function PhotoInput({ value, onChange }: { value: string; onChange: (v: string) 
   function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
     if (!f) return;
-    const reader = new FileReader();
-    reader.onload = ev => onChange(ev.target?.result as string);
-    reader.readAsDataURL(f);
     e.target.value = "";
+    // Resize to max 200×200 and compress to JPEG to keep Firestore doc under 1MB
+    const img = new window.Image();
+    const url = URL.createObjectURL(f);
+    img.onload = () => {
+      const MAX = 200;
+      const scale = Math.min(MAX / img.width, MAX / img.height, 1);
+      const canvas = document.createElement("canvas");
+      canvas.width  = Math.round(img.width  * scale);
+      canvas.height = Math.round(img.height * scale);
+      canvas.getContext("2d")!.drawImage(img, 0, 0, canvas.width, canvas.height);
+      onChange(canvas.toDataURL("image/jpeg", 0.80));
+      URL.revokeObjectURL(url);
+    };
+    img.src = url;
   }
   return (
     <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
