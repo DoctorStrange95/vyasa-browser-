@@ -30,6 +30,7 @@ export default function HealthLocker({ user }: Props) {
   const [loadingFiles, setLoadingFiles] = useState(false);
   const [toast, setToast]           = useState<{ msg: string; type: "ok" | "err" } | null>(null);
   const [downloadId, setDownloadId] = useState<string | null>(null);
+  const [preview, setPreview]       = useState<{ url: string; mimeType: string; name: string } | null>(null);
   const [sharing, setSharing]       = useState(false);
   const [exporting, setExporting]   = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -77,21 +78,51 @@ export default function HealthLocker({ user }: Props) {
     finally { setUploading(false); }
   };
 
+  // ── Fetch file data (shared by download + preview) ─────────────────────────
+  const fetchFile = async (id: string) => {
+    const r = await fetch("/api/citizens/locker", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id }),
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error ?? "Failed");
+    return d as { data: string; mimeType: string; name: string };
+  };
+
+  const toBlob = (data: string, mimeType: string): string => {
+    const bytes = atob(data);
+    const arr   = new Uint8Array(bytes.length);
+    for (let i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i);
+    return URL.createObjectURL(new Blob([arr], { type: mimeType }));
+  };
+
   // ── Download ────────────────────────────────────────────────────────────────
   const handleDownload = async (f: FileItem) => {
     setDownloadId(f._id);
     try {
-      const r = await fetch("/api/citizens/locker", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: f._id }),
-      });
-      const d = await r.json();
-      if (!r.ok) { showToast(d.error ?? "Download failed.", "err"); return; }
-      const a = document.createElement("a");
-      a.href = `data:${d.mimeType};base64,${d.data}`;
-      a.download = d.name; a.click();
+      const d   = await fetchFile(f._id);
+      const url = toBlob(d.data, d.mimeType);
+      const a   = document.createElement("a");
+      a.href = url; a.download = d.name; a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 10000);
     } catch { showToast("Download failed.", "err"); }
     finally { setDownloadId(null); }
+  };
+
+  // ── Preview ─────────────────────────────────────────────────────────────────
+  const handlePreview = async (f: FileItem) => {
+    setDownloadId(f._id); // reuse loading indicator
+    try {
+      const d   = await fetchFile(f._id);
+      const url = toBlob(d.data, d.mimeType);
+      setPreview({ url, mimeType: d.mimeType, name: d.name });
+    } catch { showToast("Preview failed.", "err"); }
+    finally { setDownloadId(null); }
+  };
+
+  const closePreview = () => {
+    if (preview) URL.revokeObjectURL(preview.url);
+    setPreview(null);
   };
 
   // ── Delete ──────────────────────────────────────────────────────────────────
@@ -162,6 +193,28 @@ export default function HealthLocker({ user }: Props) {
   // ── Logged in ────────────────────────────────────────────────────────────────
   return (
     <div>
+      {/* Preview modal */}
+      {preview && (
+        <div
+          onClick={closePreview}
+          style={{ position: "fixed", inset: 0, backgroundColor: "#000000cc", zIndex: 9999, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "1rem" }}
+        >
+          <div onClick={e => e.stopPropagation()} style={{ background: "#0d1f3c", border: "1px solid #1e3a5f", borderRadius: "10px", width: "100%", maxWidth: "860px", maxHeight: "90vh", display: "flex", flexDirection: "column", overflow: "hidden" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0.6rem 1rem", borderBottom: "1px solid #1e3a5f", flexShrink: 0 }}>
+              <span style={{ fontSize: "0.85rem", color: "#e2e8f0", fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{preview.name}</span>
+              <button onClick={closePreview} style={{ background: "none", border: "1px solid #1e3a5f", color: "#94a3b8", borderRadius: "6px", padding: "0.2rem 0.6rem", cursor: "pointer", fontSize: "0.85rem", flexShrink: 0, marginLeft: "0.5rem" }}>✕ Close</button>
+            </div>
+            <div style={{ flex: 1, overflow: "auto", display: "flex", alignItems: "center", justifyContent: "center", background: "#060e1c", minHeight: "300px" }}>
+              {preview.mimeType.startsWith("image/") ? (
+                <img src={preview.url} alt={preview.name} style={{ maxWidth: "100%", maxHeight: "78vh", objectFit: "contain" }} />
+              ) : (
+                <iframe src={preview.url} title={preview.name} style={{ width: "100%", height: "75vh", border: "none" }} />
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Toast */}
       {toast && (
         <div style={{
@@ -243,6 +296,12 @@ export default function HealthLocker({ user }: Props) {
                     {fmtBytes(f.size)} · {new Date(f.uploadedAt).toLocaleDateString("en-IN")}
                   </div>
                 </div>
+                <button onClick={() => handlePreview(f)} disabled={downloadId === f._id} style={{
+                  background: "#0f2040", color: "#7dd3fc", border: "1px solid #1e3a5f", borderRadius: "6px",
+                  padding: "0.35rem 0.65rem", fontSize: "0.8rem", cursor: "pointer", flexShrink: 0,
+                }}>
+                  {downloadId === f._id ? "…" : "👁"}
+                </button>
                 <button onClick={() => handleDownload(f)} disabled={downloadId === f._id} style={{
                   background: "#0f3460", color: "#93c5fd", border: "none", borderRadius: "6px",
                   padding: "0.35rem 0.65rem", fontSize: "0.8rem", cursor: "pointer", flexShrink: 0,

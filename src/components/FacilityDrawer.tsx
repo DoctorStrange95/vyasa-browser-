@@ -68,17 +68,30 @@ export default function FacilityDrawer() {
           >✕</button>
         </div>
 
-        {/* Emergency quick-dial bar */}
-        <div style={{ display: "flex", gap: "0.4rem", padding: "0.6rem 1rem", backgroundColor: "#0a1628", borderBottom: "1px solid #1e3a5f", flexShrink: 0 }}>
+        {/* Emergency quick-dial — row 1: general */}
+        <div style={{ display: "flex", gap: "0.4rem", padding: "0.5rem 1rem 0.3rem", backgroundColor: "#0a1628", flexShrink: 0 }}>
           {[
-            { label: "Ambulance",  num: "108", color: "#ef4444" },
-            { label: "Police",     num: "100", color: "#3b82f6" },
+            { label: "Ambulance",  num: "108",  color: "#ef4444" },
+            { label: "Police",     num: "100",  color: "#3b82f6" },
             { label: "Women Help", num: "1091", color: "#a855f7" },
             { label: "NDMA",       num: "1078", color: "#f97316" },
           ].map(e => (
-            <a key={e.num} href={`tel:${e.num}`} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: "0.1rem", backgroundColor: `${e.color}15`, border: `1px solid ${e.color}40`, borderRadius: "7px", padding: "0.4rem 0.3rem", textDecoration: "none" }}>
-              <span style={{ fontSize: "0.9rem", fontWeight: 700, color: e.color, fontFamily: "monospace" }}>{e.num}</span>
-              <span style={{ fontSize: "0.55rem", color: "#475569", textAlign: "center", lineHeight: 1.2 }}>{e.label}</span>
+            <a key={e.num} href={`tel:${e.num}`} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: "0.1rem", backgroundColor: `${e.color}15`, border: `1px solid ${e.color}40`, borderRadius: "7px", padding: "0.35rem 0.3rem", textDecoration: "none" }}>
+              <span style={{ fontSize: "0.85rem", fontWeight: 700, color: e.color, fontFamily: "monospace" }}>{e.num}</span>
+              <span style={{ fontSize: "0.52rem", color: "#475569", textAlign: "center", lineHeight: 1.2 }}>{e.label}</span>
+            </a>
+          ))}
+        </div>
+        {/* Emergency quick-dial — row 2: health helplines */}
+        <div style={{ display: "flex", gap: "0.4rem", padding: "0.3rem 1rem 0.5rem", backgroundColor: "#0a1628", borderBottom: "1px solid #1e3a5f", flexShrink: 0 }}>
+          {[
+            { label: "PM-JAY",        num: "14555",        color: "#22c55e" },
+            { label: "iCall Mental",   num: "9152987821",   color: "#a78bfa" },
+            { label: "Health Helpline",num: "1800-180-1104",color: "#fbbf24" },
+          ].map(e => (
+            <a key={e.num} href={`tel:${e.num.replace(/-/g, "")}`} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: "0.1rem", backgroundColor: `${e.color}15`, border: `1px solid ${e.color}40`, borderRadius: "7px", padding: "0.35rem 0.3rem", textDecoration: "none" }}>
+              <span style={{ fontSize: "0.72rem", fontWeight: 700, color: e.color, fontFamily: "monospace" }}>{e.num}</span>
+              <span style={{ fontSize: "0.52rem", color: "#475569", textAlign: "center", lineHeight: 1.2 }}>{e.label}</span>
             </a>
           ))}
         </div>

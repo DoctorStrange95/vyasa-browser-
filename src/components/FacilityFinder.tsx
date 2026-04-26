@@ -18,7 +18,7 @@ interface Place {
 
 interface SavedLoc { label: string; lat: number; lng: number; }
 
-const LS_KEY   = "ff_locs_v1";
+const LS_KEY    = "ff_locs_v1";
 const MAX_SAVED = 6;
 
 function readSaved(): SavedLoc[] {
@@ -32,35 +32,116 @@ function writeSaved(loc: SavedLoc) {
 }
 
 const CATEGORIES: { type: FacilityType; icon: string; label: string; color: string }[] = [
-  { type: "hospital",  icon: "🏥", label: "Hospital",      color: "#2dd4bf" },
-  { type: "phc",       icon: "🏛️", label: "PHC / Sub-Ctr", color: "#34d399" },
+  { type: "hospital",  icon: "🏥", label: "Hospital",         color: "#2dd4bf" },
+  { type: "phc",       icon: "🏛️", label: "PHC / Sub-Ctr",   color: "#34d399" },
   { type: "chc",       icon: "🏨", label: "CHC / Dist. Hosp", color: "#22c7bb" },
-  { type: "doctor",    icon: "👨‍⚕️", label: "Doctor/Clinic", color: "#60a5fa" },
-  { type: "pharmacy",  icon: "💊", label: "Pharmacy",      color: "#4ade80" },
-  { type: "lab",       icon: "🔬", label: "Diagnostic Lab",color: "#818cf8" },
-  { type: "bloodbank", icon: "🩸", label: "Blood Bank",    color: "#f87171" },
-  { type: "ambulance", icon: "🚑", label: "Ambulance",     color: "#fb923c" },
-  { type: "anganwadi", icon: "🏫", label: "Anganwadi",     color: "#fbbf24" },
+  { type: "doctor",    icon: "👨‍⚕️", label: "Doctor/Clinic",   color: "#60a5fa" },
+  { type: "pharmacy",  icon: "💊", label: "Pharmacy",         color: "#4ade80" },
+  { type: "lab",       icon: "🔬", label: "Diagnostic Lab",   color: "#818cf8" },
+  { type: "bloodbank", icon: "🩸", label: "Blood Bank",       color: "#f87171" },
+  { type: "ambulance", icon: "🚑", label: "Ambulance",        color: "#fb923c" },
+  { type: "anganwadi", icon: "🏫", label: "Anganwadi",        color: "#fbbf24" },
 ];
 
+// ── Ayushman name-matching helpers ─────────────────────────────────────────
+const HOSP_STOP = /\b(hospital|nursing\s*home|health\s*care|healthcare|medical|centre|center|clinic|pvt|ltd|private|limited|trust|govt|government|super|multi|speciali[ts][ty]?|dr|and|the|of)\b/g;
+
+function normalizeHosp(name: string): string {
+  return name.toLowerCase()
+    .replace(HOSP_STOP, "")
+    .replace(/[^a-z0-9]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function isAyushmanMatch(placeName: string, ayushSet: Set<string>): boolean {
+  const norm = normalizeHosp(placeName);
+  if (norm.length < 3) return false;
+  for (const ayushNorm of ayushSet) {
+    if (!ayushNorm || ayushNorm.length < 3) continue;
+    if (ayushNorm.includes(norm) || norm.includes(ayushNorm)) return true;
+    const pTok = norm.split(" ").filter(t => t.length >= 3);
+    const aTok = ayushNorm.split(" ").filter(t => t.length >= 3);
+    if (pTok.length === 0 || aTok.length === 0) continue;
+    const overlap = pTok.filter(t => aTok.includes(t)).length;
+    if (overlap >= Math.min(2, Math.min(pTok.length, aTok.length))) return true;
+  }
+  return false;
+}
+
 export default function FacilityFinder() {
-  const [active,     setActive]    = useState<FacilityType>("hospital");
-  const [locMode,    setLocMode]   = useState<LocMode>("gps");
-  const [query,      setQuery]     = useState("");
-  const [places,     setPlaces]    = useState<Place[]>([]);
-  const [status,     setStatus]    = useState<"idle"|"locating"|"loading"|"done"|"error"|"nokey">("idle");
-  const [errMsg,     setErrMsg]    = useState("");
-  const [radius,     setRadius]    = useState("5000");
-  const [location,   setLocation]  = useState<string>("");
-  const [coords,     setCoords]    = useState<{lat:number;lng:number}|null>(null);
-  const [savedLocs,  setSavedLocs] = useState<SavedLoc[]>([]);
-  const [showSaved,  setShowSaved] = useState(false);
+  const [active,          setActive]         = useState<FacilityType>("hospital");
+  const [locMode,         setLocMode]        = useState<LocMode>("gps");
+  const [query,           setQuery]          = useState("");
+  const [places,          setPlaces]         = useState<Place[]>([]);
+  const [status,          setStatus]         = useState<"idle"|"locating"|"loading"|"done"|"error"|"nokey">("idle");
+  const [errMsg,          setErrMsg]         = useState("");
+  const [radius,          setRadius]         = useState("5000");
+  const [location,        setLocation]       = useState<string>("");
+  const [coords,          setCoords]         = useState<{lat:number;lng:number}|null>(null);
+  const [savedLocs,       setSavedLocs]      = useState<SavedLoc[]>([]);
+  const [showSaved,       setShowSaved]      = useState(false);
+
+  // Ayushman filter state
+  const [ayushmanOn,      setAyushmanOn]     = useState(false);
+  const [ayushmanSet,     setAyushmanSet]    = useState<Set<string>>(new Set());
+  const [ayushmanLoading, setAyushmanLoading] = useState(false);
 
   useEffect(() => { setSavedLocs(readSaved()); }, []);
 
-  async function searchByCoords(lat: number, lng: number, type: FacilityType, rad: string) {
+  // Load Ayushman empanelled hospitals for current coords
+  async function loadAyushmanData(lat: number, lng: number, locationStr: string) {
+    setAyushmanLoading(true);
+    try {
+      let rawState = "";
+      let rawDistrict = "";
+
+      // Pincode geocode returns: "PostOffice, District, State — XXXXXX"
+      const pinMatch = locationStr.match(/^.+?,\s*(.+?),\s*(.+?)\s*—/);
+      if (pinMatch) {
+        rawDistrict = pinMatch[1].trim();
+        rawState    = pinMatch[2].trim();
+      } else {
+        // GPS or district search — reverse-geocode the coords
+        const rev = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=en`,
+          { headers: { "User-Agent": "HealthForIndia/2.0" } }
+        );
+        const geo = await rev.json();
+        rawState    = geo?.address?.state ?? "";
+        rawDistrict = geo?.address?.county ?? geo?.address?.state_district ?? geo?.address?.district ?? "";
+      }
+
+      if (!rawState) return;
+
+      // Match state slug from our Ayushman DB
+      const statesRes = await fetch("/api/citizens/hospitals?states=true");
+      const statesList: { stateSlug: string; stateName: string }[] = await statesRes.json();
+      const matchState = statesList.find(s =>
+        s.stateName.toLowerCase().includes(rawState.toLowerCase().split(" ")[0]) ||
+        rawState.toLowerCase().includes(s.stateName.toLowerCase().split(" ")[0])
+      );
+      if (!matchState) return;
+
+      const params = new URLSearchParams({ state: matchState.stateSlug });
+      if (rawDistrict) params.set("district", rawDistrict);
+
+      const hospRes = await fetch(`/api/citizens/hospitals?${params}`);
+      const data    = await hospRes.json();
+      const hospitals: { name: string }[] = data.hospitals ?? [];
+
+      setAyushmanSet(new Set(hospitals.map(h => normalizeHosp(h.name))));
+    } catch {
+      // silently ignore — Ayushman overlay is best-effort
+    } finally {
+      setAyushmanLoading(false);
+    }
+  }
+
+  async function searchByCoords(lat: number, lng: number, type: FacilityType, rad: string, loc?: string) {
     setStatus("loading");
     setCoords({ lat, lng });
+    setAyushmanSet(new Set()); // clear stale Ayushman data on new search
     try {
       const res = await fetch(`/api/nearby-centres?lat=${lat}&lng=${lng}&radius=${rad}&type=${type}`);
       const d   = await res.json();
@@ -68,6 +149,10 @@ export default function FacilityFinder() {
       if (d.error)    { setErrMsg(d.error); setStatus("error"); return; }
       setPlaces(d.results ?? []);
       setStatus("done");
+      // Auto-load Ayushman data if toggle is on and we're looking at hospitals
+      if (ayushmanOn && type === "hospital") {
+        loadAyushmanData(lat, lng, loc ?? location);
+      }
     } catch {
       setErrMsg("Network error. Please try again.");
       setStatus("error");
@@ -85,7 +170,7 @@ export default function FacilityFinder() {
       setLocation(g.formatted);
       writeSaved({ label: g.formatted, lat: g.lat, lng: g.lng });
       setSavedLocs(readSaved());
-      searchByCoords(g.lat, g.lng, active, radius);
+      searchByCoords(g.lat, g.lng, active, radius, g.formatted);
     } catch {
       setErrMsg("Could not locate. Try a different pincode or district name.");
       setStatus("error");
@@ -98,7 +183,7 @@ export default function FacilityFinder() {
     navigator.geolocation.getCurrentPosition(
       pos => {
         setLocation("Your location");
-        searchByCoords(pos.coords.latitude, pos.coords.longitude, active, radius);
+        searchByCoords(pos.coords.latitude, pos.coords.longitude, active, radius, "");
       },
       err => { setErrMsg(`Location denied: ${err.message}`); setStatus("error"); },
       { timeout: 10000, maximumAge: 60000 }
@@ -107,7 +192,6 @@ export default function FacilityFinder() {
 
   function changeType(t: FacilityType) {
     setActive(t);
-    // Re-search with stored coords — works for both GPS and text mode without re-geocoding
     if (coords && status !== "idle") {
       searchByCoords(coords.lat, coords.lng, t, radius);
     }
@@ -117,13 +201,31 @@ export default function FacilityFinder() {
     setQuery(loc.label);
     setLocation(loc.label);
     setShowSaved(false);
-    searchByCoords(loc.lat, loc.lng, active, radius);
+    searchByCoords(loc.lat, loc.lng, active, radius, loc.label);
   }
 
-  const cat = CATEGORIES.find(c => c.type === active)!;
+  function toggleAyushman() {
+    const next = !ayushmanOn;
+    setAyushmanOn(next);
+    if (next && coords && active === "hospital" && status === "done" && ayushmanSet.size === 0) {
+      loadAyushmanData(coords.lat, coords.lng, location);
+    }
+    if (!next) setAyushmanSet(new Set());
+  }
+
+  const cat          = CATEGORIES.find(c => c.type === active)!;
   const filteredSaved = savedLocs.filter(l =>
     !query || l.label.toLowerCase().includes(query.toLowerCase())
   );
+
+  // Sort Ayushman-empanelled hospitals to the top when toggle is on
+  const displayPlaces = (ayushmanOn && ayushmanSet.size > 0 && active === "hospital")
+    ? [...places].sort((a, b) => {
+        const am = isAyushmanMatch(a.name, ayushmanSet) ? 1 : 0;
+        const bm = isAyushmanMatch(b.name, ayushmanSet) ? 1 : 0;
+        return bm - am;
+      })
+    : places;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%", gap: "0.75rem" }}>
@@ -144,7 +246,7 @@ export default function FacilityFinder() {
         ))}
       </div>
 
-      {/* Location mode toggle */}
+      {/* Location mode toggle + radius */}
       <div style={{ display: "flex", gap: "0.4rem", flexShrink: 0 }}>
         <div style={{ display: "flex", backgroundColor: "#060d1a", border: "1px solid #1e3a5f", borderRadius: "7px", overflow: "hidden", flexShrink: 0 }}>
           {(["gps", "text"] as LocMode[]).map(m => (
@@ -184,7 +286,6 @@ export default function FacilityFinder() {
               Search
             </button>
           </div>
-          {/* Recent locations dropdown */}
           {showSaved && filteredSaved.length > 0 && (
             <div style={{ position: "absolute", top: "calc(100% + 2px)", left: 0, right: "80px", backgroundColor: "#080f1e", border: "1px solid #1e3a5f", borderRadius: "7px", zIndex: 20, overflow: "hidden", boxShadow: "0 4px 12px #00000060" }}>
               <div style={{ fontSize: "0.6rem", color: "#334155", padding: "0.3rem 0.75rem", borderBottom: "1px solid #0f2040" }}>Recent searches</div>
@@ -227,15 +328,52 @@ export default function FacilityFinder() {
       {/* Results */}
       {status === "done" && (
         <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-          <div style={{ fontSize: "0.65rem", color: "#475569", flexShrink: 0 }}>
-            {places.length} {cat.label}{places.length !== 1 ? "s" : ""} found {location ? `near ${location}` : ""}
+          {/* Summary + Ayushman toggle (hospitals only) */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0, gap: "0.5rem" }}>
+            <div style={{ fontSize: "0.65rem", color: "#475569" }}>
+              {places.length} {cat.label}{places.length !== 1 ? "s" : ""} found {location ? `near ${location}` : ""}
+            </div>
+            {active === "hospital" && (
+              <button
+                onClick={toggleAyushman}
+                style={{
+                  display: "flex", alignItems: "center", gap: "0.3rem",
+                  padding: "0.25rem 0.6rem",
+                  backgroundColor: ayushmanOn ? "#78350f30" : "#060d1a",
+                  border: `1px solid ${ayushmanOn ? "#f59e0b" : "#1e3a5f"}`,
+                  borderRadius: "20px", cursor: "pointer", flexShrink: 0,
+                  transition: "all 0.15s",
+                }}
+              >
+                <span style={{ fontSize: "0.75rem" }}>🛡️</span>
+                <span style={{ fontSize: "0.6rem", fontWeight: 700, color: ayushmanOn ? "#f59e0b" : "#475569" }}>
+                  Ayushman
+                </span>
+                {ayushmanLoading && (
+                  <span style={{ fontSize: "0.55rem", color: "#78350f" }}>…</span>
+                )}
+                {ayushmanOn && !ayushmanLoading && ayushmanSet.size > 0 && (
+                  <span style={{ fontSize: "0.55rem", color: "#92400e", backgroundColor: "#f59e0b20", borderRadius: "10px", padding: "0 0.3rem" }}>
+                    {displayPlaces.filter(p => isAyushmanMatch(p.name, ayushmanSet)).length} found
+                  </span>
+                )}
+              </button>
+            )}
           </div>
+
           {places.length === 0 ? (
             <div style={{ textAlign: "center", padding: "1.5rem", color: "#334155", fontSize: "0.8rem" }}>
               None found within {Number(radius)/1000} km. Try expanding the radius.
             </div>
           ) : (
-            places.map(p => <PlaceCard key={p.place_id} place={p} color={cat.color} />)
+            displayPlaces.map(p => (
+              <PlaceCard
+                key={p.place_id}
+                place={p}
+                color={cat.color}
+                isAyushman={ayushmanOn && ayushmanSet.size > 0 && isAyushmanMatch(p.name, ayushmanSet)}
+              />
+            ))
           )}
         </div>
       )}
@@ -251,16 +389,35 @@ export default function FacilityFinder() {
   );
 }
 
-function PlaceCard({ place, color }: { place: Place; color: string }) {
+function PlaceCard({ place, color, isAyushman }: { place: Place; color: string; isAyushman?: boolean }) {
   const isOpen  = place.opening_hours?.open_now;
   const address = place.formatted_address ?? place.vicinity;
   const phone   = place.formatted_phone_number;
   const mapsUrl = `https://www.google.com/maps/place/?q=place_id:${place.place_id}`;
 
   return (
-    <div style={{ backgroundColor: "#080f1e", border: "1px solid #1e3a5f", borderLeft: `3px solid ${color}`, borderRadius: "8px", padding: "0.7rem 0.85rem", flexShrink: 0 }}>
+    <div style={{
+      backgroundColor: "#080f1e",
+      border: isAyushman ? "1px solid #f59e0b40" : "1px solid #1e3a5f",
+      borderLeft: `3px solid ${isAyushman ? "#f59e0b" : color}`,
+      borderRadius: "8px", padding: "0.7rem 0.85rem", flexShrink: 0,
+    }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "0.5rem", marginBottom: "0.3rem" }}>
-        <div style={{ fontSize: "0.82rem", fontWeight: 700, color: "#e2e8f0", lineHeight: 1.3 }}>{place.name}</div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: "0.82rem", fontWeight: 700, color: "#e2e8f0", lineHeight: 1.3 }}>{place.name}</div>
+          {isAyushman && (
+            <div style={{ marginTop: "0.2rem" }}>
+              <span style={{
+                fontSize: "0.58rem", fontWeight: 700,
+                color: "#f59e0b", backgroundColor: "#f59e0b18",
+                border: "1px solid #f59e0b40",
+                borderRadius: "4px", padding: "0.1rem 0.4rem",
+              }}>
+                🛡️ Ayushman Empanelled
+              </span>
+            </div>
+          )}
+        </div>
         {place.opening_hours && (
           <span style={{ fontSize: "0.6rem", color: isOpen ? "#4ade80" : "#f87171", flexShrink: 0, backgroundColor: isOpen ? "#22c55e15" : "#ef444415", borderRadius: "3px", padding: "0.1rem 0.35rem" }}>
             {isOpen ? "Open" : "Closed"}

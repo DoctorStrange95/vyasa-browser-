@@ -12,6 +12,7 @@ const MENU = [
   { href: "/admin/hospitals",    icon: "🏥", label: "Manage Health Centres",  desc: "Add PHCs, CHCs, hospitals with address & services" },
   { href: "/admin/data",         icon: "📊", label: "Upload Health Data",     desc: "Update state/district statistics before going live" },
   { href: "/admin/contributors", icon: "👥", label: "Contributors & Sponsors", desc: "Manage data authors, sponsors, acknowledgements" },
+  { href: "/admin/team",         icon: "👤", label: "Team Page Editor",        desc: "Edit team members, founder bio, timeline, photos & CTA" },
   { href: "/sources",            icon: "📚", label: "Data Sources (public)",   desc: "View live public-facing data sources page" },
   { href: "/",                   icon: "🌐", label: "View Live Site",          desc: "Open the public-facing HealthForIndia portal" },
 ];

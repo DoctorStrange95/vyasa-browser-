@@ -4,6 +4,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import FeedbackButton from "@/components/FeedbackButton";
 import FacilityDrawer from "@/components/FacilityDrawer";
+import CookieConsent from "@/components/CookieConsent";
 import { getUserSession } from "@/lib/userAuth";
 
 const BASE_URL = "https://healthforindia.vyasa.health";
@@ -70,6 +71,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <Footer />
         <FeedbackButton />
         <FacilityDrawer />
+        <CookieConsent />
       </body>
     </html>
   );

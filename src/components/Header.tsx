@@ -62,8 +62,8 @@ export default function Header({ user }: { user?: HeaderUser | null }) {
           <Link href="/sources" style={{ color: "#94a3b8", textDecoration: "none", fontSize: "0.875rem", fontWeight: 500 }}>
             Data Sources
           </Link>
-          <Link href="/contribute" style={{ color: "#94a3b8", textDecoration: "none", fontSize: "0.875rem", fontWeight: 500 }}>
-            Contribute
+          <Link href="/contact" style={{ color: "#94a3b8", textDecoration: "none", fontSize: "0.875rem", fontWeight: 500 }}>
+            Contact
           </Link>
           <Link href="/join" style={{ backgroundColor: "#0d948820", border: "1px solid #0d948860", color: "#2dd4bf", padding: "0.4rem 1rem", borderRadius: "6px", textDecoration: "none", fontSize: "0.875rem", fontWeight: 700 }}>
             Join Now
@@ -122,8 +122,8 @@ export default function Header({ user }: { user?: HeaderUser | null }) {
             <Link href="/sources" style={{ color: "#94a3b8", textDecoration: "none", fontSize: "0.875rem", padding: "0.55rem 0", borderBottom: "1px solid #1e3a5f10" }} onClick={() => setMenuOpen(false)}>
               Data Sources
             </Link>
-            <Link href="/contribute" style={{ color: "#94a3b8", textDecoration: "none", fontSize: "0.875rem", padding: "0.55rem 0", borderBottom: "1px solid #1e3a5f10" }} onClick={() => setMenuOpen(false)}>
-              Contribute
+            <Link href="/contact" style={{ color: "#94a3b8", textDecoration: "none", fontSize: "0.875rem", padding: "0.55rem 0", borderBottom: "1px solid #1e3a5f10" }} onClick={() => setMenuOpen(false)}>
+              Contact
             </Link>
             <Link href="/join" style={{ color: "#2dd4bf", textDecoration: "none", fontSize: "0.875rem", fontWeight: 700, padding: "0.55rem 0", borderBottom: "1px solid #1e3a5f10" }} onClick={() => setMenuOpen(false)}>
               Join Vyasa →
