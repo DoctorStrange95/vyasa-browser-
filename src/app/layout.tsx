@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Header from "@/components/Header";
+import GlobalSidebar from "@/components/GlobalSidebar";
 import Footer from "@/components/Footer";
 import FeedbackButton from "@/components/FeedbackButton";
 import FacilityDrawer from "@/components/FacilityDrawer";
@@ -67,8 +68,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </head>
       <body>
         <Header user={session} />
-        <main>{children}</main>
-        <Footer />
+        <div style={{ display: "flex", alignItems: "flex-start" }}>
+          <GlobalSidebar user={session} />
+          <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", minHeight: "calc(100vh - 64px)" }}>
+            <main style={{ flex: 1 }}>{children}</main>
+            <Footer />
+          </div>
+        </div>
         <FeedbackButton />
         <FacilityDrawer />
         <CookieConsent />

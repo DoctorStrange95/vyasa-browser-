@@ -58,6 +58,8 @@ function Metric({ label, value, unit, sub }: { label: string; value: string | nu
   );
 }
 
+const PINNED_STATS_KEY = "citizens_pinned_states_v1";
+
 // ── Citizen Stats ───────────────────────────────────────────────────────────
 function CitizenStats() {
   const [ayushmanStates, setAyushmanStates] = useState<AyushmanState[]>([]);
@@ -69,6 +71,8 @@ function CitizenStats() {
   const [showAll,        setShowAll]        = useState(false);
   const [manualState,    setManualState]    = useState("");
   const [manualSuggestions, setManualSuggestions] = useState<StateStat[]>([]);
+  const [pinnedSlugs,    setPinnedSlugs]    = useState<string[]>([]);
+  const [pinnedStats,    setPinnedStats]    = useState<StateStat[]>([]);
 
   useEffect(() => {
     Promise.all([
@@ -79,6 +83,43 @@ function CitizenStats() {
       setAllStats(Array.isArray(stats) ? stats : []);
     }).catch(() => {}).finally(() => setLoading(false));
   }, []);
+
+  // Load pinned slugs from localStorage
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(PINNED_STATS_KEY);
+      if (saved) setPinnedSlugs(JSON.parse(saved));
+    } catch { /* ignore */ }
+  }, []);
+
+  // Fetch stats for pinned states when allStats is ready
+  useEffect(() => {
+    if (!pinnedSlugs.length || !allStats.length) return;
+    const missing = pinnedSlugs.filter(slug => !pinnedStats.find(s => s.slug === slug));
+    if (!missing.length) return;
+    Promise.all(
+      missing.map(slug => fetch(`/api/citizens/state-stats?state=${slug}`).then(r => r.json()).catch(() => null))
+    ).then(results => {
+      setPinnedStats(prev => [...prev, ...(results.filter(Boolean) as StateStat[])]);
+    });
+  }, [pinnedSlugs, allStats]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  function togglePin(slug: string) {
+    setPinnedSlugs(prev => {
+      const next = prev.includes(slug) ? prev.filter(s => s !== slug) : [...prev, slug];
+      try { localStorage.setItem(PINNED_STATS_KEY, JSON.stringify(next)); } catch { /* ignore */ }
+      if (!prev.includes(slug)) {
+        // Load stats for newly pinned state
+        fetch(`/api/citizens/state-stats?state=${slug}`)
+          .then(r => r.json())
+          .then(data => setPinnedStats(p => [...p.filter(s => s.slug !== slug), data]))
+          .catch(() => {});
+      } else {
+        setPinnedStats(p => p.filter(s => s.slug !== slug));
+      }
+      return next;
+    });
+  }
 
   const detectState = useCallback(() => {
     if (!navigator.geolocation) { setGeoStatus("error"); return; }
@@ -136,8 +177,73 @@ function CitizenStats() {
   const filtered = merged.filter(s => !search || s.name.toLowerCase().includes(search.toLowerCase()));
   const sorted   = [...filtered].sort((a, b) => a.rank - b.rank);
 
+  const orderedPinned = pinnedSlugs
+    .map(slug => pinnedStats.find(s => s.slug === slug))
+    .filter(Boolean) as StateStat[];
+
   return (
     <div>
+
+      {/* ── My States Comparison ────────────────────────────────────────── */}
+      {orderedPinned.length > 0 && (
+        <div style={{ marginBottom: "1.25rem" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.6rem" }}>
+            <div style={{ fontWeight: 700, color: "#fbbf24", fontSize: "0.88rem" }}>📌 My States Dashboard</div>
+            <span style={{ fontSize: "0.65rem", color: "#334155" }}>Pin states to compare</span>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(orderedPinned.length, 3)}, 1fr)`, gap: "0.65rem" }}>
+            {orderedPinned.map(s => (
+              <div
+                key={s.slug}
+                style={{ background: "#071428", border: `1px solid ${s.slug === detected?.slug ? "#3b82f680" : "#1e3a5f"}`, borderRadius: "12px", padding: "0.9rem 1rem", cursor: "pointer", position: "relative" }}
+                onClick={() => setDetected(s)}
+              >
+                <button
+                  onClick={e => { e.stopPropagation(); togglePin(s.slug); }}
+                  style={{ position: "absolute", top: "0.5rem", right: "0.5rem", background: "none", border: "none", color: "#475569", cursor: "pointer", fontSize: "0.75rem", padding: "0.1rem 0.3rem" }}
+                  title="Remove from dashboard"
+                >✕</button>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
+                  <div style={{ width: "36px", height: "36px", borderRadius: "50%", border: `3px solid ${scoreColor(s.healthScore)}`, display: "flex", alignItems: "center", justifyContent: "center", background: "#060e1c", flexShrink: 0 }}>
+                    <span style={{ fontSize: "0.7rem", fontWeight: 800, color: scoreColor(s.healthScore) }}>{s.healthScore}</span>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "#e2e8f0", lineHeight: 1.1 }}>{s.name}</div>
+                    <div style={{ fontSize: "0.62rem", color: "#475569" }}>Rank #{s.rank}</div>
+                  </div>
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.3rem" }}>
+                  {s.imr != null && (
+                    <div style={{ background: "#060e1c", borderRadius: "6px", padding: "0.3rem 0.5rem" }}>
+                      <div style={{ fontSize: "0.6rem", color: "#475569" }}>IMR</div>
+                      <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "#e2e8f0" }}>{s.imr}</div>
+                    </div>
+                  )}
+                  {s.vaccinationPct != null && (
+                    <div style={{ background: "#060e1c", borderRadius: "6px", padding: "0.3rem 0.5rem" }}>
+                      <div style={{ fontSize: "0.6rem", color: "#475569" }}>Vacc.</div>
+                      <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "#e2e8f0" }}>{s.vaccinationPct}%</div>
+                    </div>
+                  )}
+                  {s.stuntingPct != null && (
+                    <div style={{ background: "#060e1c", borderRadius: "6px", padding: "0.3rem 0.5rem" }}>
+                      <div style={{ fontSize: "0.6rem", color: "#475569" }}>Stunting</div>
+                      <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "#e2e8f0" }}>{s.stuntingPct}%</div>
+                    </div>
+                  )}
+                  {s.birthRate2023 != null && (
+                    <div style={{ background: "#060e1c", borderRadius: "6px", padding: "0.3rem 0.5rem" }}>
+                      <div style={{ fontSize: "0.6rem", color: "#475569" }}>Birth Rate</div>
+                      <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "#e2e8f0" }}>{s.birthRate2023}</div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* ── Detected State Card ─────────────────────────────────────────── */}
       <div style={{ background: "#071428", border: "1px solid #1e3a5f", borderRadius: "14px", padding: "1.25rem", marginBottom: "1.25rem" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.85rem", flexWrap: "wrap", gap: "0.5rem" }}>
@@ -161,6 +267,18 @@ function CitizenStats() {
               <div>
                 <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
                   <div style={{ fontSize: "1.6rem", fontWeight: 800, color: "#fff", lineHeight: 1.1 }}>{detected.name}</div>
+                  <button
+                    onClick={() => togglePin(detected.slug)}
+                    style={{
+                      fontSize: "0.72rem", fontWeight: 600,
+                      color: pinnedSlugs.includes(detected.slug) ? "#fbbf24" : "#64748b",
+                      background: pinnedSlugs.includes(detected.slug) ? "#1a1200" : "#0f2040",
+                      border: `1px solid ${pinnedSlugs.includes(detected.slug) ? "#fbbf2440" : "#1e3a5f"}`,
+                      borderRadius: "5px", padding: "0.2rem 0.55rem", cursor: "pointer",
+                    }}
+                  >
+                    {pinnedSlugs.includes(detected.slug) ? "📌 Pinned" : "📌 Pin to Dashboard"}
+                  </button>
                   <button
                     onClick={() => setDetected(null)}
                     style={{ fontSize: "0.65rem", color: "#475569", background: "#0f2040", border: "1px solid #1e3a5f", borderRadius: "4px", padding: "0.1rem 0.45rem", cursor: "pointer" }}
@@ -295,30 +413,42 @@ function CitizenStats() {
         return (
           <>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: "0.5rem" }}>
-              {visible.map(s => (
-                <Link
-                  key={s.slug}
-                  href={`/state/${s.slug}`}
-                  style={{
-                    background: s.slug === detected?.slug ? "#0f2040" : "#080f1e",
-                    border: `1px solid ${s.slug === detected?.slug ? "#3b82f6" : "#1e3a5f"}`,
-                    borderRadius: "9px", padding: "0.65rem 0.85rem",
-                    textDecoration: "none", display: "flex", alignItems: "center", gap: "0.6rem",
-                  }}
-                >
-                  <div style={{ flexShrink: 0, width: "34px", height: "34px", borderRadius: "50%", border: `2px solid ${scoreColor(s.healthScore)}`, display: "flex", alignItems: "center", justifyContent: "center", background: "#060e1c" }}>
-                    <span style={{ fontSize: "0.65rem", fontWeight: 700, color: scoreColor(s.healthScore) }}>{s.healthScore}</span>
+              {visible.map(s => {
+                const isPinned = pinnedSlugs.includes(s.slug);
+                return (
+                  <div
+                    key={s.slug}
+                    style={{
+                      background: s.slug === detected?.slug ? "#0f2040" : "#080f1e",
+                      border: `1px solid ${isPinned ? "#fbbf2440" : s.slug === detected?.slug ? "#3b82f6" : "#1e3a5f"}`,
+                      borderRadius: "9px", padding: "0.65rem 0.85rem",
+                      display: "flex", alignItems: "center", gap: "0.6rem",
+                      position: "relative",
+                    }}
+                  >
+                    <Link href={`/state/${s.slug}`} style={{ display: "flex", alignItems: "center", gap: "0.6rem", flex: 1, minWidth: 0, textDecoration: "none" }}>
+                      <div style={{ flexShrink: 0, width: "34px", height: "34px", borderRadius: "50%", border: `2px solid ${scoreColor(s.healthScore)}`, display: "flex", alignItems: "center", justifyContent: "center", background: "#060e1c" }}>
+                        <span style={{ fontSize: "0.65rem", fontWeight: 700, color: scoreColor(s.healthScore) }}>{s.healthScore}</span>
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: "0.82rem", color: s.slug === detected?.slug ? "#93c5fd" : "#e2e8f0", fontWeight: 500, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                          {s.name}
+                        </div>
+                        <div style={{ fontSize: "0.63rem", color: "#475569", marginTop: "0.1rem" }}>
+                          Rank #{s.rank} · 🛡️ {(s.ayushCount ?? 0).toLocaleString("en-IN")} hospitals
+                        </div>
+                      </div>
+                    </Link>
+                    <button
+                      onClick={() => togglePin(s.slug)}
+                      title={isPinned ? "Remove from My States" : "Add to My States Dashboard"}
+                      style={{ background: "none", border: "none", cursor: "pointer", fontSize: "0.85rem", color: isPinned ? "#fbbf24" : "#334155", padding: "0.15rem", flexShrink: 0 }}
+                    >
+                      {isPinned ? "📌" : "⊕"}
+                    </button>
                   </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: "0.82rem", color: s.slug === detected?.slug ? "#93c5fd" : "#e2e8f0", fontWeight: 500, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                      {s.name}
-                    </div>
-                    <div style={{ fontSize: "0.63rem", color: "#475569", marginTop: "0.1rem" }}>
-                      Rank #{s.rank} · 🛡️ {(s.ayushCount ?? 0).toLocaleString("en-IN")} hospitals
-                    </div>
-                  </div>
-                </Link>
-              ))}
+                );
+              })}
               {sorted.length === 0 && (
                 <div style={{ gridColumn: "1/-1", textAlign: "center", color: "#475569", fontSize: "0.85rem", padding: "1.5rem" }}>
                   No states match &quot;{search}&quot;

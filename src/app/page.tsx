@@ -3,7 +3,6 @@ import Link from "next/link";
 import HealthTicker from "@/components/HealthTicker";
 import PHIntelligenceFeed from "@/components/PHIntelligenceFeed";
 import IDSPWeeklyReport from "@/components/IDSPWeeklyReport";
-import SidebarNav from "@/components/SidebarNav";
 import StateTable from "@/components/StateTable";
 import JsonLd from "@/components/JsonLd";
 import HomeSearch from "@/components/HomeSearch";
@@ -70,14 +69,8 @@ export default function HomePage() {
       }} />
       <HealthTicker />
 
-      {/* ── SIDEBAR + CONTENT LAYOUT ─────────────────────────────── */}
-      <div style={{ display: "flex", alignItems: "flex-start" }}>
-
-        {/* Left sidebar — sticky, client component */}
-        <SidebarNav />
-
-        {/* Main content */}
-        <main style={{ flex: 1, minWidth: 0 }}>
+      {/* ── PAGE CONTENT ─────────────────────────────────────────── */}
+      <div>
 
           {/* ── HERO ────────────────────────────────────────────── */}
           <section id="sec-hero" className="home-hero" style={{ backgroundColor: "#0a1628", borderBottom: "1px solid #1e3a5f", padding: "2.5rem 1.5rem 2rem" }}>
@@ -381,7 +374,6 @@ export default function HomePage() {
             </div>
           </section>
 
-        </main>
       </div>
     </div>
   );
