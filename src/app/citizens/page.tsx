@@ -401,7 +401,7 @@ export default function CitizensPage() {
       </div>
 
       {/* Body */}
-      <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "1.5rem" }}>
+      <div className="citizens-body" style={{ maxWidth: "1200px", margin: "0 auto", padding: "1.5rem" }}>
         <CitizenAuthBar user={user} onAuthChange={setUser} />
 
         {activeTab === "hospitals" && <HospitalFinder isLoggedIn={isLoggedIn} />}

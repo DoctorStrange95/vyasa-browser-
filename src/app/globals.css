@@ -236,3 +236,45 @@ a { color: inherit; }
 @media (max-width: 420px) {
   .national-stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
 }
+
+/* ── HospitalFinder: filter grid stacks on mobile ───────────── */
+@media (max-width: 640px) {
+  .hf-filter-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+@media (min-width: 641px) and (max-width: 900px) {
+  .hf-filter-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+}
+
+/* ── Citizens page: body padding on mobile ───────────────────── */
+@media (max-width: 640px) {
+  .citizens-body {
+    padding: 1rem !important;
+  }
+  .citizens-hero h1 {
+    font-size: 1.6rem !important;
+  }
+}
+
+/* ── Footer: columns stack on mobile ────────────────────────── */
+@media (max-width: 640px) {
+  .footer-grid {
+    grid-template-columns: 1fr !important;
+    gap: 2rem !important;
+  }
+}
+
+/* ── Section headings on homepage ───────────────────────────── */
+.home-section-heading {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #e2e8f0;
+}
+@media (min-width: 768px) {
+  .home-section-heading {
+    font-size: 1.35rem;
+  }
+}
