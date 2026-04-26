@@ -196,9 +196,10 @@ export default function HospitalFinder({ isLoggedIn }: { isLoggedIn: boolean }) 
   };
 
   const inp: React.CSSProperties = {
-    width: "100%", padding: "0.55rem 0.75rem", borderRadius: "8px",
-    border: "1px solid #1e3a5f", background: "#0d1f3c", color: "#e2e8f0",
-    fontSize: "0.88rem", outline: "none", fontFamily: "inherit",
+    width: "100%", padding: "0.65rem 0.9rem", borderRadius: "8px",
+    border: "1px solid #1e3a5f", background: "#060e1c", color: "#e2e8f0",
+    fontSize: "0.92rem", outline: "none", fontFamily: "inherit",
+    minHeight: "44px",
   };
 
   const selectedStateName = states.find(s => s.stateSlug === selectedState)?.stateName;
@@ -206,10 +207,24 @@ export default function HospitalFinder({ isLoggedIn }: { isLoggedIn: boolean }) 
 
   return (
     <div>
+      {/* Search card */}
+      <div style={{ background: "#071428", border: "1px solid #1e3a5f", borderRadius: "14px", padding: "1.5rem", marginBottom: "1.5rem" }}>
+
+        {/* Section intro */}
+        <div style={{ marginBottom: "1.25rem" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", marginBottom: "0.4rem" }}>
+            <span style={{ fontSize: "1.25rem" }}>🛡️</span>
+            <h2 style={{ fontSize: "1.1rem", fontWeight: 700, color: "#e2e8f0", margin: 0 }}>Find Ayushman Bharat Hospitals</h2>
+          </div>
+          <p style={{ fontSize: "0.85rem", color: "#64748b", margin: 0, lineHeight: 1.6 }}>
+            Search {states.length > 0 ? `across ${states.reduce((a,s)=>a+s.count,0).toLocaleString("en-IN")} empanelled hospitals` : "NHA AB-PMJAY empanelled hospitals"} — cashless treatment available under PM-JAY
+          </p>
+        </div>
+
       {/* My States quick-chips */}
       {pinnedSlugs.length > 0 && (
-        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap", marginBottom: "0.75rem" }}>
-          <span style={{ fontSize: "0.65rem", color: "#475569", flexShrink: 0 }}>📌 My States:</span>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap", marginBottom: "1rem" }}>
+          <span style={{ fontSize: "0.72rem", color: "#64748b", flexShrink: 0, fontWeight: 600 }}>📌 My States:</span>
           {pinnedSlugs.map(slug => {
             const st = states.find(s => s.stateSlug === slug);
             if (!st) return null;
@@ -234,13 +249,13 @@ export default function HospitalFinder({ isLoggedIn }: { isLoggedIn: boolean }) 
 
       {/* Auto-source label */}
       {autoSource && selectedState && (
-        <div style={{ marginBottom: "0.6rem", display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
-          <span style={{ fontSize: "0.72rem", color: autoSource === "profile" ? "#22c55e" : autoSource === "pinned" ? "#0d9488" : "#60a5fa", background: autoSource === "profile" ? "#14532d30" : autoSource === "pinned" ? "#0d948820" : "#1e3a5f30", borderRadius: "4px", padding: "0.15rem 0.5rem" }}>
+        <div style={{ marginBottom: "0.85rem", display: "flex", alignItems: "center", gap: "0.6rem", flexWrap: "wrap" }}>
+          <span style={{ fontSize: "0.78rem", color: autoSource === "profile" ? "#22c55e" : autoSource === "pinned" ? "#0d9488" : "#60a5fa", background: autoSource === "profile" ? "#14532d30" : autoSource === "pinned" ? "#0d948820" : "#1e3a5f30", borderRadius: "5px", padding: "0.25rem 0.65rem", fontWeight: 500 }}>
             {autoSource === "profile" ? "✓ State auto-filled from your profile" : autoSource === "pinned" ? "📌 Loaded from My States" : "📍 Location detected"}
           </span>
           <button
             onClick={() => togglePin(selectedState)}
-            style={{ fontSize: "0.7rem", color: isPinned ? "#f97316" : "#475569", background: "transparent", border: "1px solid #1e3a5f", borderRadius: "4px", padding: "0.15rem 0.5rem", cursor: "pointer", fontFamily: "inherit" }}
+            style={{ fontSize: "0.78rem", color: isPinned ? "#f97316" : "#64748b", background: "transparent", border: "1px solid #1e3a5f", borderRadius: "5px", padding: "0.25rem 0.65rem", cursor: "pointer", fontFamily: "inherit" }}
           >
             {isPinned ? "📌 Pinned" : "📌 Pin this state"}
           </button>
@@ -248,9 +263,9 @@ export default function HospitalFinder({ isLoggedIn }: { isLoggedIn: boolean }) 
       )}
 
       {/* Filters */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: "0.75rem", marginBottom: "1rem" }}>
+      <div className="hf-filter-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "1rem", marginBottom: "1rem" }}>
         <div>
-          <label style={{ display: "block", fontSize: "0.72rem", color: "#64748b", marginBottom: "0.3rem" }}>STATE</label>
+          <label style={{ display: "block", fontSize: "0.82rem", color: "#94a3b8", marginBottom: "0.4rem", fontWeight: 600 }}>State</label>
           <select style={inp} value={selectedState} onChange={e => handleStateChange(e.target.value)}>
             <option value="">Select state…</option>
             {states.map(s => (
@@ -260,7 +275,7 @@ export default function HospitalFinder({ isLoggedIn }: { isLoggedIn: boolean }) 
         </div>
 
         <div>
-          <label style={{ display: "block", fontSize: "0.72rem", color: "#64748b", marginBottom: "0.3rem" }}>DISTRICT</label>
+          <label style={{ display: "block", fontSize: "0.82rem", color: "#94a3b8", marginBottom: "0.4rem", fontWeight: 600 }}>District</label>
           <select style={inp} value={selectedDistrict} onChange={e => { setSelectedDistrict(e.target.value); setPage(0); }} disabled={!selectedState}>
             <option value="">All districts</option>
             {districts.map(d => <option key={d} value={d}>{d}</option>)}
@@ -268,7 +283,7 @@ export default function HospitalFinder({ isLoggedIn }: { isLoggedIn: boolean }) 
         </div>
 
         <div>
-          <label style={{ display: "block", fontSize: "0.72rem", color: "#64748b", marginBottom: "0.3rem" }}>SPECIALITY</label>
+          <label style={{ display: "block", fontSize: "0.82rem", color: "#94a3b8", marginBottom: "0.4rem", fontWeight: 600 }}>Speciality</label>
           <select style={inp} value={selectedSpec} onChange={e => { setSelectedSpec(e.target.value); setPage(0); }}>
             <option value="">All specialities</option>
             {AB_SPECIALITIES.map(s => (
@@ -278,7 +293,7 @@ export default function HospitalFinder({ isLoggedIn }: { isLoggedIn: boolean }) 
         </div>
 
         <div>
-          <label style={{ display: "block", fontSize: "0.72rem", color: "#64748b", marginBottom: "0.3rem" }}>SEARCH</label>
+          <label style={{ display: "block", fontSize: "0.82rem", color: "#94a3b8", marginBottom: "0.4rem", fontWeight: 600 }}>Search hospital</label>
           <input
             style={inp}
             placeholder="Hospital name…"
@@ -289,37 +304,38 @@ export default function HospitalFinder({ isLoggedIn }: { isLoggedIn: boolean }) 
       </div>
 
       {/* Nearby button + pin helper */}
-      <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1rem", flexWrap: "wrap" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "0.85rem", flexWrap: "wrap" }}>
         <button
           onClick={handleNearby}
           disabled={geoStatus === "loading"}
-          style={{ background: "#1e3a5f", color: "#93c5fd", border: "1px solid #2563eb44", borderRadius: "8px", padding: "0.45rem 1rem", fontSize: "0.82rem", cursor: geoStatus === "loading" ? "wait" : "pointer", fontFamily: "inherit" }}
+          style={{ background: "#1e3a5f", color: "#93c5fd", border: "1px solid #3b82f660", borderRadius: "8px", padding: "0.65rem 1.25rem", fontSize: "0.88rem", fontWeight: 600, cursor: geoStatus === "loading" ? "wait" : "pointer", fontFamily: "inherit", minHeight: "44px", display: "inline-flex", alignItems: "center", gap: "0.4rem" }}
         >
-          {geoStatus === "loading" ? "Detecting…" : "📍 Use my location"}
+          {geoStatus === "loading" ? "📡 Detecting…" : "📍 Use my location"}
         </button>
 
         {!isLoggedIn && (
-          <span style={{ fontSize: "0.75rem", color: "#475569" }}>
+          <span style={{ fontSize: "0.8rem", color: "#64748b" }}>
             Sign in to auto-fill state from your profile
           </span>
         )}
         {isLoggedIn && !selectedState && (
-          <span style={{ fontSize: "0.75rem", color: "#475569" }}>
-            Update your <strong style={{ color: "#60a5fa" }}>place</strong> in Profile settings to auto-detect state
+          <span style={{ fontSize: "0.8rem", color: "#64748b" }}>
+            Add your city in <strong style={{ color: "#60a5fa" }}>Profile → Edit Profile</strong> to auto-detect
           </span>
         )}
 
         {geoStatus === "error" && (
-          <span style={{ fontSize: "0.78rem", color: "#f87171" }}>
-            Could not detect location. Please select manually.
+          <span style={{ fontSize: "0.82rem", color: "#f87171" }}>
+            ✕ Could not detect location — please select manually
           </span>
         )}
         {geoStatus === "done" && (
-          <span style={{ fontSize: "0.78rem", color: "#4ade80" }}>
-            Location detected ✓
+          <span style={{ fontSize: "0.82rem", color: "#4ade80" }}>
+            ✓ Location detected
           </span>
         )}
       </div>
+      </div>{/* end search card */}
 
       {/* Results */}
       {loading && (
@@ -330,12 +346,12 @@ export default function HospitalFinder({ isLoggedIn }: { isLoggedIn: boolean }) 
 
       {!loading && result && (
         <>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.75rem", flexWrap: "wrap", gap: "0.5rem" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", flexWrap: "wrap", gap: "0.5rem" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap" }}>
-              <span style={{ fontSize: "0.82rem", color: "#64748b" }}>
-                {result.total} hospital{result.total !== 1 ? "s" : ""} found
+              <span style={{ fontSize: "0.88rem", color: "#94a3b8", fontWeight: 500 }}>
+                <strong style={{ color: "#e2e8f0" }}>{result.total.toLocaleString("en-IN")}</strong> hospital{result.total !== 1 ? "s" : ""} found
                 {result.stateName ? ` in ${result.stateName}` : ""}
-                {result.page > 0 ? ` (page ${result.page + 1}/${result.pages})` : ""}
+                {result.page > 0 ? ` · page ${result.page + 1} of ${result.pages}` : ""}
               </span>
               {/* Pin button in results area too */}
               {selectedState && !autoSource && (
@@ -349,8 +365,8 @@ export default function HospitalFinder({ isLoggedIn }: { isLoggedIn: boolean }) 
             </div>
             {result.pages > 1 && (
               <div style={{ display: "flex", gap: "0.5rem" }}>
-                <button disabled={result.page === 0} onClick={() => setPage(p => p - 1)} style={{ padding: "0.3rem 0.75rem", borderRadius: "6px", border: "1px solid #1e3a5f", background: "#0d1f3c", color: "#93c5fd", fontSize: "0.78rem", cursor: result.page === 0 ? "default" : "pointer", fontFamily: "inherit" }}>← Prev</button>
-                <button disabled={result.page >= result.pages - 1} onClick={() => setPage(p => p + 1)} style={{ padding: "0.3rem 0.75rem", borderRadius: "6px", border: "1px solid #1e3a5f", background: "#0d1f3c", color: "#93c5fd", fontSize: "0.78rem", cursor: result.page >= result.pages - 1 ? "default" : "pointer", fontFamily: "inherit" }}>Next →</button>
+                <button disabled={result.page === 0} onClick={() => setPage(p => p - 1)} style={{ padding: "0.55rem 1rem", borderRadius: "7px", border: "1px solid #1e3a5f", background: "#0d1f3c", color: "#93c5fd", fontSize: "0.85rem", cursor: result.page === 0 ? "default" : "pointer", fontFamily: "inherit", minHeight: "44px", opacity: result.page === 0 ? 0.4 : 1 }}>← Prev</button>
+                <button disabled={result.page >= result.pages - 1} onClick={() => setPage(p => p + 1)} style={{ padding: "0.55rem 1rem", borderRadius: "7px", border: "1px solid #1e3a5f", background: "#0d1f3c", color: "#93c5fd", fontSize: "0.85rem", cursor: result.page >= result.pages - 1 ? "default" : "pointer", fontFamily: "inherit", minHeight: "44px", opacity: result.page >= result.pages - 1 ? 0.4 : 1 }}>Next →</button>
               </div>
             )}
           </div>
@@ -362,13 +378,13 @@ export default function HospitalFinder({ isLoggedIn }: { isLoggedIn: boolean }) 
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
               {result.hospitals.map((h, i) => (
-                <div key={i} style={{ background: "#0d1f3c", border: "1px solid #1e3a5f", borderRadius: "10px", padding: "0.9rem 1.1rem" }}>
+                <div key={i} style={{ background: "#071428", border: "1px solid #1e3a5f", borderRadius: "12px", padding: "1.1rem 1.25rem" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "1rem" }}>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: 600, color: "#e2e8f0", fontSize: "0.92rem", marginBottom: "0.25rem" }}>
+                      <div style={{ fontWeight: 600, color: "#e2e8f0", fontSize: "1rem", marginBottom: "0.3rem", lineHeight: 1.3 }}>
                         {h.name || "—"}
                       </div>
-                      <div style={{ fontSize: "0.78rem", color: "#64748b", marginBottom: "0.35rem" }}>
+                      <div style={{ fontSize: "0.82rem", color: "#64748b", marginBottom: "0.4rem" }}>
                         {[h.district, h.address].filter(Boolean).join(" · ")}
                       </div>
                       {h.specialities && (
@@ -412,10 +428,23 @@ export default function HospitalFinder({ isLoggedIn }: { isLoggedIn: boolean }) 
       )}
 
       {!loading && !result && !selectedState && (
-        <div style={{ padding: "3rem", textAlign: "center", color: "#475569", fontSize: "0.88rem", border: "1px dashed #1e3a5f", borderRadius: "10px" }}>
-          {isLoggedIn
-            ? "Add your city/state in Profile → Edit Profile to auto-load your state here"
-            : "Select a state above to find Ayushman Bharat empanelled hospitals"}
+        <div style={{ padding: "3rem 2rem", textAlign: "center", background: "#060e1c", border: "1px solid #1e3a5f", borderRadius: "12px" }}>
+          <div style={{ fontSize: "2.5rem", marginBottom: "1rem" }}>🏥</div>
+          <div style={{ fontSize: "1rem", fontWeight: 600, color: "#e2e8f0", marginBottom: "0.5rem" }}>
+            Find a hospital near you
+          </div>
+          <div style={{ fontSize: "0.88rem", color: "#64748b", lineHeight: 1.65, maxWidth: "400px", margin: "0 auto" }}>
+            {isLoggedIn
+              ? "Select a state above, or tap \"Use my location\" to auto-detect. Add your city in Profile to enable auto-fill."
+              : "Select your state to browse Ayushman Bharat empanelled hospitals — cashless treatment available under PM-JAY for eligible families."}
+          </div>
+          {!isLoggedIn && (
+            <div style={{ marginTop: "1.25rem", display: "flex", justifyContent: "center", gap: "0.75rem", flexWrap: "wrap" }}>
+              <a href="/auth" style={{ background: "#0d9488", color: "#fff", padding: "0.6rem 1.25rem", borderRadius: "7px", fontSize: "0.88rem", fontWeight: 600, textDecoration: "none", display: "inline-flex", alignItems: "center", minHeight: "44px" }}>
+                Sign in to auto-fill state
+              </a>
+            </div>
+          )}
         </div>
       )}
     </div>
