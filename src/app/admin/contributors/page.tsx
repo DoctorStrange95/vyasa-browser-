@@ -66,7 +66,7 @@ export default function ContributorsAdmin() {
         </button>
       </div>
 
-      <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "2.5rem 2rem" }}>
+      <div className="admin-inner-wrap" style={{ maxWidth: "1100px", margin: "0 auto", padding: "2.5rem 2rem" }}>
         {/* Tabs */}
         <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1.5rem" }}>
           {(["contributors", "sponsors", "dataAuthors"] as Tab[]).map(t => (

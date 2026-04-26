@@ -57,7 +57,7 @@ export default function FeedbackAdmin() {
         <span style={{ color: "#e2e8f0", fontWeight: 600, fontSize: "0.95rem" }}>Feedback & Reports</span>
       </div>
 
-      <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "2.5rem 2rem" }}>
+      <div className="admin-inner-wrap" style={{ maxWidth: "1100px", margin: "0 auto", padding: "2.5rem 2rem" }}>
         {/* Filter bar */}
         <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1.5rem", flexWrap: "wrap", alignItems: "center" }}>
           {["all", "open", "reviewed", "resolved"].map((f) => (

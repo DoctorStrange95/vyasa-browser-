@@ -1,10 +1,21 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* ── Global overflow guard — prevents horizontal scroll on every page ── */
+html {
+  overflow-x: hidden;
+}
 body {
   background-color: #0a1628;
   color: #e2e8f0;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  overflow-x: hidden;
+  min-width: 0;
 }
+
+/* All images and SVGs must stay within their container */
+img, svg, video, canvas { max-width: 100%; height: auto; }
+/* Prevent pre/code from blowing out the layout */
+pre, code { max-width: 100%; overflow-x: auto; }
 
 .font-display { font-family: 'Playfair Display', Georgia, serif; }
 .font-data    { font-family: 'IBM Plex Mono', 'Courier New', monospace; }
@@ -279,4 +290,133 @@ a { color: inherit; }
   .home-section-heading {
     font-size: 1.35rem;
   }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   TABLET  (641 – 900px) — sidebar hidden, full-width content
+   ═══════════════════════════════════════════════════════════════ */
+@media (max-width: 900px) {
+  /* Ensure main content fills 100% when sidebar collapses */
+  main { width: 100%; max-width: 100%; }
+
+  /* Admin grid: 2-col on tablet */
+  .admin-grid-3 { grid-template-columns: repeat(2, 1fr) !important; }
+
+  /* IDSP grid already 1fr — double-check header card wraps */
+  .idsp-header-wrap { flex-direction: column !important; align-items: flex-start !important; }
+
+  /* Citizens tabs scroll on tablet */
+  .citizens-tabs-bar { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+  /* Home hero: slightly smaller heading on tablet */
+  .hero-heading { font-size: clamp(1.6rem, 4vw, 2.4rem) !important; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   MOBILE  (≤ 640px)
+   ═══════════════════════════════════════════════════════════════ */
+@media (max-width: 640px) {
+
+  /* ── Typography scale-down ── */
+  .hero-heading    { font-size: clamp(1.4rem, 6vw, 1.9rem) !important; }
+  .hero-subtext    { font-size: 0.88rem !important; }
+  .page-header-title { font-size: 1.5rem !important; }
+
+  /* ── Admin dashboard ── */
+  .admin-stat-grid { grid-template-columns: 1fr 1fr !important; }
+  .admin-menu-grid { grid-template-columns: 1fr !important; }
+  .admin-data-coverage { grid-template-columns: 1fr 1fr !important; }
+
+  /* ── Admin inner pages (team, sources, etc.) ── */
+  .admin-inner-wrap { padding: 1rem !important; }
+  .admin-inner-wrap h1 { font-size: 1.25rem !important; }
+
+  /* ── IDSP disease-row stats: allow wrapping so it never overflows ── */
+  .idsp-disease-row-stats {
+    flex-wrap: wrap !important;
+    justify-content: flex-end !important;
+    gap: 0.2rem !important;
+  }
+
+  /* ── IDSP district cards: don't shrink below 180px ── */
+  .idsp-card-scroll > div { min-width: 180px !important; max-width: 200px !important; }
+
+  /* ── Citizens page ── */
+  .citizens-tab-btn { padding: 0.5rem 0.75rem !important; font-size: 0.78rem !important; }
+  .citizens-tabs-bar { padding-bottom: 2px; scrollbar-width: none; }
+  .citizens-tabs-bar::-webkit-scrollbar { display: none; }
+
+  /* ── State / district header ── */
+  .page-header-meta { flex-wrap: wrap !important; gap: 0.4rem !important; }
+  .page-header-meta span { font-size: 0.7rem !important; }
+
+  /* ── Stat chips everywhere ── */
+  .stat-chips { flex-wrap: wrap !important; }
+  .stat-chip  { font-size: 0.65rem !important; padding: 0.15rem 0.45rem !important; }
+
+  /* ── Map panel hides on mobile to save space ── */
+  .home-map-panel { display: none !important; }
+
+  /* ── InteractiveHome: state list takes full width ── */
+  .home-interactive-inner { flex-direction: column !important; }
+  .home-state-list { min-width: 0 !important; width: 100% !important; }
+
+  /* ── State / district: section cards wrap tighter ── */
+  .section-metric-card { padding: 0.85rem !important; }
+  .section-metric-value { font-size: 1.3rem !important; }
+
+  /* ── Overflow-safe table wrapper ── */
+  .table-scroll-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
+
+  /* ── Toast / cookie banner on very small screens ── */
+  .cookie-banner { bottom: 0.75rem !important; left: 0.75rem !important; right: 0.75rem !important; transform: none !important; width: auto !important; }
+
+  /* ── PWA install banner ── */
+  .pwa-install-banner { bottom: 4.5rem !important; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   VERY SMALL  (≤ 400px) — micro phones
+   ═══════════════════════════════════════════════════════════════ */
+@media (max-width: 400px) {
+  .hero-heading { font-size: 1.3rem !important; }
+  .hero-stat-cards { gap: 0.4rem !important; }
+  .hero-stat-cards > div { padding: 0.65rem !important; }
+  .stat-chip { font-size: 0.6rem !important; padding: 0.1rem 0.35rem !important; }
+  .citizens-tab-btn { padding: 0.4rem 0.55rem !important; font-size: 0.72rem !important; }
+
+  /* Admin stat cards: 2 per row even on 360px */
+  .admin-stat-grid { grid-template-columns: 1fr 1fr !important; gap: 0.6rem !important; }
+  .admin-menu-grid { grid-template-columns: 1fr !important; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   TABLET PORTRAIT  (641 – 768px)
+   ═══════════════════════════════════════════════════════════════ */
+@media (min-width: 641px) and (max-width: 768px) {
+  .hero-heading { font-size: clamp(1.6rem, 4vw, 2.1rem) !important; }
+  .admin-stat-grid { grid-template-columns: repeat(3, 1fr) !important; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SAFE WIDTHS — prevent any child from exceeding viewport
+   ═══════════════════════════════════════════════════════════════ */
+/* Width-capped inner content wrappers: cap at 100% on mobile */
+.page-inner-wrap,
+.admin-inner-wrap,
+.content-wrap {
+  max-width: 100%;
+  padding-left: clamp(0.75rem, 4vw, 2rem);
+  padding-right: clamp(0.75rem, 4vw, 2rem);
+}
+
+/* Ensure flex rows don't overflow — items wrap instead */
+@media (max-width: 640px) {
+  .flex-nowrap-row { flex-wrap: wrap !important; }
+}
+
+/* Tables always get a scrollable wrapper on narrow screens */
+@media (max-width: 768px) {
+  table { min-width: unset; width: 100%; }
+  .table-scroll-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 }

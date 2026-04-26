@@ -128,7 +128,7 @@ export default function HospitalsAdmin() {
         </div>
       </div>
 
-      <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "2.5rem 2rem" }}>
+      <div className="admin-inner-wrap" style={{ maxWidth: "1100px", margin: "0 auto", padding: "2.5rem 2rem" }}>
 
         {/* ── Import Tab ── */}
         {tab === "import" && (

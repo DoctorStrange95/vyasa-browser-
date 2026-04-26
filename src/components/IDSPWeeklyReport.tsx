@@ -253,7 +253,7 @@ export default function IDSPWeeklyReport() {
                     >
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.2rem" }}>
                         <span style={{ fontSize: "0.7rem", color: isOpen ? color : "#94a3b8", fontWeight: isOpen ? 700 : 500 }}>{disease}</span>
-                        <div style={{ display: "flex", alignItems: "center", gap: "0.35rem" }}>
+                        <div className="idsp-disease-row-stats" style={{ display: "flex", alignItems: "center", gap: "0.35rem" }}>
                           <span style={{ fontSize: "0.68rem", color, fontWeight: 700, fontFamily: "monospace" }}>{count}</span>
                           <span style={{ fontSize: "0.58rem", color: "#334155" }}>outbreak{count !== 1 ? "s" : ""}</span>
                           <span style={{ fontSize: "0.55rem", color: "#1e3a5f" }}>·</span>

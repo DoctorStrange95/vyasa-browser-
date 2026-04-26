@@ -75,7 +75,7 @@ export default function IntelligenceAdmin() {
         </span>
       </div>
 
-      <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "2.5rem 2rem" }}>
+      <div className="admin-inner-wrap" style={{ maxWidth: "1100px", margin: "0 auto", padding: "2.5rem 2rem" }}>
 
         {noFirebase && (
           <div style={{ backgroundColor: "#eab30820", border: "1px solid #eab30840", borderRadius: "10px", padding: "1.5rem", color: "#fcd34d", marginBottom: "2rem" }}>

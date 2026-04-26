@@ -324,7 +324,7 @@ export default function TeamAdmin() {
       {loading ? (
         <div style={{ padding: "3rem", color: "#475569", textAlign: "center" }}>Loading…</div>
       ) : (
-        <div style={{ maxWidth: "900px", margin: "0 auto", padding: "2rem" }}>
+        <div className="admin-inner-wrap" style={{ maxWidth: "900px", margin: "0 auto", padding: "2rem" }}>
 
           {/* ── HERO ── */}
           {tab === "hero" && (

@@ -81,10 +81,10 @@ export default function HomePage() {
                     <span style={{ fontSize: "0.7rem", backgroundColor: "#0d948820", color: "#2dd4bf", border: "1px solid #0d948840", borderRadius: "4px", padding: "0.15rem 0.5rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase" }}>Live · Updated Daily</span>
                     <span style={{ fontSize: "0.6rem", color: "#334155" }}>SRS 2023 · NFHS-5 · IDSP</span>
                   </div>
-                  <h1 className="font-display" style={{ fontSize: "clamp(1.6rem,4vw,2.6rem)", fontWeight: 700, color: "#fff", lineHeight: 1.2, marginBottom: "0.65rem" }}>
+                  <h1 className="font-display hero-heading" style={{ fontSize: "clamp(1.6rem,4vw,2.6rem)", fontWeight: 700, color: "#fff", lineHeight: 1.2, marginBottom: "0.65rem" }}>
                     India&apos;s Public Health<br />Transparency Platform
                   </h1>
-                  <p style={{ fontSize: "0.95rem", color: "#94a3b8", lineHeight: 1.7, marginBottom: "1.25rem" }}>
+                  <p className="hero-subtext" style={{ fontSize: "0.95rem", color: "#94a3b8", lineHeight: 1.7, marginBottom: "1.25rem" }}>
                     District-level health data: infant mortality, vaccination, disease surveillance, hospital infrastructure, nutrition & air quality.
                   </p>
                   <div className="hero-cta" style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>

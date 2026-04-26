@@ -34,7 +34,7 @@ export default function AnalyticsPage() {
         <span style={{ backgroundColor: "#0d948820", border: "1px solid #0d948840", borderRadius: "4px", padding: "0.1rem 0.5rem", fontSize: "0.65rem", color: "#2dd4bf", fontFamily: "'IBM Plex Mono', monospace" }}>LAST 14 DAYS</span>
       </div>
 
-      <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "2.5rem 2rem" }}>
+      <div className="admin-inner-wrap" style={{ maxWidth: "1100px", margin: "0 auto", padding: "2.5rem 2rem" }}>
 
         {loading && (
           <div style={{ color: "#475569", textAlign: "center", padding: "4rem", fontSize: "0.9rem" }}>Loading analytics…</div>

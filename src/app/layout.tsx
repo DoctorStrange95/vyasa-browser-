@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import Header from "@/components/Header";
 import GlobalSidebar from "@/components/GlobalSidebar";
@@ -12,6 +12,15 @@ import PWASetup from "@/components/PWASetup";
 import { getSiteConfig } from "@/lib/siteConfig";
 
 const BASE_URL = "https://healthforindia.vyasa.health";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  minimumScale: 1,
+  maximumScale: 5,
+  themeColor: "#0d9488",
+  colorScheme: "dark",
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
@@ -74,7 +83,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="HealthForIndia" />
         <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="theme-color" content="#0d9488" />
         <link rel="apple-touch-icon" href="/icons/icon.svg" />
       </head>
       <body>

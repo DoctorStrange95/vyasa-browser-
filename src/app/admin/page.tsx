@@ -79,7 +79,7 @@ export default async function AdminDashboard() {
         <AdminLogout />
       </div>
 
-      <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "3rem 2rem" }}>
+      <div className="admin-inner-wrap" style={{ maxWidth: "1100px", margin: "0 auto", padding: "3rem 2rem" }}>
         <div style={{ marginBottom: "2.5rem" }}>
           <h1 className="font-display" style={{ fontSize: "1.75rem", fontWeight: 700, color: "#fff", marginBottom: "0.4rem" }}>
             Dashboard
@@ -92,7 +92,7 @@ export default async function AdminDashboard() {
         {/* Site Activity — live stats */}
         <div style={{ marginBottom: "1rem" }}>
           <div style={{ fontSize: "0.72rem", color: "#475569", textTransform: "uppercase", letterSpacing: "0.08em", fontWeight: 600, marginBottom: "0.75rem" }}>Site Activity</div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "1rem", marginBottom: "2rem" }}>
+          <div className="admin-stat-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "1rem", marginBottom: "2rem" }}>
             {[
               { label: "Registered Users",   value: userCount.toString(),     color: "#2dd4bf", icon: "👤", href: "/admin/sources" },
               { label: "Waitlist Signups",    value: waitlistCount.toString(), color: "#6366f1", icon: "📋", href: "/admin/sources" },
@@ -131,7 +131,7 @@ export default async function AdminDashboard() {
         </div>
 
         {/* Menu grid */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1.25rem" }}>
+        <div className="admin-menu-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: "1.25rem" }}>
           {MENU.map((item) => (
             <Link key={item.href} href={item.href} style={{ textDecoration: "none" }}>
               <div className="admin-menu-card">
