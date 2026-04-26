@@ -1,9 +1,11 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { HeaderUser } from "./Header";
 import type { UIConfig } from "@/lib/siteConfig";
+
+// ── Section configs per page context ────────────────────────────────────────
 
 const HOME_SECTIONS = [
   { id: "sec-hero",       icon: "🏠", label: "Overview" },
@@ -17,67 +19,238 @@ const HOME_SECTIONS = [
   { id: "sec-join",       icon: "🚀", label: "Join Vyasa" },
 ];
 
-function useActiveSection(enabled: boolean) {
-  const [active, setActive] = useState<string>("");
+const STATE_PAGE_SECTIONS = [
+  { id: "overview",       icon: "🏛️", label: "Overview" },
+  { id: "ai-analysis",    icon: "🤖", label: "AI Analysis" },
+  { id: "mortality",      icon: "📉", label: "Mortality" },
+  { id: "disease",        icon: "🦠", label: "Disease" },
+  { id: "vaccination",    icon: "💉", label: "Vaccination" },
+  { id: "nutrition",      icon: "🥗", label: "Nutrition" },
+  { id: "infrastructure", icon: "🏥", label: "Infrastructure" },
+  { id: "environment",    icon: "🌫️", label: "Environment" },
+  { id: "facilities",     icon: "📍", label: "PHC/CHC" },
+  { id: "districts",      icon: "🗺️", label: "Districts" },
+  { id: "sources",        icon: "📄", label: "Data Sources" },
+];
+
+const DISTRICT_PAGE_SECTIONS = [
+  { id: "overview",    icon: "🏛️", label: "Overview" },
+  { id: "ai-analysis", icon: "🤖", label: "AI Analysis" },
+  { id: "facilities",  icon: "📍", label: "PHC/CHC" },
+  { id: "trends",      icon: "📈", label: "Trends" },
+  { id: "sources",     icon: "📄", label: "Data Sources" },
+];
+
+const ADMIN_LINKS = [
+  { href: "/admin",              icon: "🏠", label: "Dashboard" },
+  { href: "/admin/analytics",    icon: "📈", label: "Site Analytics" },
+  { href: "/admin/ui-settings",  icon: "🎛️", label: "UI Settings" },
+  { href: "/admin/sources",      icon: "🗂️", label: "Data Sources" },
+  { href: "/admin/intelligence", icon: "🛰️", label: "Intelligence" },
+  { href: "/admin/feedback",     icon: "💬", label: "Feedback" },
+  { href: "/admin/hospitals",    icon: "🏥", label: "Health Centres" },
+  { href: "/admin/data",         icon: "📊", label: "Upload Data" },
+  { href: "/admin/contributors", icon: "👥", label: "Contributors" },
+  { href: "/admin/team",         icon: "👤", label: "Team Editor" },
+];
+
+const CITIZENS_LINKS = [
+  { href: "/citizens?tab=hospitals", icon: "🏥", label: "Find Hospital" },
+  { href: "/citizens?tab=stats",     icon: "📊", label: "My State" },
+  { href: "/citizens?tab=ayushman",  icon: "🛡️", label: "Ayushman Card" },
+  { href: "/citizens?tab=locker",    icon: "🔐", label: "Health Locker" },
+];
+
+const PROFILE_LINKS = [
+  { href: "/profile",        icon: "👤", label: "My Profile" },
+  { href: "/profile#health", icon: "🏥", label: "Health Records" },
+  { href: "/profile#states", icon: "📊", label: "My States" },
+];
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+function slugToTitle(slug: string): string {
+  return slug.split("-").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+}
+
+type PageCtx =
+  | { kind: "home" }
+  | { kind: "state";    label: string; slug: string }
+  | { kind: "district"; label: string; slug: string }
+  | { kind: "citizens" }
+  | { kind: "admin" }
+  | { kind: "profile" }
+  | { kind: "none" };
+
+function getPageCtx(pathname: string): PageCtx {
+  if (pathname === "/") return { kind: "home" };
+  if (pathname.startsWith("/citizens"))  return { kind: "citizens" };
+  if (pathname.startsWith("/admin"))     return { kind: "admin" };
+  if (pathname.startsWith("/profile"))   return { kind: "profile" };
+  const stateMatch = pathname.match(/^\/state\/([^/]+)/);
+  if (stateMatch) return { kind: "state",    label: slugToTitle(stateMatch[1]), slug: stateMatch[1] };
+  const distMatch  = pathname.match(/^\/district\/([^/]+)/);
+  if (distMatch)  return { kind: "district", label: slugToTitle(distMatch[1]),  slug: distMatch[1] };
+  return { kind: "none" };
+}
+
+// Generic IntersectionObserver-based active section hook
+function useActiveSection(sectionIds: string[]): string {
+  const [active, setActive] = useState("");
+  const key = sectionIds.join(",");
   useEffect(() => {
-    if (!enabled) return;
+    if (!sectionIds.length) return;
     const obs = new IntersectionObserver(
-      (entries) => {
-        const vis = entries
-          .filter(e => e.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+      entries => {
+        const vis = entries.filter(e => e.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio);
         if (vis.length > 0) setActive(vis[0].target.id);
       },
       { threshold: 0.1, rootMargin: "-5% 0px -55% 0px" }
     );
-    HOME_SECTIONS.forEach(s => {
-      const el = document.getElementById(s.id);
-      if (el) obs.observe(el);
-    });
+    sectionIds.forEach(id => { const el = document.getElementById(id); if (el) obs.observe(el); });
     return () => obs.disconnect();
-  }, [enabled]);
+  }, [key]); // eslint-disable-line react-hooks/exhaustive-deps
   return active;
 }
 
-function NavLink({
-  href, icon, label, active, onClick,
-}: {
-  href: string; icon: string; label: string; active: boolean; onClick?: () => void;
-}) {
+// ── NavLink ──────────────────────────────────────────────────────────────────
+
+function NavLink({ href, icon, label, active, onClick }: { href: string; icon: string; label: string; active: boolean; onClick?: () => void }) {
   return (
-    <Link
-      href={href}
-      onClick={onClick}
-      className={`gsidebar-link${active ? " gsidebar-link--active" : ""}`}
-    >
+    <Link href={href} onClick={onClick} className={`gsidebar-link${active ? " gsidebar-link--active" : ""}`}>
       <span style={{ fontSize: "1rem", flexShrink: 0 }}>{icon}</span>
       <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{label}</span>
     </Link>
   );
 }
 
+// ── Main component ───────────────────────────────────────────────────────────
+
 export default function GlobalSidebar({ user, uiConfig }: { user?: HeaderUser | null; uiConfig?: UIConfig | null }) {
-  const pathname = usePathname();
+  const pathname    = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const isHome = pathname === "/";
-  const activeSection = useActiveSection(isHome);
+  const pageCtx = useMemo(() => getPageCtx(pathname), [pathname]);
 
+  // Determine which section IDs to observe based on context
+  const scrollIds = useMemo(() => {
+    if (pageCtx.kind === "home")     return HOME_SECTIONS.map(s => s.id);
+    if (pageCtx.kind === "state")    return STATE_PAGE_SECTIONS.map(s => s.id);
+    if (pageCtx.kind === "district") return DISTRICT_PAGE_SECTIONS.map(s => s.id);
+    return [];
+  }, [pageCtx.kind]);
+
+  const activeSection = useActiveSection(scrollIds);
+
+  // UIConfig guards
   const showFindNearby       = uiConfig?.sidebar.showFindNearby       ?? true;
   const showSignInCTA        = uiConfig?.sidebar.showSignInCTA        ?? true;
   const showJoinProfessional = uiConfig?.sidebar.showJoinProfessional ?? true;
   const showAbout            = uiConfig?.sidebar.showAbout            ?? true;
-  const showHomeSections     = uiConfig?.sidebar.showHomeSections     ?? true;
   const showFAB              = uiConfig?.mobile.showFAB               ?? true;
 
   function openFacilityDrawer() {
     window.dispatchEvent(new Event("open-facility-drawer"));
     setMobileOpen(false);
   }
-
   function scrollTo(id: string) {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
     setMobileOpen(false);
+  }
+
+  // ── Adaptive context section ─────────────────────────────────────────────
+  function renderContextSection() {
+    // Home — scroll shortcuts with active indicator
+    if (pageCtx.kind === "home") {
+      return (
+        <ContextSection label="Page Sections">
+          {HOME_SECTIONS.map(s => {
+            const isActive = activeSection === s.id;
+            return (
+              <button key={s.id} onClick={() => scrollTo(s.id)} className={`gsidebar-link gsidebar-btn${isActive ? " gsidebar-link--active" : " gsidebar-link--muted"}`}>
+                <span style={{ fontSize: "0.9rem", flexShrink: 0 }}>{s.icon}</span>
+                <span style={{ fontSize: "0.75rem", whiteSpace: "nowrap" }}>{s.label}</span>
+                {isActive && <span style={{ marginLeft: "auto", width: 5, height: 5, borderRadius: "50%", backgroundColor: "#2dd4bf", flexShrink: 0 }} />}
+              </button>
+            );
+          })}
+        </ContextSection>
+      );
+    }
+
+    // State page — scroll shortcuts with active indicator
+    if (pageCtx.kind === "state") {
+      return (
+        <ContextSection label={pageCtx.label} backHref="/" backLabel="All States">
+          {STATE_PAGE_SECTIONS.map(s => {
+            const isActive = activeSection === s.id;
+            return (
+              <button key={s.id} onClick={() => scrollTo(s.id)} className={`gsidebar-link gsidebar-btn${isActive ? " gsidebar-link--active" : " gsidebar-link--muted"}`}>
+                <span style={{ fontSize: "0.85rem", flexShrink: 0 }}>{s.icon}</span>
+                <span style={{ fontSize: "0.75rem", whiteSpace: "nowrap" }}>{s.label}</span>
+                {isActive && <span style={{ marginLeft: "auto", width: 5, height: 5, borderRadius: "50%", backgroundColor: "#2dd4bf", flexShrink: 0 }} />}
+              </button>
+            );
+          })}
+        </ContextSection>
+      );
+    }
+
+    // District page — scroll shortcuts
+    if (pageCtx.kind === "district") {
+      return (
+        <ContextSection label={pageCtx.label} backHref="/citizens" backLabel="Citizens">
+          {DISTRICT_PAGE_SECTIONS.map(s => {
+            const isActive = activeSection === s.id;
+            return (
+              <button key={s.id} onClick={() => scrollTo(s.id)} className={`gsidebar-link gsidebar-btn${isActive ? " gsidebar-link--active" : " gsidebar-link--muted"}`}>
+                <span style={{ fontSize: "0.85rem", flexShrink: 0 }}>{s.icon}</span>
+                <span style={{ fontSize: "0.75rem", whiteSpace: "nowrap" }}>{s.label}</span>
+                {isActive && <span style={{ marginLeft: "auto", width: 5, height: 5, borderRadius: "50%", backgroundColor: "#2dd4bf", flexShrink: 0 }} />}
+              </button>
+            );
+          })}
+        </ContextSection>
+      );
+    }
+
+    // Citizens — tab links
+    if (pageCtx.kind === "citizens") {
+      return (
+        <ContextSection label="Citizens Centre">
+          {CITIZENS_LINKS.map(l => (
+            <NavLink key={l.href} href={l.href} icon={l.icon} label={l.label} active={false} onClick={() => setMobileOpen(false)} />
+          ))}
+        </ContextSection>
+      );
+    }
+
+    // Admin — sub-menu links
+    if (pageCtx.kind === "admin") {
+      return (
+        <ContextSection label="Admin Panel">
+          {ADMIN_LINKS.map(l => {
+            const isActive = pathname === l.href || (l.href !== "/admin" && pathname.startsWith(l.href));
+            return (
+              <NavLink key={l.href} href={l.href} icon={l.icon} label={l.label} active={isActive} onClick={() => setMobileOpen(false)} />
+            );
+          })}
+        </ContextSection>
+      );
+    }
+
+    // Profile
+    if (pageCtx.kind === "profile") {
+      return (
+        <ContextSection label="My Account">
+          {PROFILE_LINKS.map(l => (
+            <NavLink key={l.href} href={l.href} icon={l.icon} label={l.label} active={pathname === l.href} onClick={() => setMobileOpen(false)} />
+          ))}
+        </ContextSection>
+      );
+    }
+
+    return null;
   }
 
   const navContent = (
@@ -88,20 +261,17 @@ export default function GlobalSidebar({ user, uiConfig }: { user?: HeaderUser | 
         <div style={{ fontSize: "0.55rem", color: "#334155", textTransform: "uppercase", letterSpacing: "0.12em", fontWeight: 700, marginBottom: "0.65rem", paddingLeft: "1.1rem" }}>
           Navigation
         </div>
-
-        <NavLink href="/"         icon="🏠" label="Home"            active={pathname === "/"} onClick={() => setMobileOpen(false)} />
+        <NavLink href="/"         icon="🏠" label="Home"            active={pathname === "/"}               onClick={() => setMobileOpen(false)} />
         <NavLink href="/citizens" icon="🏥" label="Citizens Centre" active={pathname.startsWith("/citizens")} onClick={() => setMobileOpen(false)} />
         {user && (
           <NavLink href="/citizens?tab=stats" icon="📊" label="My Dashboard" active={false} onClick={() => setMobileOpen(false)} />
         )}
-
         {showFindNearby && (
           <button onClick={openFacilityDrawer} className="gsidebar-link gsidebar-btn">
             <span style={{ fontSize: "1rem", flexShrink: 0 }}>📍</span>
             <span style={{ whiteSpace: "nowrap" }}>Find Nearby</span>
           </button>
         )}
-
         {user ? (
           <NavLink href="/profile" icon="👤" label={user.name.split(" ")[0]} active={pathname === "/profile"} onClick={() => setMobileOpen(false)} />
         ) : (
@@ -109,33 +279,11 @@ export default function GlobalSidebar({ user, uiConfig }: { user?: HeaderUser | 
         )}
       </div>
 
-      {/* ── Homepage section shortcuts ────── */}
-      {isHome && showHomeSections && (
-        <div style={{ padding: "0.75rem 0", borderBottom: "1px solid #1e3a5f" }}>
-          <div style={{ fontSize: "0.55rem", color: "#334155", textTransform: "uppercase", letterSpacing: "0.12em", fontWeight: 700, marginBottom: "0.5rem", paddingLeft: "1.1rem" }}>
-            Page Sections
-          </div>
-          {HOME_SECTIONS.map(s => {
-            const isActive = activeSection === s.id;
-            return (
-              <button
-                key={s.id}
-                onClick={() => scrollTo(s.id)}
-                className={`gsidebar-link gsidebar-btn${isActive ? " gsidebar-link--active" : " gsidebar-link--muted"}`}
-              >
-                <span style={{ fontSize: "0.9rem", flexShrink: 0 }}>{s.icon}</span>
-                <span style={{ fontSize: "0.75rem", whiteSpace: "nowrap" }}>{s.label}</span>
-                {isActive && (
-                  <span style={{ marginLeft: "auto", width: 5, height: 5, borderRadius: "50%", backgroundColor: "#2dd4bf", flexShrink: 0 }} />
-                )}
-              </button>
-            );
-          })}
-        </div>
-      )}
+      {/* ── Adaptive context section ──────────────────── */}
+      {renderContextSection()}
 
       {/* ── About section ───────────────────────────── */}
-      {showAbout && (
+      {showAbout && pageCtx.kind !== "admin" && (
         <div style={{ padding: "0.75rem 0" }}>
           <div style={{ fontSize: "0.55rem", color: "#334155", textTransform: "uppercase", letterSpacing: "0.12em", fontWeight: 700, marginBottom: "0.5rem", paddingLeft: "1.1rem" }}>
             About
@@ -147,41 +295,31 @@ export default function GlobalSidebar({ user, uiConfig }: { user?: HeaderUser | 
       )}
 
       {/* ── CTA block ────────────────────────────────── */}
-      <div style={{ padding: "0 0.85rem 1rem", marginTop: "auto", borderTop: "1px solid #1e3a5f", paddingTop: "0.85rem" }}>
-        {!user && showSignInCTA && (
-          <Link
-            href="/auth"
-            onClick={() => setMobileOpen(false)}
-            style={{
-              display: "block", textAlign: "center",
-              backgroundColor: "#0d9488", color: "#fff",
-              padding: "0.65rem 1rem", borderRadius: "8px",
-              textDecoration: "none", fontSize: "0.85rem", fontWeight: 700,
-              marginBottom: "0.5rem",
-            }}
-          >
-            Sign In — See Your State →
-          </Link>
-        )}
-        {showJoinProfessional && (
-          <Link
-            href="/join#join-form"
-            onClick={() => setMobileOpen(false)}
-            style={{
-              display: "block", textAlign: "center",
-              backgroundColor: "transparent", border: "1px solid #1e3a5f",
-              color: "#475569",
-              padding: "0.5rem 1rem", borderRadius: "8px",
-              textDecoration: "none", fontSize: "0.75rem", fontWeight: 500,
-            }}
-          >
-            Join as Professional (Doctors)
-          </Link>
-        )}
-        <div style={{ fontSize: "0.56rem", color: "#1e3a5f", lineHeight: 1.5, marginTop: "0.65rem", textAlign: "center" }}>
-          IDSP · NFHS-5 · SRS 2023 · MoHFW
+      {pageCtx.kind !== "admin" && (
+        <div style={{ padding: "0 0.85rem 1rem", marginTop: "auto", borderTop: "1px solid #1e3a5f", paddingTop: "0.85rem" }}>
+          {!user && showSignInCTA && (
+            <Link
+              href="/auth"
+              onClick={() => setMobileOpen(false)}
+              style={{ display: "block", textAlign: "center", backgroundColor: "#0d9488", color: "#fff", padding: "0.65rem 1rem", borderRadius: "8px", textDecoration: "none", fontSize: "0.85rem", fontWeight: 700, marginBottom: "0.5rem" }}
+            >
+              Sign In — See Your State →
+            </Link>
+          )}
+          {showJoinProfessional && (
+            <Link
+              href="/join#join-form"
+              onClick={() => setMobileOpen(false)}
+              style={{ display: "block", textAlign: "center", backgroundColor: "transparent", border: "1px solid #1e3a5f", color: "#475569", padding: "0.5rem 1rem", borderRadius: "8px", textDecoration: "none", fontSize: "0.75rem", fontWeight: 500 }}
+            >
+              Join as Professional (Doctors)
+            </Link>
+          )}
+          <div style={{ fontSize: "0.56rem", color: "#1e3a5f", lineHeight: 1.5, marginTop: "0.65rem", textAlign: "center" }}>
+            IDSP · NFHS-5 · SRS 2023 · MoHFW
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 
@@ -200,11 +338,7 @@ export default function GlobalSidebar({ user, uiConfig }: { user?: HeaderUser | 
             onClick={e => e.stopPropagation()}
             style={{ position: "relative", width: "260px", backgroundColor: "#060d1a", borderRight: "1px solid #1e3a5f", zIndex: 1, paddingTop: "64px", height: "100vh", overflowY: "auto", scrollbarWidth: "none" }}
           >
-            <button
-              onClick={() => setMobileOpen(false)}
-              style={{ position: "absolute", top: "0.85rem", right: "0.85rem", background: "none", border: "none", color: "#94a3b8", fontSize: "1.25rem", cursor: "pointer", padding: "0.25rem" }}
-              aria-label="Close navigation"
-            >✕</button>
+            <button onClick={() => setMobileOpen(false)} style={{ position: "absolute", top: "0.85rem", right: "0.85rem", background: "none", border: "none", color: "#94a3b8", fontSize: "1.25rem", cursor: "pointer", padding: "0.25rem" }} aria-label="Close navigation">✕</button>
             {navContent}
           </div>
         </div>
@@ -213,23 +347,19 @@ export default function GlobalSidebar({ user, uiConfig }: { user?: HeaderUser | 
       <style>{`
         .global-sidebar-desktop {
           position: sticky; top: 64px;
-          height: calc(100vh - 64px); width: 240px;
-          flex-shrink: 0; background-color: #060d1a;
-          border-right: 1px solid #1e3a5f;
-          display: flex; flex-direction: column;
-          overflow: hidden; z-index: 10;
+          height: calc(100vh - 64px); width: 240px; flex-shrink: 0;
+          background-color: #060d1a; border-right: 1px solid #1e3a5f;
+          display: flex; flex-direction: column; overflow: hidden; z-index: 10;
         }
         .global-sidebar-desktop::-webkit-scrollbar { display: none; }
         .global-sidebar-fab { display: none !important; }
         .gsidebar-link {
           display: flex; align-items: center; gap: 0.7rem;
           padding: 0.5rem 0.85rem 0.5rem 1.1rem;
-          background: transparent; border: none;
-          border-left: 3px solid transparent;
-          color: #94a3b8; text-decoration: none;
-          font-family: inherit; font-size: 0.82rem; font-weight: 500;
-          cursor: pointer; text-align: left; width: 100%;
-          border-radius: 0 8px 8px 0; min-height: 40px;
+          background: transparent; border: none; border-left: 3px solid transparent;
+          color: #94a3b8; text-decoration: none; font-family: inherit;
+          font-size: 0.82rem; font-weight: 500; cursor: pointer; text-align: left;
+          width: 100%; border-radius: 0 8px 8px 0; min-height: 40px;
           transition: background 0.12s, color 0.12s, border-color 0.12s;
         }
         .gsidebar-link:hover { background: #0f2040; color: #e2e8f0; }
@@ -244,12 +374,31 @@ export default function GlobalSidebar({ user, uiConfig }: { user?: HeaderUser | 
             bottom: 1.25rem; left: 1rem; z-index: 100;
             width: 48px; height: 48px; border-radius: 50%;
             background-color: #0d9488; border: none; color: #fff;
-            font-size: 1.2rem; cursor: pointer;
-            box-shadow: 0 4px 16px #0d948860;
+            font-size: 1.2rem; cursor: pointer; box-shadow: 0 4px 16px #0d948860;
             align-items: center; justify-content: center;
           }
         }
       `}</style>
     </>
+  );
+}
+
+// ── ContextSection wrapper ───────────────────────────────────────────────────
+
+function ContextSection({ label, backHref, backLabel, children }: { label: string; backHref?: string; backLabel?: string; children: React.ReactNode }) {
+  return (
+    <div style={{ padding: "0.75rem 0", borderBottom: "1px solid #1e3a5f" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingLeft: "1.1rem", paddingRight: "0.85rem", marginBottom: "0.5rem" }}>
+        <div style={{ fontSize: "0.55rem", color: "#334155", textTransform: "uppercase", letterSpacing: "0.12em", fontWeight: 700 }}>
+          {label}
+        </div>
+        {backHref && (
+          <Link href={backHref} style={{ fontSize: "0.6rem", color: "#475569", textDecoration: "none", display: "flex", alignItems: "center", gap: "0.2rem" }}>
+            ← {backLabel}
+          </Link>
+        )}
+      </div>
+      {children}
+    </div>
   );
 }

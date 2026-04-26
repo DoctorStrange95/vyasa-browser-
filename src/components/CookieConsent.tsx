@@ -20,6 +20,17 @@ export default function CookieConsent() {
   function accept() {
     try { localStorage.setItem(STORAGE_KEY, "accepted"); } catch { /* noop */ }
     setVisible(false);
+    // Fire a tracking hit for the current page right on consent
+    // (PageTracker won't fire for this session since sessionStorage key isn't set yet)
+    const path = window.location.pathname;
+    if (!path.startsWith("/admin")) {
+      try { sessionStorage.setItem(`tracked_${path}`, "1"); } catch { /* blocked */ }
+      fetch("/api/track", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ path }),
+      }).catch(() => {});
+    }
   }
 
   function decline() {

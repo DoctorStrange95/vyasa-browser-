@@ -94,18 +94,20 @@ export default async function AdminDashboard() {
           <div style={{ fontSize: "0.72rem", color: "#475569", textTransform: "uppercase", letterSpacing: "0.08em", fontWeight: 600, marginBottom: "0.75rem" }}>Site Activity</div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "1rem", marginBottom: "2rem" }}>
             {[
-              { label: "Registered Users",   value: userCount.toString(),     color: "#2dd4bf", icon: "👤" },
-              { label: "Waitlist Signups",    value: waitlistCount.toString(), color: "#6366f1", icon: "📋" },
-              { label: "Open Feedback",       value: openFeedback.toString(),  color: openFeedback > 0 ? "#f97316" : "#22c55e", icon: "💬" },
-              { label: "Views Today",         value: todayViews.toString(),    color: "#38bdf8", icon: "👁" },
-              { label: "Views (7 days)",      value: weekViews.toString(),     color: "#a78bfa", icon: "📈" },
+              { label: "Registered Users",   value: userCount.toString(),     color: "#2dd4bf", icon: "👤", href: "/admin/sources" },
+              { label: "Waitlist Signups",    value: waitlistCount.toString(), color: "#6366f1", icon: "📋", href: "/admin/sources" },
+              { label: "Open Feedback",       value: openFeedback.toString(),  color: openFeedback > 0 ? "#f97316" : "#22c55e", icon: "💬", href: "/admin/feedback" },
+              { label: "Views Today",         value: todayViews.toString(),    color: "#38bdf8", icon: "👁", href: "/admin/analytics" },
+              { label: "Views (7 days)",      value: weekViews.toString(),     color: "#a78bfa", icon: "📈", href: "/admin/analytics" },
             ].map((s) => (
-              <div key={s.label} style={{ backgroundColor: "#0f2040", border: "1px solid #1e3a5f", borderRadius: "10px", padding: "1.1rem 1.25rem", display: "flex", flexDirection: "column", gap: "0.3rem" }}>
-                <div style={{ fontSize: "0.68rem", color: "#475569", textTransform: "uppercase", letterSpacing: "0.07em" }}>
-                  <span style={{ marginRight: "0.35rem" }}>{s.icon}</span>{s.label}
+              <Link key={s.label} href={s.href} className="admin-stat-card" style={{ textDecoration: "none", display: "block" }}>
+                <div style={{ backgroundColor: "#0f2040", border: "1px solid #1e3a5f", borderRadius: "10px", padding: "1.1rem 1.25rem", display: "flex", flexDirection: "column", gap: "0.3rem" }}>
+                  <div style={{ fontSize: "0.68rem", color: "#475569", textTransform: "uppercase", letterSpacing: "0.07em" }}>
+                    <span style={{ marginRight: "0.35rem" }}>{s.icon}</span>{s.label}
+                  </div>
+                  <div className="font-data" style={{ fontSize: "1.5rem", fontWeight: 700, color: s.color, lineHeight: 1.1 }}>{s.value}</div>
                 </div>
-                <div className="font-data" style={{ fontSize: "1.5rem", fontWeight: 700, color: s.color, lineHeight: 1.1 }}>{s.value}</div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
