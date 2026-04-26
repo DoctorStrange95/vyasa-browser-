@@ -47,13 +47,13 @@ function aqiColor(label?: string) {
 
 function Metric({ label, value, unit, sub }: { label: string; value: string | number | null | undefined; unit?: string; sub?: string }) {
   return (
-    <div style={{ background: "#060e1c", border: "1px solid #1e3a5f", borderRadius: "8px", padding: "0.65rem 0.85rem" }}>
-      <div style={{ fontSize: "0.58rem", color: "#475569", fontWeight: 600, letterSpacing: "0.05em", marginBottom: "0.25rem" }}>{label}</div>
-      <div style={{ fontSize: "1.1rem", fontWeight: 700, color: "#e2e8f0" }}>
+    <div style={{ background: "#060e1c", border: "1px solid #1e3a5f", borderRadius: "10px", padding: "0.85rem 1rem" }}>
+      <div style={{ fontSize: "0.72rem", color: "#64748b", fontWeight: 600, letterSpacing: "0.04em", marginBottom: "0.35rem", textTransform: "uppercase" }}>{label}</div>
+      <div style={{ fontSize: "1.25rem", fontWeight: 700, color: "#e2e8f0", lineHeight: 1.15 }}>
         {value != null ? value : "—"}
-        {value != null && unit && <span style={{ fontSize: "0.7rem", color: "#64748b", marginLeft: "2px" }}>{unit}</span>}
+        {value != null && unit && <span style={{ fontSize: "0.75rem", color: "#64748b", marginLeft: "3px" }}>{unit}</span>}
       </div>
-      {sub && <div style={{ fontSize: "0.6rem", color: "#334155", marginTop: "0.1rem" }}>{sub}</div>}
+      {sub && <div style={{ fontSize: "0.72rem", color: "#475569", marginTop: "0.25rem" }}>{sub}</div>}
     </div>
   );
 }
@@ -198,23 +198,23 @@ function CitizenStats() {
             {/* Ayushman + district row */}
             <div style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap" }}>
               <div style={{ flex: 1, minWidth: "140px", background: "#060e1c", border: "1px solid #f59e0b40", borderRadius: "8px", padding: "0.65rem 0.85rem" }}>
-                <div style={{ fontSize: "0.58rem", color: "#92400e", fontWeight: 600, letterSpacing: "0.05em" }}>🛡️ AYUSHMAN EMPANELLED</div>
-                <div style={{ fontSize: "1.2rem", fontWeight: 800, color: "#f59e0b", marginTop: "0.2rem" }}>
+                <div style={{ fontSize: "0.72rem", color: "#92400e", fontWeight: 600, letterSpacing: "0.04em" }}>🛡️ AYUSHMAN EMPANELLED</div>
+                <div style={{ fontSize: "1.35rem", fontWeight: 800, color: "#f59e0b", marginTop: "0.25rem" }}>
                   {(ayushMap[detected.slug] ?? 0).toLocaleString("en-IN")}
                 </div>
-                <div style={{ fontSize: "0.6rem", color: "#334155" }}>hospitals in {detected.name}</div>
+                <div style={{ fontSize: "0.72rem", color: "#475569", marginTop: "0.15rem" }}>hospitals in {detected.name}</div>
               </div>
 
               {detected.district && (
                 <Link href={`/district/${detected.district.slug}`} style={{ flex: 1, minWidth: "140px", background: "#060e1c", border: "1px solid #1e3a5f", borderRadius: "8px", padding: "0.65rem 0.85rem", textDecoration: "none", display: "block" }}>
-                  <div style={{ fontSize: "0.58rem", color: "#475569", fontWeight: 600, letterSpacing: "0.05em" }}>📍 YOUR DISTRICT</div>
-                  <div style={{ fontSize: "1rem", fontWeight: 700, color: "#e2e8f0", marginTop: "0.2rem" }}>{detected.district.name}</div>
+                  <div style={{ fontSize: "0.72rem", color: "#475569", fontWeight: 600, letterSpacing: "0.04em" }}>📍 YOUR DISTRICT</div>
+                  <div style={{ fontSize: "1.05rem", fontWeight: 700, color: "#e2e8f0", marginTop: "0.25rem" }}>{detected.district.name}</div>
                   {detected.district.aqi != null && (
-                    <div style={{ fontSize: "0.68rem", color: aqiColor(detected.district.aqiLabel), marginTop: "0.15rem" }}>
+                    <div style={{ fontSize: "0.75rem", color: aqiColor(detected.district.aqiLabel), marginTop: "0.2rem" }}>
                       AQI {detected.district.aqi} · {detected.district.aqiLabel}
                     </div>
                   )}
-                  <div style={{ fontSize: "0.6rem", color: "#3b82f6", marginTop: "0.3rem" }}>View district dashboard →</div>
+                  <div style={{ fontSize: "0.75rem", color: "#3b82f6", marginTop: "0.35rem" }}>View district dashboard →</div>
                 </Link>
               )}
             </div>
@@ -264,12 +264,12 @@ function CitizenStats() {
         {/* India totals */}
         <div style={{ marginTop: "1rem", paddingTop: "0.75rem", borderTop: "1px solid #1e3a5f", display: "flex", gap: "2rem", flexWrap: "wrap" }}>
           <div>
-            <div style={{ fontSize: "1.05rem", fontWeight: 700, color: "#fbbf24" }}>{totalHospitals.toLocaleString("en-IN")}</div>
-            <div style={{ fontSize: "0.62rem", color: "#475569" }}>Total AB-PMJAY empanelled across India</div>
+            <div style={{ fontSize: "1.2rem", fontWeight: 700, color: "#fbbf24" }}>{totalHospitals.toLocaleString("en-IN")}</div>
+            <div style={{ fontSize: "0.75rem", color: "#64748b", marginTop: "0.15rem" }}>Total AB-PMJAY empanelled across India</div>
           </div>
           <div>
-            <div style={{ fontSize: "1.05rem", fontWeight: 700, color: "#60a5fa" }}>{allStats.length || "36"}</div>
-            <div style={{ fontSize: "0.62rem", color: "#475569" }}>States &amp; Union Territories</div>
+            <div style={{ fontSize: "1.2rem", fontWeight: 700, color: "#60a5fa" }}>{allStats.length || "36"}</div>
+            <div style={{ fontSize: "0.75rem", color: "#64748b", marginTop: "0.15rem" }}>States &amp; Union Territories</div>
           </div>
         </div>
       </div>
@@ -340,7 +340,7 @@ function CitizenStats() {
           </>
         );
       })()}
-      <div style={{ marginTop: "0.75rem", fontSize: "0.68rem", color: "#334155" }}>
+      <div style={{ marginTop: "0.75rem", fontSize: "0.75rem", color: "#475569", lineHeight: 1.5 }}>
         Health score: weighted composite of IMR, vaccination, institutional births, stunting & anaemia · Source: NFHS-5, SRS 2023, NHA AB-PMJAY
       </div>
     </div>
