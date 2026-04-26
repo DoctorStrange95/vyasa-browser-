@@ -52,29 +52,29 @@ export default function Header({ user }: { user?: HeaderUser | null }) {
         </Link>
 
         {/* Desktop nav */}
-        <nav style={{ display: "flex", gap: "2rem", alignItems: "center" }} className="desktop-nav">
-          <Link href="/citizens" style={{ color: "#94a3b8", textDecoration: "none", fontSize: "0.875rem", fontWeight: 500 }}>
+        <nav style={{ display: "flex", gap: "1.5rem", alignItems: "center" }} className="desktop-nav">
+          <Link href="/citizens" style={{ color: "#94a3b8", textDecoration: "none", fontSize: "0.9rem", fontWeight: 500, padding: "0.65rem 0.25rem", display: "inline-flex", alignItems: "center", minHeight: "44px" }}>
             🏥 Citizens
           </Link>
-          <Link href="/team" style={{ color: "#94a3b8", textDecoration: "none", fontSize: "0.875rem", fontWeight: 500 }}>
+          <Link href="/team" style={{ color: "#94a3b8", textDecoration: "none", fontSize: "0.9rem", fontWeight: 500, padding: "0.65rem 0.25rem", display: "inline-flex", alignItems: "center", minHeight: "44px" }}>
             Our Team
           </Link>
-          <Link href="/sources" style={{ color: "#94a3b8", textDecoration: "none", fontSize: "0.875rem", fontWeight: 500 }}>
+          <Link href="/sources" style={{ color: "#94a3b8", textDecoration: "none", fontSize: "0.9rem", fontWeight: 500, padding: "0.65rem 0.25rem", display: "inline-flex", alignItems: "center", minHeight: "44px" }}>
             Data Sources
           </Link>
-          <Link href="/contact" style={{ color: "#94a3b8", textDecoration: "none", fontSize: "0.875rem", fontWeight: 500 }}>
+          <Link href="/contact" style={{ color: "#94a3b8", textDecoration: "none", fontSize: "0.9rem", fontWeight: 500, padding: "0.65rem 0.25rem", display: "inline-flex", alignItems: "center", minHeight: "44px" }}>
             Contact
           </Link>
-          <Link href="/join" style={{ backgroundColor: "#0d948820", border: "1px solid #0d948860", color: "#2dd4bf", padding: "0.4rem 1rem", borderRadius: "6px", textDecoration: "none", fontSize: "0.875rem", fontWeight: 700 }}>
+          <Link href="/join#join-form" style={{ backgroundColor: "#0d948820", border: "1px solid #0d948860", color: "#2dd4bf", padding: "0.6rem 1.1rem", borderRadius: "6px", textDecoration: "none", fontSize: "0.9rem", fontWeight: 700, minHeight: "44px", display: "inline-flex", alignItems: "center" }}>
             Join Now
           </Link>
           {user ? (
-            <Link href="/profile" style={{ display: "flex", alignItems: "center", gap: "0.5rem", backgroundColor: "#0f2040", border: "1px solid #1e3a5f", color: "#94a3b8", padding: "0.35rem 0.9rem", borderRadius: "6px", textDecoration: "none", fontSize: "0.82rem", fontWeight: 600 }}>
-              <span style={{ width: "20px", height: "20px", borderRadius: "50%", backgroundColor: "#0d948840", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.65rem", fontWeight: 700 }}>{user.name[0].toUpperCase()}</span>
+            <Link href="/profile" style={{ display: "flex", alignItems: "center", gap: "0.5rem", backgroundColor: "#0f2040", border: "1px solid #1e3a5f", color: "#94a3b8", padding: "0.55rem 0.9rem", borderRadius: "6px", textDecoration: "none", fontSize: "0.875rem", fontWeight: 600, minHeight: "44px" }}>
+              <span style={{ width: "22px", height: "22px", borderRadius: "50%", backgroundColor: "#0d948840", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.68rem", fontWeight: 700 }}>{user.name[0].toUpperCase()}</span>
               {user.name.split(" ")[0]}
             </Link>
           ) : (
-            <Link href="/auth" style={{ backgroundColor: "#0d9488", color: "#fff", padding: "0.4rem 1rem", borderRadius: "6px", textDecoration: "none", fontSize: "0.875rem", fontWeight: 600 }}>
+            <Link href="/auth" style={{ backgroundColor: "#0d9488", color: "#fff", padding: "0.6rem 1.1rem", borderRadius: "6px", textDecoration: "none", fontSize: "0.9rem", fontWeight: 600, minHeight: "44px", display: "inline-flex", alignItems: "center" }}>
               Sign In →
             </Link>
           )}
@@ -125,7 +125,7 @@ export default function Header({ user }: { user?: HeaderUser | null }) {
             <Link href="/contact" style={{ color: "#94a3b8", textDecoration: "none", fontSize: "0.875rem", padding: "0.55rem 0", borderBottom: "1px solid #1e3a5f10" }} onClick={() => setMenuOpen(false)}>
               Contact
             </Link>
-            <Link href="/join" style={{ color: "#2dd4bf", textDecoration: "none", fontSize: "0.875rem", fontWeight: 700, padding: "0.55rem 0", borderBottom: "1px solid #1e3a5f10" }} onClick={() => setMenuOpen(false)}>
+            <Link href="/join#join-form" style={{ color: "#2dd4bf", textDecoration: "none", fontSize: "0.875rem", fontWeight: 700, padding: "0.75rem 0", borderBottom: "1px solid #1e3a5f10" }} onClick={() => setMenuOpen(false)}>
               Join Vyasa →
             </Link>
             {user ? (
