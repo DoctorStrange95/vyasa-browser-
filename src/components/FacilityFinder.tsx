@@ -89,48 +89,43 @@ export default function FacilityFinder() {
 
   useEffect(() => { setSavedLocs(readSaved()); }, []);
 
-  // Load Ayushman empanelled hospitals for current coords
+  // Load ALL Ayushman empanelled hospital names for the state at these coords
   async function loadAyushmanData(lat: number, lng: number, locationStr: string) {
     setAyushmanLoading(true);
     try {
       let rawState = "";
-      let rawDistrict = "";
 
       // Pincode geocode returns: "PostOffice, District, State — XXXXXX"
       const pinMatch = locationStr.match(/^.+?,\s*(.+?),\s*(.+?)\s*—/);
       if (pinMatch) {
-        rawDistrict = pinMatch[1].trim();
-        rawState    = pinMatch[2].trim();
+        rawState = pinMatch[2].trim();
       } else {
-        // GPS or district search — reverse-geocode the coords
-        const rev = await fetch(
+        // GPS — reverse-geocode to get state name
+        const geo = await fetch(
           `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=en`,
           { headers: { "User-Agent": "HealthForIndia/2.0" } }
-        );
-        const geo = await rev.json();
-        rawState    = geo?.address?.state ?? "";
-        rawDistrict = geo?.address?.county ?? geo?.address?.state_district ?? geo?.address?.district ?? "";
+        ).then(r => r.json());
+        rawState = geo?.address?.state ?? "";
       }
 
       if (!rawState) return;
 
-      // Match state slug from our Ayushman DB
-      const statesRes = await fetch("/api/citizens/hospitals?states=true");
+      // Match against available Ayushman states
+      const statesRes  = await fetch("/api/citizens/hospitals?states=true");
       const statesList: { stateSlug: string; stateName: string }[] = await statesRes.json();
-      const matchState = statesList.find(s =>
-        s.stateName.toLowerCase().includes(rawState.toLowerCase().split(" ")[0]) ||
-        rawState.toLowerCase().includes(s.stateName.toLowerCase().split(" ")[0])
-      );
+      const rawLow = rawState.toLowerCase();
+      const matchState = statesList.find(s => {
+        const sLow = s.stateName.toLowerCase();
+        return sLow.includes(rawLow.split(" ")[0]) || rawLow.includes(sLow.split(" ")[0]);
+      });
       if (!matchState) return;
 
-      const params = new URLSearchParams({ state: matchState.stateSlug });
-      if (rawDistrict) params.set("district", rawDistrict);
-
-      const hospRes = await fetch(`/api/citizens/hospitals?${params}`);
+      // Fetch ALL hospital names for the state (namesOnly skips pagination)
+      const hospRes = await fetch(`/api/citizens/hospitals?state=${matchState.stateSlug}&namesOnly=true`);
       const data    = await hospRes.json();
-      const hospitals: { name: string }[] = data.hospitals ?? [];
+      const names: string[] = data.names ?? [];
 
-      setAyushmanSet(new Set(hospitals.map(h => normalizeHosp(h.name))));
+      setAyushmanSet(new Set(names.map(n => normalizeHosp(n))));
     } catch {
       // silently ignore — Ayushman overlay is best-effort
     } finally {

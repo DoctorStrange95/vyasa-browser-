@@ -66,6 +66,9 @@ function CitizenStats() {
   const [detected,       setDetected]       = useState<StateStat | null>(null);
   const [geoStatus,      setGeoStatus]      = useState<"idle"|"detecting"|"done"|"error">("idle");
   const [search,         setSearch]         = useState("");
+  const [showAll,        setShowAll]        = useState(false);
+  const [manualState,    setManualState]    = useState("");
+  const [manualSuggestions, setManualSuggestions] = useState<StateStat[]>([]);
 
   useEffect(() => {
     Promise.all([
@@ -90,9 +93,9 @@ function CitizenStats() {
           ).then(r => r.json());
 
           const rawState    = geo?.address?.state ?? "";
-          const rawDistrict = geo?.address?.county ?? geo?.address?.state_district ?? geo?.address?.district ?? "";
+          const rawDistrict = (geo?.address?.county ?? geo?.address?.state_district ?? geo?.address?.district ?? "")
+            .replace(/\s+district$/i, "").trim();
 
-          // Match against full stats list
           const matchStat = allStats.find(s =>
             s.name.toLowerCase().includes(rawState.toLowerCase().split(" ")[0]) ||
             rawState.toLowerCase().includes(s.name.toLowerCase().split(" ")[0])
@@ -106,9 +109,25 @@ function CitizenStats() {
           setGeoStatus("done");
         } catch { setGeoStatus("error"); }
       },
-      () => setGeoStatus("error")
+      () => setGeoStatus("error"),
+      { timeout: 8000, maximumAge: 30000 }
     );
   }, [allStats]);
+
+  // Manual state lookup
+  function handleManualInput(val: string) {
+    setManualState(val);
+    if (val.length < 2) { setManualSuggestions([]); return; }
+    const lower = val.toLowerCase();
+    setManualSuggestions(allStats.filter(s => s.name.toLowerCase().includes(lower)).slice(0, 6));
+  }
+
+  async function selectManualState(s: StateStat) {
+    setManualState("");
+    setManualSuggestions([]);
+    const detail: StateStat = await fetch(`/api/citizens/state-stats?state=${s.slug}`).then(r => r.json());
+    setDetected(detail);
+  }
 
   const ayushMap = Object.fromEntries(ayushmanStates.map(s => [s.stateSlug, s.count]));
   const totalHospitals = ayushmanStates.reduce((acc, s) => acc + s.count, 0);
@@ -140,7 +159,15 @@ function CitizenStats() {
             {/* State header */}
             <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "1rem", marginBottom: "1rem", flexWrap: "wrap" }}>
               <div>
-                <div style={{ fontSize: "1.6rem", fontWeight: 800, color: "#fff", lineHeight: 1.1 }}>{detected.name}</div>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
+                  <div style={{ fontSize: "1.6rem", fontWeight: 800, color: "#fff", lineHeight: 1.1 }}>{detected.name}</div>
+                  <button
+                    onClick={() => setDetected(null)}
+                    style={{ fontSize: "0.65rem", color: "#475569", background: "#0f2040", border: "1px solid #1e3a5f", borderRadius: "4px", padding: "0.1rem 0.45rem", cursor: "pointer" }}
+                  >
+                    ✎ Not your state?
+                  </button>
+                </div>
                 <div style={{ fontSize: "0.72rem", color: "#475569", marginTop: "0.2rem" }}>STATE HEALTH DASHBOARD · INDIA</div>
                 <div style={{ marginTop: "0.5rem", display: "flex", gap: "0.4rem", flexWrap: "wrap" }}>
                   <span style={{ fontSize: "0.62rem", color: "#22c7bb", border: "1px solid #22c7bb40", borderRadius: "4px", padding: "0.1rem 0.4rem" }}>SRS 2023</span>
@@ -201,10 +228,36 @@ function CitizenStats() {
             </Link>
           </>
         ) : (
-          <div style={{ fontSize: "0.85rem", color: "#475569", padding: "0.5rem 0" }}>
-            {geoStatus === "error"
-              ? "Could not detect location. Browse states below."
-              : "Tap 'Detect my location' to see your state and district health data."}
+          <div>
+            <div style={{ fontSize: "0.85rem", color: "#475569", padding: "0.35rem 0 0.75rem" }}>
+              {geoStatus === "error"
+                ? "Could not auto-detect. Type your state below."
+                : "Tap 'Detect my location' or type your state name below."}
+            </div>
+            {/* Manual state input */}
+            <div style={{ position: "relative" }}>
+              <input
+                value={manualState}
+                onChange={e => handleManualInput(e.target.value)}
+                placeholder="Type state name, e.g. Kerala, Maharashtra…"
+                style={{ width: "100%", background: "#0d1f3c", border: "1px solid #1e3a5f", borderRadius: "7px", color: "#e2e8f0", fontSize: "0.82rem", padding: "0.45rem 0.75rem", outline: "none", boxSizing: "border-box" }}
+              />
+              {manualSuggestions.length > 0 && (
+                <div style={{ position: "absolute", top: "calc(100% + 2px)", left: 0, right: 0, background: "#080f1e", border: "1px solid #1e3a5f", borderRadius: "7px", zIndex: 20, overflow: "hidden", boxShadow: "0 4px 12px #00000060" }}>
+                  {manualSuggestions.map(s => (
+                    <button
+                      key={s.slug}
+                      onMouseDown={() => selectManualState(s)}
+                      style={{ display: "flex", alignItems: "center", gap: "0.6rem", width: "100%", textAlign: "left", padding: "0.5rem 0.85rem", fontSize: "0.82rem", color: "#94a3b8", background: "transparent", border: "none", cursor: "pointer", borderBottom: "1px solid #0a1628", fontFamily: "inherit" }}
+                    >
+                      <span style={{ width: "28px", height: "28px", borderRadius: "50%", border: `2px solid ${scoreColor(s.healthScore)}`, display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: "0.6rem", fontWeight: 700, color: scoreColor(s.healthScore), flexShrink: 0 }}>{s.healthScore}</span>
+                      <span>{s.name}</span>
+                      <span style={{ marginLeft: "auto", fontSize: "0.65rem", color: "#334155" }}>Rank #{s.rank}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         )}
 
@@ -228,48 +281,65 @@ function CitizenStats() {
       </div>
       <input
         value={search}
-        onChange={e => setSearch(e.target.value)}
+        onChange={e => { setSearch(e.target.value); setShowAll(false); }}
         placeholder="Search state or UT…"
         style={{ width: "100%", background: "#0d1f3c", border: "1px solid #1e3a5f", borderRadius: "7px", color: "#e2e8f0", fontSize: "0.82rem", padding: "0.45rem 0.75rem", outline: "none", marginBottom: "0.65rem", boxSizing: "border-box" }}
       />
 
       {loading ? (
         <div style={{ color: "#475569", textAlign: "center", padding: "2rem", fontSize: "0.88rem" }}>Loading…</div>
-      ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: "0.5rem" }}>
-          {sorted.map(s => (
-            <Link
-              key={s.slug}
-              href={`/state/${s.slug}`}
-              style={{
-                background: s.slug === detected?.slug ? "#0f2040" : "#080f1e",
-                border: `1px solid ${s.slug === detected?.slug ? "#3b82f6" : "#1e3a5f"}`,
-                borderRadius: "9px", padding: "0.65rem 0.85rem",
-                textDecoration: "none", display: "flex", alignItems: "center", gap: "0.6rem",
-                transition: "border-color 0.12s",
-              }}
-            >
-              {/* Health score badge */}
-              <div style={{ flexShrink: 0, width: "34px", height: "34px", borderRadius: "50%", border: `2px solid ${scoreColor(s.healthScore)}`, display: "flex", alignItems: "center", justifyContent: "center", background: "#060e1c" }}>
-                <span style={{ fontSize: "0.65rem", fontWeight: 700, color: scoreColor(s.healthScore) }}>{s.healthScore}</span>
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: "0.82rem", color: s.slug === detected?.slug ? "#93c5fd" : "#e2e8f0", fontWeight: 500, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                  {s.name}
+      ) : (() => {
+        const PREVIEW = 12;
+        const isSearching = search.trim().length > 0;
+        const visible = isSearching || showAll ? sorted : sorted.slice(0, PREVIEW);
+        return (
+          <>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: "0.5rem" }}>
+              {visible.map(s => (
+                <Link
+                  key={s.slug}
+                  href={`/state/${s.slug}`}
+                  style={{
+                    background: s.slug === detected?.slug ? "#0f2040" : "#080f1e",
+                    border: `1px solid ${s.slug === detected?.slug ? "#3b82f6" : "#1e3a5f"}`,
+                    borderRadius: "9px", padding: "0.65rem 0.85rem",
+                    textDecoration: "none", display: "flex", alignItems: "center", gap: "0.6rem",
+                  }}
+                >
+                  <div style={{ flexShrink: 0, width: "34px", height: "34px", borderRadius: "50%", border: `2px solid ${scoreColor(s.healthScore)}`, display: "flex", alignItems: "center", justifyContent: "center", background: "#060e1c" }}>
+                    <span style={{ fontSize: "0.65rem", fontWeight: 700, color: scoreColor(s.healthScore) }}>{s.healthScore}</span>
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: "0.82rem", color: s.slug === detected?.slug ? "#93c5fd" : "#e2e8f0", fontWeight: 500, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                      {s.name}
+                    </div>
+                    <div style={{ fontSize: "0.63rem", color: "#475569", marginTop: "0.1rem" }}>
+                      Rank #{s.rank} · 🛡️ {(s.ayushCount ?? 0).toLocaleString("en-IN")} hospitals
+                    </div>
+                  </div>
+                </Link>
+              ))}
+              {sorted.length === 0 && (
+                <div style={{ gridColumn: "1/-1", textAlign: "center", color: "#475569", fontSize: "0.85rem", padding: "1.5rem" }}>
+                  No states match &quot;{search}&quot;
                 </div>
-                <div style={{ fontSize: "0.63rem", color: "#475569", marginTop: "0.1rem" }}>
-                  Rank #{s.rank} · 🛡️ {(s.ayushCount ?? 0).toLocaleString("en-IN")} hospitals
-                </div>
-              </div>
-            </Link>
-          ))}
-          {sorted.length === 0 && (
-            <div style={{ gridColumn: "1/-1", textAlign: "center", color: "#475569", fontSize: "0.85rem", padding: "1.5rem" }}>
-              No states match &quot;{search}&quot;
+              )}
             </div>
-          )}
-        </div>
-      )}
+
+            {/* Show all / collapse toggle */}
+            {!isSearching && sorted.length > PREVIEW && (
+              <button
+                onClick={() => setShowAll(v => !v)}
+                style={{ display: "block", width: "100%", marginTop: "0.75rem", background: "#0a1628", border: "1px solid #1e3a5f", borderRadius: "8px", color: "#60a5fa", fontSize: "0.82rem", fontWeight: 600, padding: "0.55rem", cursor: "pointer", fontFamily: "inherit" }}
+              >
+                {showAll
+                  ? "▲ Show fewer states"
+                  : `▼ View all ${sorted.length} States & Union Territories`}
+              </button>
+            )}
+          </>
+        );
+      })()}
       <div style={{ marginTop: "0.75rem", fontSize: "0.68rem", color: "#334155" }}>
         Health score: weighted composite of IMR, vaccination, institutional births, stunting & anaemia · Source: NFHS-5, SRS 2023, NHA AB-PMJAY
       </div>

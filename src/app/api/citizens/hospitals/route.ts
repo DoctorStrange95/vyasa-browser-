@@ -122,6 +122,14 @@ export async function GET(req: NextRequest) {
     });
   }
 
+  // Names-only mode: return ALL hospital names for this state (used for Ayushman name-matching)
+  if (p.get("namesOnly") === "true") {
+    const keys2  = rawHospitals.length ? Object.keys(rawHospitals[0]) : [];
+    const cols2  = detectColumns(keys2);
+    const names  = rawHospitals.map(raw => toRow(raw, cols2).name).filter(Boolean);
+    return NextResponse.json({ names, total: names.length });
+  }
+
   const district   = p.get("district")?.trim().toLowerCase() ?? "";
   const speciality = p.get("speciality")?.trim().toUpperCase() ?? "";
   const q          = p.get("q")?.trim().toLowerCase() ?? "";
