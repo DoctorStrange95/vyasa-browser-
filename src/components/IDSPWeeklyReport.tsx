@@ -130,13 +130,15 @@ export default function IDSPWeeklyReport() {
   const outbreaks: IDSPOutbreak[] = data?.outbreaks ?? [];
   const pdfUrl = data?.pdfUrl ?? "https://idsp.mohfw.gov.in/index4.php?lang=1&level=0&linkid=406&lid=3689";
 
-  // Disease tally
-  const diseaseTally: Record<string, number> = {};
+  // Disease tally — track both outbreak count and total cases
+  const diseaseTally: Record<string, { outbreaks: number; cases: number }> = {};
   for (const o of outbreaks) {
-    diseaseTally[o.disease] = (diseaseTally[o.disease] ?? 0) + 1;
+    if (!diseaseTally[o.disease]) diseaseTally[o.disease] = { outbreaks: 0, cases: 0 };
+    diseaseTally[o.disease].outbreaks++;
+    diseaseTally[o.disease].cases += o.cases;
   }
-  const sorted = Object.entries(diseaseTally).sort((a, b) => b[1] - a[1]).slice(0, 10);
-  const maxCount = sorted[0]?.[1] ?? 1;
+  const sorted = Object.entries(diseaseTally).sort((a, b) => b[1].outbreaks - a[1].outbreaks).slice(0, 10);
+  const maxCount = sorted[0]?.[1].outbreaks ?? 1;
 
   // State tally
   const stateTally: Record<string, { count: number; cases: number; diseases: string[] }> = {};
@@ -235,7 +237,9 @@ export default function IDSPWeeklyReport() {
               <span style={{ marginLeft: "0.5rem", color: "#334155", fontWeight: 400, textTransform: "none" }}>— click to see affected areas</span>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
-              {sorted.map(([disease, count]) => {
+              {sorted.map(([disease, info]) => {
+                const count    = info.outbreaks;
+                const cases    = info.cases;
                 const color    = diseaseColor(disease);
                 const pct      = (count / maxCount) * 100;
                 const isOpen   = selectedDisease === disease;
@@ -249,9 +253,13 @@ export default function IDSPWeeklyReport() {
                     >
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.2rem" }}>
                         <span style={{ fontSize: "0.7rem", color: isOpen ? color : "#94a3b8", fontWeight: isOpen ? 700 : 500 }}>{disease}</span>
-                        <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "0.35rem" }}>
                           <span style={{ fontSize: "0.68rem", color, fontWeight: 700, fontFamily: "monospace" }}>{count}</span>
-                          <span style={{ fontSize: "0.6rem", color: "#334155" }}>{isOpen ? "▲" : "▼"}</span>
+                          <span style={{ fontSize: "0.58rem", color: "#334155" }}>outbreak{count !== 1 ? "s" : ""}</span>
+                          <span style={{ fontSize: "0.55rem", color: "#1e3a5f" }}>·</span>
+                          <span style={{ fontSize: "0.68rem", color: "#fb923c", fontWeight: 700, fontFamily: "monospace" }}>{cases.toLocaleString()}</span>
+                          <span style={{ fontSize: "0.58rem", color: "#334155" }}>cases</span>
+                          <span style={{ fontSize: "0.6rem", color: "#475569", marginLeft: "0.1rem" }}>{isOpen ? "▲" : "▼"}</span>
                         </div>
                       </div>
                       <div style={{ height: "6px", backgroundColor: "#0f2040", borderRadius: "3px" }}>
