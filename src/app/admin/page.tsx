@@ -5,6 +5,8 @@ import AdminLogout from "./AdminLogout";
 import AdminRefreshButton from "./AdminRefreshButton";
 import VyasaLogo from "@/components/VyasaLogo";
 import { getAdminDb } from "@/lib/firestore-admin";
+import { readFile } from "fs/promises";
+import path from "path";
 
 const MENU = [
   { href: "/admin/analytics",    icon: "📈", label: "Site Analytics",          desc: "Page views, daily traffic chart and top pages for the last 14 days" },
@@ -56,9 +58,24 @@ async function fetchSiteStats() {
     const weekViews  = pvDocs.reduce((sum, doc) =>
       sum + (doc.exists ? ((doc.data()?.views as number) ?? 0) : 0), 0);
 
-    return { userCount, waitlistCount, openFeedback, todayViews, weekViews };
+    // Last refresh time from IDSP cache
+    let lastRefresh = "Never";
+    try {
+      const IDSP_TMP = "/tmp/idsp-cache.json";
+      const IDSP_DEFAULT = path.join(process.cwd(), "src/data/idsp-cache.json");
+      let raw = "";
+      try { raw = await readFile(IDSP_TMP, "utf-8"); }
+      catch { raw = await readFile(IDSP_DEFAULT, "utf-8"); }
+      const cache = JSON.parse(raw);
+      if (cache.refreshedAt) {
+        const d = new Date(cache.refreshedAt);
+        lastRefresh = d.toLocaleDateString("en-IN", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+      }
+    } catch { /* no cache yet */ }
+
+    return { userCount, waitlistCount, openFeedback, todayViews, weekViews, lastRefresh };
   } catch {
-    return { userCount: 0, waitlistCount: 0, openFeedback: 0, todayViews: 0, weekViews: 0 };
+    return { userCount: 0, waitlistCount: 0, openFeedback: 0, todayViews: 0, weekViews: 0, lastRefresh: "Unknown" };
   }
 }
 
@@ -66,7 +83,7 @@ export default async function AdminDashboard() {
   const isAdmin = await getAdminSession();
   if (!isAdmin) redirect("/admin/login");
 
-  const { userCount, waitlistCount, openFeedback, todayViews, weekViews } = await fetchSiteStats();
+  const { userCount, waitlistCount, openFeedback, todayViews, weekViews, lastRefresh } = await fetchSiteStats();
 
   return (
     <div style={{ minHeight: "100vh", backgroundColor: "#070f1e", padding: "0" }}>
@@ -118,14 +135,14 @@ export default async function AdminDashboard() {
           <div style={{ fontSize: "0.72rem", color: "#475569", textTransform: "uppercase", letterSpacing: "0.08em", fontWeight: 600, marginBottom: "0.75rem" }}>Data Coverage</div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "1rem", marginBottom: "2.5rem" }}>
             {[
-              { label: "States covered",  value: "36",        color: "#2dd4bf" },
-              { label: "Cities monitored", value: "213",      color: "#2dd4bf" },
-              { label: "Data source",     value: "SRS 2023",  color: "#6366f1" },
-              { label: "Last cron run",   value: "Daily 2AM", color: "#eab308" },
+              { label: "States covered",   value: "36",                                  color: "#2dd4bf" },
+              { label: "Cities monitored", value: "213",                                color: "#2dd4bf" },
+              { label: "Data sources",     value: "IDSP · CPCB · SRS · NHP · PHI",    color: "#6366f1" },
+              { label: "Last refresh",     value: lastRefresh,                          color: "#eab308" },
             ].map((s) => (
               <div key={s.label} style={{ backgroundColor: "#0f2040", border: "1px solid #1e3a5f", borderRadius: "10px", padding: "1.25rem" }}>
                 <div style={{ fontSize: "0.68rem", color: "#475569", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: "0.3rem" }}>{s.label}</div>
-                <div className="font-data" style={{ fontSize: "1.4rem", fontWeight: 600, color: s.color }}>{s.value}</div>
+                <div className="font-data" style={{ fontSize: s.value.length > 8 ? "0.82rem" : "1.4rem", fontWeight: 600, color: s.color, lineHeight: 1.4 }}>{s.value}</div>
               </div>
             ))}
           </div>

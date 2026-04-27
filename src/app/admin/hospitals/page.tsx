@@ -88,13 +88,20 @@ export default function HospitalsAdmin() {
     fd.append("file", entry.file);
     fd.append("save", save ? "true" : "false");
     try {
-      const res  = await fetch("/api/admin/upload-hospitals", { method: "POST", body: fd });
-      const data = await res.json();
-      if (!res.ok) { updateEntry(idx, { status: "error", error: data.error ?? "Upload failed" }); return false; }
-      updateEntry(idx, { status: save ? "saved" : "ready", preview: data });
+      const res = await fetch("/api/admin/upload-hospitals", { method: "POST", body: fd });
+      let data: Record<string, unknown>;
+      try {
+        data = await res.json();
+      } catch {
+        const text = await res.text().catch(() => "");
+        updateEntry(idx, { status: "error", error: `Server error (${res.status}): ${text.slice(0, 120)}` });
+        return false;
+      }
+      if (!res.ok) { updateEntry(idx, { status: "error", error: data.error as string ?? "Upload failed" }); return false; }
+      updateEntry(idx, { status: save ? "saved" : "ready", preview: data as unknown as ImportPreview });
       return true;
-    } catch {
-      updateEntry(idx, { status: "error", error: "Network error" });
+    } catch (e) {
+      updateEntry(idx, { status: "error", error: `Network: ${e}` });
       return false;
     }
   }

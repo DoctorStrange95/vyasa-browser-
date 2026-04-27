@@ -37,8 +37,9 @@ export async function generateMetadata({ params }: { params: { slug: string } })
       title: `${s.name} Public Health Dashboard | HealthForIndia`,
       description: desc,
       url,
+      images: [{ url: `/og?title=${encodeURIComponent(s.name + " Public Health Data")}&sub=${encodeURIComponent(`IMR ${s.imr ?? "N/A"}/1000 · ${s.vaccinationPct ?? "?"}% vaccinated · Health Score ${score}/100`)}&state=${encodeURIComponent(s.name)}`, width: 1200, height: 630 }],
     },
-    twitter: { card: "summary_large_image", title: `${s.name} Health Data | HealthForIndia`, description: desc },
+    twitter: { card: "summary_large_image", title: `${s.name} Health Data | HealthForIndia`, description: desc, images: [`/og?title=${encodeURIComponent(s.name + " Public Health Data")}&state=${encodeURIComponent(s.name)}`] },
   };
 }
 

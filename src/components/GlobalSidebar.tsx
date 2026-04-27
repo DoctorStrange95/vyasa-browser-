@@ -332,7 +332,24 @@ export default function GlobalSidebar({ user, uiConfig }: { user?: HeaderUser | 
       </aside>
 
       {showFAB && (
-        <button className="global-sidebar-fab" onClick={() => setMobileOpen(true)} aria-label="Open navigation">☰</button>
+        <nav className="mobile-bottom-nav" aria-label="Mobile navigation">
+          <button className="mobile-bottom-nav-item" onClick={() => setMobileOpen(true)} aria-label="Open menu">
+            <span>☰</span>
+            <span>Menu</span>
+          </button>
+          <Link href="/dashboard" className="mobile-bottom-nav-item" style={{ textDecoration: "none" }}>
+            <span>📊</span>
+            <span>Dashboard</span>
+          </Link>
+          <button className="mobile-bottom-nav-item" onClick={openFacilityDrawer} aria-label="Find nearby">
+            <span>📍</span>
+            <span>Find Nearby</span>
+          </button>
+          <Link href={user ? "/profile" : "/auth"} className="mobile-bottom-nav-item" style={{ textDecoration: "none" }}>
+            <span>👤</span>
+            <span>{user ? (user.name.split(" ")[0]) : "Sign In"}</span>
+          </Link>
+        </nav>
       )}
 
       {mobileOpen && (
@@ -374,16 +391,24 @@ export default function GlobalSidebar({ user, uiConfig }: { user?: HeaderUser | 
         .gsidebar-link--muted { color: #475569; }
         .gsidebar-link--muted:hover { color: #94a3b8; }
         .gsidebar-btn { font-family: inherit; }
+        .mobile-bottom-nav {
+          display: none;
+          position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
+          background: #060d1a; border-top: 1px solid #1e3a5f;
+          padding-bottom: env(safe-area-inset-bottom, 0);
+        }
+        .mobile-bottom-nav-item {
+          display: flex; flex-direction: column; align-items: center; justify-content: center;
+          gap: 0.2rem; flex: 1; padding: 0.55rem 0 0.5rem;
+          color: #94a3b8; font-size: 0.6rem; font-family: inherit; font-weight: 500;
+          background: none; border: none; cursor: pointer;
+        }
+        .mobile-bottom-nav-item:hover { color: #e2e8f0; }
+        .mobile-bottom-nav-item span:first-child { font-size: 1.25rem; line-height: 1; }
         @media (max-width: 900px) {
           .global-sidebar-desktop { display: none !important; }
-          .global-sidebar-fab {
-            display: flex !important; position: fixed;
-            bottom: 1.25rem; left: 1rem; z-index: 100;
-            width: 48px; height: 48px; border-radius: 50%;
-            background-color: #0d9488; border: none; color: #fff;
-            font-size: 1.2rem; cursor: pointer; box-shadow: 0 4px 16px #0d948860;
-            align-items: center; justify-content: center;
-          }
+          .mobile-bottom-nav { display: flex !important; }
+          body { padding-bottom: 64px; }
         }
       `}</style>
     </>
