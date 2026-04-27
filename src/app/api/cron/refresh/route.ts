@@ -17,7 +17,16 @@ const CRON_SECRET = process.env.CRON_SECRET;
 const GOV_KEY     = process.env.DATA_GOV_IN_API_KEY!;
 const GOOGLE_KEY  = process.env.GOOGLE_PLACES_API_KEY;
 const BASE        = "https://api.data.gov.in/resource";
+
 const IDSP_CACHE  = path.join(process.cwd(), "src/data/idsp-cache.json");
+const IDSP_TMP    = "/tmp/idsp-cache.json";
+const PHI_TMP     = "/tmp/ph-intelligence-cache.json";
+const PHI_DEFAULT = path.join(process.cwd(), "src/data/ph-intelligence-cache.json");
+
+async function writeCacheSafe(defaultPath: string, tmpPath: string, data: string) {
+  try { await writeFile(defaultPath, data); }
+  catch { await writeFile(tmpPath, data); }
+}
 
 export async function GET(req: Request) {
   const authHeader = req.headers.get("authorization");
@@ -74,7 +83,7 @@ export async function GET(req: Request) {
     const { refreshAllHealthData } = await import("@/lib/idsp");
     const data = await refreshAllHealthData();
     const payload = { ...data, refreshLog: log };
-    await writeFile(IDSP_CACHE, JSON.stringify(payload, null, 2));
+    await writeCacheSafe(IDSP_CACHE, IDSP_TMP, JSON.stringify(payload, null, 2));
     log.push(`✓ IDSP: ${data.diseaseRecords.length} disease records, ${data.outbreaks.length + data.nhpAlerts.length} alerts, ${data.hospitalBeds.length} bed records`);
   } catch (e) { errors.push(`✗ IDSP refresh: ${e}`); }
 
@@ -96,10 +105,7 @@ export async function GET(req: Request) {
       sources:     result.sources,
       errors:      result.errors,
     };
-    await writeFile(
-      path.join(process.cwd(), "src/data/ph-intelligence-cache.json"),
-      JSON.stringify(payload, null, 2)
-    );
+    await writeCacheSafe(PHI_DEFAULT, PHI_TMP, JSON.stringify(payload, null, 2));
     log.push(`✓ PH Intelligence: ${result.items.length} items collected (${result.sources.length} sources)`);
     if (result.errors.length) log.push(`  ⚠ PH errors: ${result.errors.slice(0, 3).join("; ")}`);
   } catch (e) { errors.push(`✗ PH Intelligence: ${e}`); }

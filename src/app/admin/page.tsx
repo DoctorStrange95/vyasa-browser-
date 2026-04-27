@@ -2,6 +2,7 @@ import { getAdminSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import AdminLogout from "./AdminLogout";
+import AdminRefreshButton from "./AdminRefreshButton";
 import VyasaLogo from "@/components/VyasaLogo";
 import { getAdminDb } from "@/lib/firestore-admin";
 
@@ -152,10 +153,7 @@ export default async function AdminDashboard() {
                 Runs at 02:00 UTC daily via Vercel Cron · Refreshes AQI, PHC/CHC counts, checks data.gov.in for updates
               </div>
             </div>
-            <a href="/api/cron/refresh" target="_blank" rel="noreferrer"
-              style={{ backgroundColor: "#0d9488", color: "#fff", textDecoration: "none", borderRadius: "7px", padding: "0.5rem 1.25rem", fontSize: "0.82rem", fontWeight: 600, whiteSpace: "nowrap" }}>
-              Trigger Now ↗
-            </a>
+            <AdminRefreshButton />
           </div>
         </div>
       </div>

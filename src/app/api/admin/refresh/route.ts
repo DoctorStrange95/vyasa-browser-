@@ -12,8 +12,21 @@ import path from "path";
 const GOV_KEY = process.env.DATA_GOV_IN_API_KEY!;
 const BASE    = "https://api.data.gov.in/resource";
 
-const IDSP_CACHE = path.join(process.cwd(), "src/data/idsp-cache.json");
-const PHI_CACHE  = path.join(process.cwd(), "src/data/ph-intelligence-cache.json");
+// Vercel's /var/task is read-only; only /tmp is writable at runtime
+const IDSP_CACHE  = path.join(process.cwd(), "src/data/idsp-cache.json");
+const PHI_CACHE   = path.join(process.cwd(), "src/data/ph-intelligence-cache.json");
+const IDSP_TMP    = "/tmp/idsp-cache.json";
+const PHI_TMP     = "/tmp/ph-intelligence-cache.json";
+
+async function writeCacheSafe(defaultPath: string, tmpPath: string, data: string) {
+  try { await writeFile(defaultPath, data); }
+  catch { await writeFile(tmpPath, data); }
+}
+
+async function readCacheSafe(defaultPath: string, tmpPath: string): Promise<string> {
+  try { return await readFile(tmpPath, "utf-8"); } catch { /* no tmp */ }
+  return readFile(defaultPath, "utf-8");
+}
 
 export async function POST(req: Request) {
   const isAdmin = await getAdminSession();
@@ -63,7 +76,7 @@ export async function POST(req: Request) {
     try {
       const { refreshAllHealthData } = await import("@/lib/idsp");
       const data = await refreshAllHealthData();
-      await writeFile(IDSP_CACHE, JSON.stringify(data, null, 2));
+      await writeCacheSafe(IDSP_CACHE, IDSP_TMP, JSON.stringify(data, null, 2));
       results.idsp = {
         ok: true,
         diseaseRecords: data.diseaseRecords.length,
@@ -93,7 +106,7 @@ export async function POST(req: Request) {
       const { collectPHIntelligence } = await import("@/lib/phIntelligence");
       const data = await collectPHIntelligence();
       const payload = { ...data, refreshedAt: new Date().toISOString() };
-      await writeFile(PHI_CACHE, JSON.stringify(payload, null, 2));
+      await writeCacheSafe(PHI_CACHE, PHI_TMP, JSON.stringify(payload, null, 2));
       results["ph-intelligence"] = { ok: true, items: data.items.length, sources: data.sources.length };
       log.push(`✓ PH Intelligence: ${data.items.length} items from ${data.sources.length} sources`);
       revalidatePath("/");
@@ -125,7 +138,7 @@ export async function GET() {
 
   let idspCache: Record<string, unknown> = {};
   try {
-    idspCache = JSON.parse(await readFile(IDSP_CACHE, "utf-8"));
+    idspCache = JSON.parse(await readCacheSafe(IDSP_CACHE, IDSP_TMP));
   } catch { /* no cache */ }
 
   return NextResponse.json({
