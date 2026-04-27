@@ -63,7 +63,7 @@ function matchStateFromText(text: string, states: StateItem[]): StateItem | null
   return null;
 }
 
-export default function HospitalFinder({ isLoggedIn }: { isLoggedIn: boolean }) {
+export default function HospitalFinder({ isLoggedIn, prefilledState, onPrefilledUsed }: { isLoggedIn: boolean; prefilledState?: string; onPrefilledUsed?: () => void }) {
   const [states,           setStates]           = useState<StateItem[]>([]);
   const [selectedState,    setSelectedState]    = useState("");
   const [districts,        setDistricts]        = useState<string[]>([]);
@@ -109,6 +109,22 @@ export default function HospitalFinder({ isLoggedIn }: { isLoggedIn: boolean }) 
       })
       .catch(() => {});
   }, [isLoggedIn]);
+
+  // Apply externally prefilled state (e.g. from pinned card ayushman click)
+  useEffect(() => {
+    if (!prefilledState || !states.length) return;
+    const nameLow = prefilledState.toLowerCase();
+    const match = states.find(s => s.stateName.toLowerCase() === nameLow)
+      ?? states.find(s => s.stateName.toLowerCase().includes(nameLow.split(/\s+/)[0]));
+    if (match) {
+      setSelectedState(match.stateSlug);
+      setSelectedDistrict("");
+      setSelectedSpec("");
+      setPage(0);
+      setAutoSource(null);
+      onPrefilledUsed?.();
+    }
+  }, [prefilledState, states]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const doSearch = useCallback(async (state: string, district: string, spec: string, q: string, pg: number) => {
     if (!state) return;

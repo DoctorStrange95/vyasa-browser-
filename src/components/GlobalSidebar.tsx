@@ -58,7 +58,6 @@ const ADMIN_LINKS = [
 
 const CITIZENS_LINKS = [
   { href: "/citizens?tab=hospitals", icon: "🏥", label: "Find Hospital" },
-  { href: "/citizens?tab=stats",     icon: "📊", label: "My State" },
   { href: "/citizens?tab=ayushman",  icon: "🛡️", label: "Ayushman Card" },
   { href: "/citizens?tab=locker",    icon: "🔐", label: "Health Locker" },
 ];
@@ -87,6 +86,7 @@ type PageCtx =
 function getPageCtx(pathname: string): PageCtx {
   if (pathname === "/") return { kind: "home" };
   if (pathname.startsWith("/citizens"))  return { kind: "citizens" };
+  if (pathname.startsWith("/dashboard")) return { kind: "citizens" };
   if (pathname.startsWith("/admin"))     return { kind: "admin" };
   if (pathname.startsWith("/profile"))   return { kind: "profile" };
   const stateMatch = pathname.match(/^\/state\/([^/]+)/);
@@ -264,9 +264,9 @@ export default function GlobalSidebar({ user, uiConfig }: { user?: HeaderUser | 
           Navigation
         </div>
         <NavLink href="/"         icon="🏠" label="Home"            active={pathname === "/"}               onClick={() => setMobileOpen(false)} />
-        <NavLink href="/citizens" icon="🏥" label="Citizens Centre" active={pathname.startsWith("/citizens")} onClick={() => setMobileOpen(false)} />
+        <NavLink href="/citizens" icon="🏥" label="Citizens Centre" active={pathname.startsWith("/citizens") && !pathname.startsWith("/citizens?tab=stats")} onClick={() => setMobileOpen(false)} />
         {user && (
-          <NavLink href="/citizens?tab=stats" icon="📊" label="My Dashboard" active={false} onClick={() => setMobileOpen(false)} />
+          <NavLink href="/dashboard" icon="📊" label="My Dashboard" active={pathname.startsWith("/dashboard")} onClick={() => setMobileOpen(false)} />
         )}
         {showFindNearby && (
           <button onClick={openFacilityDrawer} className="gsidebar-link gsidebar-btn">
@@ -327,7 +327,9 @@ export default function GlobalSidebar({ user, uiConfig }: { user?: HeaderUser | 
 
   return (
     <>
-      <aside className="global-sidebar-desktop">{navContent}</aside>
+      <aside className="global-sidebar-desktop">
+        <div className="global-sidebar-inner">{navContent}</div>
+      </aside>
 
       {showFAB && (
         <button className="global-sidebar-fab" onClick={() => setMobileOpen(true)} aria-label="Open navigation">☰</button>
@@ -348,12 +350,15 @@ export default function GlobalSidebar({ user, uiConfig }: { user?: HeaderUser | 
 
       <style>{`
         .global-sidebar-desktop {
-          position: sticky; top: 64px;
-          height: calc(100vh - 64px); width: 240px; flex-shrink: 0;
+          width: 240px; flex-shrink: 0;
+        }
+        .global-sidebar-inner {
+          position: fixed; top: 64px; left: 0;
+          height: calc(100vh - 64px); width: 240px;
           background-color: #060d1a; border-right: 1px solid #1e3a5f;
           display: flex; flex-direction: column; overflow: hidden; z-index: 10;
         }
-        .global-sidebar-desktop::-webkit-scrollbar { display: none; }
+        .global-sidebar-inner::-webkit-scrollbar { display: none; }
         .global-sidebar-fab { display: none !important; }
         .gsidebar-link {
           display: flex; align-items: center; gap: 0.7rem;
