@@ -2,15 +2,12 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import cities from "@/data/cities.json";
 import states from "@/data/states.json";
-import DistrictCharts from "./DistrictCharts";
 import NearbyHealthCentres from "@/components/NearbyHealthCentres";
-import HealthCategories from "@/components/HealthCategories";
 import AIAnalysisCard from "@/components/AIAnalysisCard";
-import PageSidebar from "@/components/PageSidebar";
 import { fetchAQI, fetchGoogleAQI, geocodeCity, fetchHealthCentres } from "@/lib/api";
 import { readFile } from "fs/promises";
 import path from "path";
-import type { OutbreakAlert, IDSPRecord } from "@/lib/idsp";
+import type { OutbreakAlert } from "@/lib/idsp";
 import JsonLd from "@/components/JsonLd";
 
 export async function generateStaticParams() {
@@ -48,39 +45,6 @@ async function getIDSPCache() {
   } catch { return null; }
 }
 
-const SIDEBAR_SECTIONS = [
-  {
-    group: "OVERVIEW",
-    items: [
-      { id: "overview",   icon: "🏙️", label: "Overview" },
-      { id: "ai-analysis",icon: "🤖", label: "AI Analysis" },
-    ],
-  },
-  {
-    group: "HEALTH DATA",
-    items: [
-      { id: "mortality",    icon: "📉", label: "Mortality" },
-      { id: "disease",      icon: "🦠", label: "Disease" },
-      { id: "vaccination",  icon: "💉", label: "Vaccination" },
-      { id: "nutrition",    icon: "🥗", label: "Nutrition" },
-    ],
-  },
-  {
-    group: "ENVIRONMENT",
-    items: [
-      { id: "environment",  icon: "🌫️", label: "Air Quality" },
-      { id: "infrastructure",icon: "🏥", label: "Infrastructure" },
-    ],
-  },
-  {
-    group: "MORE",
-    items: [
-      { id: "facilities",   icon: "📍", label: "Facilities" },
-      { id: "trends",       icon: "📈", label: "Trends" },
-      { id: "sources",      icon: "📄", label: "Data Sources" },
-    ],
-  },
-];
 
 export default async function DistrictPage({ params }: { params: { slug: string } }) {
   const city = cities.find((c) => c.slug === params.slug);
@@ -112,20 +76,18 @@ export default async function DistrictPage({ params }: { params: { slug: string 
   const wastingPct     = stateData?.wastingPct ?? null;
   const womenAnaemia   = stateData?.womenAnaemiaPct ?? null;
 
+  function stateNameMatches(field: string, name: string) {
+    const fieldLow = field.toLowerCase();
+    return name.toLowerCase().split(/\s+/).every(w => fieldLow.includes(w));
+  }
+
   const stateOutbreaks: OutbreakAlert[] = (idspCache?.outbreaks ?? []).filter(
-    (a: OutbreakAlert) => stateData && a.state.toLowerCase().includes(stateData.name.toLowerCase().slice(0, 6))
+    (a: OutbreakAlert) => stateData && stateNameMatches(a.state, stateData.name)
   );
-  const allOutbreaks: OutbreakAlert[] = stateOutbreaks.length > 0 ? stateOutbreaks : (idspCache?.nhpAlerts ?? []).slice(0, 3);
-  const diseaseRecords: IDSPRecord[] = (idspCache?.diseaseRecords ?? []).filter(
-    (r: IDSPRecord) => stateData && r.state.toLowerCase().includes(stateData.name.toLowerCase().slice(0, 6))
+  const districtOutbreaks: OutbreakAlert[] = stateOutbreaks.filter(
+    (a: OutbreakAlert) => a.district && a.district.toLowerCase().includes(city.name.toLowerCase().split(/\s+/)[0])
   );
 
-  const trendYears    = [2006, 2010, 2013, 2016, 2018, 2020, 2021, 2023];
-  const imrTrend      = trendYears.map((_, i) => Math.round((imr ?? 27) * (1 + (7 - i) * 0.09)));
-  const vaccTrend     = trendYears.map((_, i) => Math.round((vaccPct ?? 76) * (0.60 + i * 0.057)));
-  const stuntTrend    = trendYears.map((_, i) => Math.round((stuntingPct ?? 35) * (1 + (7 - i) * 0.06)));
-  const u5Trend       = trendYears.map((_, i) => Math.round(((under5MR ?? Math.round((imr ?? 27) * 1.3))) * (1 + (7 - i) * 0.09)));
-  const chartDistrict = { imrTrend, vaccinationTrend: vaccTrend, stuntingTrend: stuntTrend, under5Trend: u5Trend, trendYears };
 
   const aqiColor = !aqiLabel ? "#94a3b8"
     : aqiLabel === "Good" ? "#22c55e"
@@ -240,71 +202,97 @@ export default async function DistrictPage({ params }: { params: { slug: string 
         </div>
       </div>
 
-      {/* ── PAGE BODY: SIDEBAR + CONTENT ─────────────────────────── */}
+      {/* ── PAGE BODY ────────────────────────────────────────────── */}
       <div className="page-body-wrapper">
-
-        {/* Sidebar */}
-        <PageSidebar
-          sections={SIDEBAR_SECTIONS}
-          backHref={stateData ? `/state/${stateData.slug}` : "/"}
-          backLabel={stateData ? stateData.name : "States"}
-        />
-
-        {/* Main content */}
         <div style={{ flex: 1, minWidth: 0 }}>
-
-          {/* State-level note */}
-          <div style={{ backgroundColor: "#0f204088", border: "1px solid #eab30840", borderRadius: "8px", padding: "0.75rem 1rem", marginBottom: "1.25rem", display: "flex", gap: "0.6rem", alignItems: "flex-start", fontSize: "0.8rem", color: "#64748b" }}>
-            <span style={{ color: "#eab308", flexShrink: 0 }}>ℹ</span>
-            <span>Health indicators shown are <strong style={{ color: "#94a3b8" }}>{city.stateName} state-level</strong> (NFHS-5).
-              District breakdowns not yet available via public API.
-              {stateData && <> <Link href={`/state/${stateData.slug}`} style={{ color: "#0d9488" }}>Full state dashboard →</Link></>}
-            </span>
-          </div>
 
           {/* AI Analysis */}
           <div id="ai-analysis" style={{ scrollMarginTop: "90px" }}>
             <AIAnalysisCard name={city.name} level="district" metrics={aiMetrics} />
           </div>
 
-          {/* Health sections */}
-          <HealthCategories
-            level="district"
-            stateName={city.stateName}
-            imrSRS2023={imr}
-            neonatalMR={neonatalMR}
-            under5MR={under5MR}
-            outbreaks={allOutbreaks}
-            diseaseRecords={diseaseRecords}
-            anaemiaPct={anaemia}
-            womenAnaemiaPct={womenAnaemia}
-            vaccinationPct={vaccPct}
-            instBirthsPct={instBirths}
-            stuntingPct={stuntingPct}
-            wastingPct={wastingPct}
-            underweightPct={underweightPct}
-            phcTotal={liveHospitals?.phcTotal}
-            chcTotal={liveHospitals?.chcTotal}
-            aqi={aqi}
-            aqiLabel={aqiLabel}
-            pollutants={googleAQI?.pollutants}
-            healthRec={googleAQI?.healthRecommendation}
-            aqiSource={aqiSrc}
-          />
+          {/* District-specific IDSP outbreaks */}
+          {districtOutbreaks.length > 0 && (
+            <div id="disease" style={{ backgroundColor: "#071428", border: "1px solid #ef444440", borderRadius: "12px", padding: "1.1rem 1.25rem", marginBottom: "1.25rem", scrollMarginTop: "90px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.85rem" }}>
+                <span>🦠</span>
+                <h2 className="font-display" style={{ fontSize: "0.95rem", fontWeight: 700, color: "#fca5a5", margin: 0 }}>
+                  Disease Surveillance · {city.name}
+                </h2>
+                <span style={{ marginLeft: "auto", fontSize: "0.6rem", color: "#64748b", background: "#0a1628", borderRadius: "4px", padding: "0.1rem 0.4rem", border: "1px solid #1e3a5f" }}>IDSP</span>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                {districtOutbreaks.map((o, i) => (
+                  <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: "0.75rem", background: "#060e1c", borderRadius: "8px", padding: "0.6rem 0.85rem", borderLeft: "3px solid #ef444460" }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: "0.85rem", fontWeight: 600, color: "#fca5a5" }}>{o.disease}</div>
+                      <div style={{ fontSize: "0.72rem", color: "#64748b", marginTop: "0.15rem" }}>{o.district}, {o.state}</div>
+                    </div>
+                    <div style={{ textAlign: "right", flexShrink: 0 }}>
+                      <div style={{ fontSize: "0.8rem", fontWeight: 700, color: "#fca5a5" }}>{o.cases} cases</div>
+                      {o.deaths > 0 && <div style={{ fontSize: "0.7rem", color: "#ef4444" }}>{o.deaths} deaths</div>}
+                      <div style={{ fontSize: "0.62rem", color: o.status === "active" ? "#fbbf24" : "#22c55e", marginTop: "0.1rem", textTransform: "capitalize" }}>{o.status}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Air Quality — district-specific */}
+          {aqi != null && (
+            <section id="environment" style={{ marginBottom: "1.25rem", scrollMarginTop: "90px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", marginBottom: "1rem" }}>
+                <span style={{ fontSize: "1rem" }}>🌫️</span>
+                <h2 className="font-display" style={{ fontSize: "1.1rem", fontWeight: 700, color: "#fff" }}>Air Quality · {city.name}</h2>
+                <span style={{ marginLeft: "auto", fontSize: "0.6rem", color: "#334155", fontFamily: "'IBM Plex Mono', monospace" }}>{aqiSrc}</span>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: "0.85rem" }}>
+                <div style={{ backgroundColor: `${aqiColor}18`, border: `1px solid ${aqiColor}40`, borderRadius: "10px", padding: "1.1rem 1.25rem" }}>
+                  <div style={{ fontSize: "0.68rem", color: "#475569", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: "0.4rem" }}>Air Quality Index</div>
+                  <div className="font-data" style={{ fontSize: "2rem", fontWeight: 700, color: aqiColor, lineHeight: 1 }}>{aqi}</div>
+                  <div style={{ fontSize: "0.72rem", color: aqiColor, backgroundColor: `${aqiColor}20`, borderRadius: "4px", display: "inline-block", padding: "0.1rem 0.5rem", marginTop: "0.35rem" }}>{aqiLabel}</div>
+                </div>
+                {googleAQI?.pollutants && Object.entries(googleAQI.pollutants).slice(0, 5).map(([key, val]) => (
+                  <div key={key} style={{ backgroundColor: "#0f2040", border: "1px solid #1e3a5f", borderRadius: "10px", padding: "1.1rem 1.25rem" }}>
+                    <div style={{ fontSize: "0.68rem", color: "#475569", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: "0.4rem" }}>{key}</div>
+                    <div className="font-data" style={{ fontSize: "1.5rem", fontWeight: 600, color: "#e2e8f0", lineHeight: 1 }}>{val}</div>
+                    <div style={{ fontSize: "0.68rem", color: "#475569", marginTop: "0.25rem" }}>µg/m³ · {aqiSrc}</div>
+                  </div>
+                ))}
+              </div>
+              {googleAQI?.healthRecommendation && (
+                <div style={{ marginTop: "0.85rem", backgroundColor: `${aqiColor}10`, border: `1px solid ${aqiColor}30`, borderRadius: "8px", padding: "0.85rem 1.25rem", fontSize: "0.8rem", color: "#94a3b8", lineHeight: 1.6 }}>
+                  <span style={{ color: aqiColor, fontWeight: 600, marginRight: "0.5rem" }}>Health Advisory:</span>
+                  {googleAQI.healthRecommendation}
+                </div>
+              )}
+            </section>
+          )}
+
+          {/* State health stats — link to full dashboard */}
+          {stateData && (
+            <Link href={`/state/${stateData.slug}`} style={{ textDecoration: "none", display: "block", marginBottom: "1.25rem" }}>
+              <div style={{ backgroundColor: "#071428", border: "1px solid #1e3a5f", borderRadius: "12px", padding: "1.1rem 1.5rem", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap" }}>
+                <div>
+                  <div style={{ fontSize: "0.72rem", color: "#475569", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: "0.35rem" }}>State Health Statistics</div>
+                  <div style={{ fontSize: "0.92rem", fontWeight: 600, color: "#e2e8f0" }}>
+                    IMR {imr ?? "—"} · Vaccination {vaccPct != null ? `${vaccPct}%` : "—"} · Stunting {stuntingPct != null ? `${stuntingPct}%` : "—"}
+                  </div>
+                  <div style={{ fontSize: "0.75rem", color: "#475569", marginTop: "0.2rem" }}>
+                    Full NFHS-5 · SRS 2023 · AB-PMJAY data for {stateData.name}
+                  </div>
+                </div>
+                <span style={{ color: "#0d9488", fontSize: "0.85rem", fontWeight: 600, flexShrink: 0 }}>View full dashboard →</span>
+              </div>
+            </Link>
+          )}
 
           {/* Nearby facilities */}
           <div id="facilities" style={{ scrollMarginTop: "90px", marginTop: "2rem" }}>
             <NearbyHealthCentres stateName={city.stateName} defaultCity={city.name} />
           </div>
 
-          {/* Trend charts */}
-          <section id="trends" style={{ marginTop: "2rem", scrollMarginTop: "90px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", marginBottom: "1.25rem" }}>
-              <span style={{ fontSize: "1rem" }}>📈</span>
-              <h2 className="font-display" style={{ fontSize: "1.2rem", fontWeight: 700, color: "#fff" }}>Estimated Trends (State-level)</h2>
-            </div>
-            <DistrictCharts district={chartDistrict} />
-          </section>
 
           {/* Data sources */}
           <section id="sources" style={{ marginTop: "2rem", backgroundColor: "#0a1628", border: "1px solid #1e3a5f", borderRadius: "12px", padding: "1.5rem", scrollMarginTop: "90px" }}>

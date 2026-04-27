@@ -7,9 +7,9 @@ import { readFile } from "fs/promises";
 import path from "path";
 import CityCard from "@/components/CityCard";
 import NearbyHealthCentres from "@/components/NearbyHealthCentres";
+import StateCharts from "./StateCharts";
 import HealthCategories from "@/components/HealthCategories";
 import AIAnalysisCard from "@/components/AIAnalysisCard";
-import PageSidebar from "@/components/PageSidebar";
 import JsonLd from "@/components/JsonLd";
 import type { OutbreakAlert, IDSPRecord, HospitalBedsRecord } from "@/lib/idsp";
 import { fsGet } from "@/lib/firestore";
@@ -60,10 +60,11 @@ async function getIDSPWeeklyForState(stateName: string): Promise<{ outbreaks: Ou
     const data = await fsGet("idsp_weekly", "latest_v3") as { week: number; year: number; outbreaks: IDSPOutbreak[] } | null;
     if (!data?.outbreaks?.length) return { outbreaks: [], weekLabel: "" };
     const norm = normalizeStateName(stateName);
-    const filtered = data.outbreaks.filter(o =>
-      normalizeStateName(o.state).includes(norm.slice(0, 6)) ||
-      norm.includes(normalizeStateName(o.state).slice(0, 6))
-    );
+    const normWords = norm.split(/\s+/).filter(w => w.length > 2);
+    const filtered = data.outbreaks.filter(o => {
+      const oNorm = normalizeStateName(o.state);
+      return normWords.every(w => oNorm.includes(w));
+    });
     const converted: OutbreakAlert[] = filtered.map(o => ({
       id: o.uid,
       disease: o.disease,
@@ -96,39 +97,6 @@ function scoreColor(v: number) {
   return "#ef4444";
 }
 
-const SIDEBAR_SECTIONS = [
-  {
-    group: "OVERVIEW",
-    items: [
-      { id: "overview",  icon: "🏛️", label: "Overview" },
-      { id: "ai-analysis", icon: "🤖", label: "AI Analysis" },
-    ],
-  },
-  {
-    group: "HEALTH DATA",
-    items: [
-      { id: "mortality",      icon: "📉", label: "Mortality" },
-      { id: "disease",        icon: "🦠", label: "Disease" },
-      { id: "vaccination",    icon: "💉", label: "Vaccination" },
-      { id: "nutrition",      icon: "🥗", label: "Nutrition" },
-    ],
-  },
-  {
-    group: "RESOURCES",
-    items: [
-      { id: "infrastructure", icon: "🏥", label: "Infrastructure" },
-      { id: "environment",    icon: "🌫️", label: "Environment" },
-      { id: "facilities",     icon: "📍", label: "PHC/CHC Finder" },
-    ],
-  },
-  {
-    group: "EXPLORE",
-    items: [
-      { id: "districts",      icon: "🗺️", label: "Districts" },
-      { id: "sources",        icon: "📄", label: "Data Sources" },
-    ],
-  },
-];
 
 export default async function StatePage({ params }: { params: { slug: string } }) {
   const state = states.find((s) => s.slug === params.slug);
@@ -144,17 +112,21 @@ export default async function StatePage({ params }: { params: { slug: string } }
     getIDSPWeeklyForState(state.name),
   ]);
 
+  const stateNameWords = state.name.toLowerCase().split(/\s+/);
+  function stateMatches(field: string) {
+    const low = field.toLowerCase();
+    return stateNameWords.every(w => low.includes(w));
+  }
   const stateOutbreaks: OutbreakAlert[] = (idspCache?.outbreaks ?? []).filter(
-    (a: OutbreakAlert) => a.state.toLowerCase().includes(state.name.toLowerCase().slice(0, 6))
+    (a: OutbreakAlert) => stateMatches(a.state)
   );
   const legacyOutbreaks: OutbreakAlert[] = stateOutbreaks.length > 0 ? stateOutbreaks : (idspCache?.nhpAlerts ?? []).slice(0, 4);
-  // Prefer live IDSP weekly data; fall back to legacy cache
   const allOutbreaks: OutbreakAlert[] = idspWeekly.outbreaks.length > 0 ? idspWeekly.outbreaks : legacyOutbreaks;
   const diseaseRecords: IDSPRecord[] = (idspCache?.diseaseRecords ?? []).filter(
-    (r: IDSPRecord) => r.state.toLowerCase().includes(state.name.toLowerCase().slice(0, 6))
+    (r: IDSPRecord) => stateMatches(r.state)
   );
   const stateBeds = (idspCache?.hospitalBeds ?? []).find(
-    (b: HospitalBedsRecord) => b.state.toLowerCase().includes(state.name.toLowerCase().slice(0, 6))
+    (b: HospitalBedsRecord) => stateMatches(b.state)
   );
 
   const aiMetrics = {
@@ -280,13 +252,8 @@ export default async function StatePage({ params }: { params: { slug: string } }
         </div>
       </div>
 
-      {/* ── PAGE BODY: SIDEBAR + CONTENT ─────────────────────────── */}
+      {/* ── PAGE BODY ────────────────────────────────────────────── */}
       <div className="page-body-wrapper">
-
-        {/* Sidebar */}
-        <PageSidebar sections={SIDEBAR_SECTIONS} backHref="/" backLabel="All States" />
-
-        {/* Main content */}
         <div style={{ flex: 1, minWidth: 0 }}>
 
           {/* AI Analysis */}
@@ -347,6 +314,24 @@ export default async function StatePage({ params }: { params: { slug: string } }
               </div>
             )}
           </section>
+
+          {/* Historical Trends & Correlations — collapsible */}
+          <StateCharts
+            stateName={state.name}
+            metrics={{
+              imr:            state.imr,
+              neonatalMR:     state.neonatalMR,
+              under5MR:       state.under5MR,
+              vaccinationPct: state.vaccinationPct,
+              stuntingPct:    state.stuntingPct,
+              wastingPct:     state.wastingPct,
+              underweightPct: state.underweightPct,
+              birthRate:      state.birthRate2023,
+              deathRate:      state.deathRate2023,
+              anaemiaPct:     state.anaemiaPct,
+              womenAnaemiaPct:state.womenAnaemiaPct,
+            }}
+          />
 
           {/* Data sources */}
           <section id="sources" style={{ marginTop: "2rem", backgroundColor: "#0a1628", border: "1px solid #1e3a5f", borderRadius: "12px", padding: "1.5rem", scrollMarginTop: "90px" }}>

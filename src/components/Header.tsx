@@ -13,7 +13,7 @@ export default function Header({ user, uiConfig }: { user?: HeaderUser | null; u
   }
 
   return (
-    <header style={{ backgroundColor: "#0a1628", borderBottom: "1px solid #1e3a5f", position: "sticky", top: 0, zIndex: 200 }}>
+    <header style={{ backgroundColor: "#0a1628", borderBottom: "1px solid #1e3a5f", position: "fixed", top: 0, left: 0, right: 0, zIndex: 200 }}>
       <div
         style={{
           maxWidth: "100%",

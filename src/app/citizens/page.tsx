@@ -128,11 +128,13 @@ function CitizenStats() {
         const parts = (me.place as string).split(",").map((p: string) => p.trim()).reverse();
         let match: StateStat | undefined;
         for (const part of parts) {
-          const low = part.toLowerCase();
-          match = statsList.find(s =>
-            s.name.toLowerCase().includes(low.split(" ")[0]) ||
-            low.includes(s.name.toLowerCase().split(" ")[0])
-          );
+          const low = part.toLowerCase().trim();
+          match =
+            statsList.find(s => s.name.toLowerCase() === low) ??
+            statsList.find(s => low.startsWith(s.name.toLowerCase())) ??
+            statsList.find(s => s.name.toLowerCase().startsWith(low)) ??
+            statsList.find(s => low.includes(s.name.toLowerCase()) && s.name.length > 6) ??
+            statsList.find(s => s.name.toLowerCase().includes(low) && low.length > 6);
           if (match) break;
         }
         if (match) {
@@ -165,18 +167,28 @@ function CitizenStats() {
     });
   }, [pinnedSlugs, allStats]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Fetch IDSP outbreaks + intel feed filtered by detected location
+  // Fetch IDSP outbreaks + intel feed filtered by detected location or selected state
   useEffect(() => {
-    if (!locationCtx) return;
-    const stateLow = locationCtx.state.toLowerCase().split(" ")[0];
-    const keywords = [locationCtx.city, locationCtx.district, locationCtx.state]
-      .map(s => s.toLowerCase().trim()).filter(s => s.length > 3);
+    const stateName = locationCtx?.state ?? detected?.name ?? null;
+    if (!stateName) return;
+
+    const stateWords = stateName.toLowerCase().split(/\s+/);
+    // Match state outbreaks: all words of the state name must appear in the outbreak's state field
+    function stateMatches(outbreakState: string) {
+      const low = outbreakState.toLowerCase();
+      return stateWords.every(w => low.includes(w));
+    }
+
+    const keywords = locationCtx
+      ? [locationCtx.city, locationCtx.district, locationCtx.state]
+          .map(s => s.toLowerCase().trim()).filter(s => s.length > 3)
+      : stateName.toLowerCase().split(/\s+/).filter(w => w.length > 3);
 
     fetch("/api/idsp-weekly")
       .then(r => r.json())
       .then(d => {
         const filtered: IDSPOutbreak[] = (d.outbreaks ?? []).filter((o: IDSPOutbreak) =>
-          o.state.toLowerCase().includes(stateLow)
+          stateMatches(o.state)
         );
         setLocalOutbreaks(filtered.slice(0, 8));
       }).catch(() => {});
@@ -194,7 +206,7 @@ function CitizenStats() {
         });
         setLocalIntel(filtered.slice(0, 6));
       }).catch(() => {});
-  }, [locationCtx]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [locationCtx, detected]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function togglePin(slug: string) {
     setPinnedSlugs(prev => {
@@ -233,10 +245,13 @@ function CitizenStats() {
             .replace(/\s+district$/i, "").trim();
           const rawCity      = addr.city ?? addr.town ?? addr.suburb ?? addr.village ?? addr.hamlet ?? "";
 
-          const matchStat = allStats.find(s =>
-            s.name.toLowerCase().includes(rawState.toLowerCase().split(" ")[0]) ||
-            rawState.toLowerCase().includes(s.name.toLowerCase().split(" ")[0])
-          );
+          const rawStateLow = rawState.toLowerCase().trim();
+          const matchStat =
+            allStats.find(s => s.name.toLowerCase() === rawStateLow) ??
+            allStats.find(s => rawStateLow.startsWith(s.name.toLowerCase())) ??
+            allStats.find(s => s.name.toLowerCase().startsWith(rawStateLow)) ??
+            allStats.find(s => rawStateLow.includes(s.name.toLowerCase()) && s.name.length > 6) ??
+            allStats.find(s => s.name.toLowerCase().includes(rawStateLow) && rawStateLow.length > 6);
           if (!matchStat) { setGeoStatus("done"); return; }
 
           // Store full location context for personalized feed
@@ -265,6 +280,9 @@ function CitizenStats() {
   async function selectManualState(s: StateStat) {
     setManualState("");
     setManualSuggestions([]);
+    setLocationCtx(null);
+    setLocalOutbreaks([]);
+    setLocalIntel([]);
     const detail: StateStat = await fetch(`/api/citizens/state-stats?state=${s.slug}`).then(r => r.json());
     setDetected(detail);
   }
@@ -392,7 +410,7 @@ function CitizenStats() {
                     {pinnedSlugs.includes(detected.slug) ? "📌 Pinned" : "📌 Pin to Dashboard"}
                   </button>
                   <button
-                    onClick={() => setDetected(null)}
+                    onClick={() => { setDetected(null); setLocationCtx(null); setLocalOutbreaks([]); setLocalIntel([]); }}
                     style={{ fontSize: "0.65rem", color: "#475569", background: "#0f2040", border: "1px solid #1e3a5f", borderRadius: "4px", padding: "0.1rem 0.45rem", cursor: "pointer" }}
                   >
                     ✎ Not your state?
@@ -505,28 +523,28 @@ function CitizenStats() {
       </div>
 
       {/* ── Personalised Location Feed ─────────────────────────────────── */}
-      {locationCtx && (
+      {(locationCtx || detected) && (
         <div style={{ marginBottom: "1.25rem" }}>
 
           {/* Location breadcrumb */}
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap", marginBottom: "1rem", background: "#071428", border: "1px solid #1e3a5f", borderRadius: "10px", padding: "0.75rem 1rem" }}>
             <span style={{ fontSize: "1rem" }}>📍</span>
             <div style={{ display: "flex", gap: "0.35rem", alignItems: "center", flexWrap: "wrap" }}>
-              {locationCtx.city && (
+              {locationCtx?.city && (
                 <>
                   <span style={{ fontSize: "0.88rem", fontWeight: 600, color: "#e2e8f0" }}>{locationCtx.city}</span>
                   <span style={{ color: "#1e3a5f" }}>·</span>
                 </>
               )}
-              {locationCtx.district && (
+              {locationCtx?.district && (
                 <>
                   <span style={{ fontSize: "0.88rem", color: "#94a3b8" }}>{locationCtx.district}</span>
                   <span style={{ color: "#1e3a5f" }}>·</span>
                 </>
               )}
-              <span style={{ fontSize: "0.88rem", color: "#94a3b8" }}>{locationCtx.state}</span>
+              <span style={{ fontSize: "0.88rem", color: "#94a3b8" }}>{locationCtx?.state ?? detected?.name}</span>
             </div>
-            <span style={{ marginLeft: "auto", fontSize: "0.65rem", color: "#334155", background: "#0a1628", borderRadius: "4px", padding: "0.15rem 0.5rem", border: "1px solid #1e3a5f" }}>GPS</span>
+            <span style={{ marginLeft: "auto", fontSize: "0.65rem", color: "#334155", background: "#0a1628", borderRadius: "4px", padding: "0.15rem 0.5rem", border: "1px solid #1e3a5f" }}>{locationCtx ? "GPS" : "SELECTED"}</span>
           </div>
 
           {/* IDSP Disease Surveillance */}
@@ -534,7 +552,7 @@ function CitizenStats() {
             <div style={{ background: "#071428", border: "1px solid #ef444440", borderRadius: "12px", padding: "1.1rem 1.25rem", marginBottom: "0.85rem" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.85rem" }}>
                 <span style={{ fontSize: "1rem" }}>🦠</span>
-                <div style={{ fontWeight: 700, color: "#fca5a5", fontSize: "0.88rem" }}>Disease Surveillance · {locationCtx.state}</div>
+                <div style={{ fontWeight: 700, color: "#fca5a5", fontSize: "0.88rem" }}>Disease Surveillance · {locationCtx?.state ?? detected?.name}</div>
                 <span style={{ marginLeft: "auto", fontSize: "0.6rem", color: "#64748b", background: "#0a1628", borderRadius: "4px", padding: "0.1rem 0.4rem", border: "1px solid #1e3a5f" }}>IDSP</span>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
@@ -594,7 +612,7 @@ function CitizenStats() {
           )}
 
           {/* District deep-link */}
-          {locationCtx.district && (
+          {locationCtx?.district && (
             <Link
               href={`/district/${locationCtx.district.toLowerCase().trim().replace(/\s+/g, "-")}`}
               style={{ display: "flex", alignItems: "center", gap: "0.5rem", background: "#071428", border: "1px solid #1e3a5f", borderRadius: "9px", padding: "0.65rem 1rem", textDecoration: "none", marginBottom: "0.85rem" }}
@@ -610,7 +628,7 @@ function CitizenStats() {
 
           {localOutbreaks.length === 0 && localIntel.length === 0 && (
             <div style={{ background: "#071428", border: "1px solid #1e3a5f", borderRadius: "10px", padding: "0.85rem 1rem", fontSize: "0.82rem", color: "#475569" }}>
-              No active outbreaks or health alerts found for {locationCtx.state}. Your region looks clear.
+              No active outbreaks or health alerts found for {locationCtx?.state ?? detected?.name}. Your region looks clear.
             </div>
           )}
         </div>

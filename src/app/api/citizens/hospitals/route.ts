@@ -87,7 +87,12 @@ export async function GET(req: NextRequest) {
         })).sort((a, b) => a.stateName.localeCompare(b.stateName))
       );
     } catch (e) {
-      return NextResponse.json({ error: String(e) }, { status: 500 });
+      const msg = String(e);
+      // Firebase not configured in this environment — return empty list gracefully
+      if (msg.includes("FIREBASE_SERVICE_ACCOUNT_KEY") || msg.includes("credential")) {
+        return NextResponse.json([]);
+      }
+      return NextResponse.json({ error: msg }, { status: 500 });
     }
   }
 
@@ -98,7 +103,11 @@ export async function GET(req: NextRequest) {
   try {
     doc = await adminGet("hospitals", state);
   } catch (e) {
-    return NextResponse.json({ error: String(e) }, { status: 500 });
+    const msg = String(e);
+    if (msg.includes("FIREBASE_SERVICE_ACCOUNT_KEY") || msg.includes("credential")) {
+      return NextResponse.json({ hospitals: [], districts: [], total: 0, columns: [] });
+    }
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 
   if (!doc) return NextResponse.json({ error: "state not found" }, { status: 404 });

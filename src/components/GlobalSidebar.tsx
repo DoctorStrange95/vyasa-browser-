@@ -30,14 +30,16 @@ const STATE_PAGE_SECTIONS = [
   { id: "environment",    icon: "🌫️", label: "Environment" },
   { id: "facilities",     icon: "📍", label: "PHC/CHC" },
   { id: "districts",      icon: "🗺️", label: "Districts" },
+  { id: "trends",         icon: "📈", label: "Trends" },
   { id: "sources",        icon: "📄", label: "Data Sources" },
 ];
 
 const DISTRICT_PAGE_SECTIONS = [
   { id: "overview",    icon: "🏛️", label: "Overview" },
   { id: "ai-analysis", icon: "🤖", label: "AI Analysis" },
-  { id: "facilities",  icon: "📍", label: "PHC/CHC" },
-  { id: "trends",      icon: "📈", label: "Trends" },
+  { id: "disease",     icon: "🦠", label: "Outbreaks" },
+  { id: "environment", icon: "🌫️", label: "Air Quality" },
+  { id: "facilities",  icon: "📍", label: "Facilities" },
   { id: "sources",     icon: "📄", label: "Data Sources" },
 ];
 
