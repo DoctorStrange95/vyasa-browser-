@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import VyasaLogo from "@/components/VyasaLogo";
+import SymptomReporter from "@/components/SymptomReporter";
+import PushNotificationSetup from "@/components/PushNotificationSetup";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 interface UserProfile { name: string; email: string; phone: string; place: string; age: number | null; }
@@ -13,7 +15,7 @@ interface Submission  {
   extractedData?: string;
 }
 
-type Tab = "overview" | "edit" | "password" | "submissions";
+type Tab = "overview" | "edit" | "password" | "submissions" | "symptoms";
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 const inp: React.CSSProperties = {
@@ -123,6 +125,7 @@ export default function ProfilePage() {
 
   const TABS: { id: Tab; label: string }[] = [
     { id: "overview",     label: "Overview" },
+    { id: "symptoms",     label: "🩺 Report Symptoms" },
     { id: "edit",         label: "Edit Profile" },
     { id: "password",     label: "Change Password" },
     { id: "submissions",  label: `Submissions${subs.length ? ` (${subs.length})` : ""}` },
@@ -289,6 +292,25 @@ export default function ProfilePage() {
               </button>
             </div>
           </form>
+        )}
+
+        {/* ── Symptoms ── */}
+        {tab === "symptoms" && (
+          <div>
+            <div style={{ marginBottom: "1.25rem" }}>
+              <div style={{ fontSize: "1rem", fontWeight: 700, color: "#e2e8f0", marginBottom: "0.25rem" }}>Report Symptoms</div>
+              <div style={{ fontSize: "0.8rem", color: "#64748b" }}>
+                Help India&apos;s IDSP disease surveillance. Each report earns credits and keeps your state&apos;s health map accurate.
+              </div>
+            </div>
+            <div style={{ marginBottom: "1.25rem" }}>
+              <PushNotificationSetup state={profile.place} />
+            </div>
+            <SymptomReporter
+              userState={profile.place}
+              onSubmitted={() => showToast("Report submitted! Credits added to your account.")}
+            />
+          </div>
         )}
 
         {/* ── Submissions ── */}

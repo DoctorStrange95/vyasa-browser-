@@ -3,6 +3,8 @@
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import Leaderboard from "@/components/Leaderboard";
+import PushNotificationSetup from "@/components/PushNotificationSetup";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 interface AyushmanState { stateSlug: string; stateName: string; count: number; }
@@ -574,6 +576,27 @@ export default function DashboardPage() {
             )}
           </div>
         )}
+
+        {/* ── Leaderboard ─────────────────────────────────────────────── */}
+        <div style={{ backgroundColor: "#0a1628", border: "1px solid #1e3a5f", borderRadius: "14px", padding: "1.25rem 1.5rem", marginBottom: "2.5rem" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem", flexWrap: "wrap", gap: "0.5rem" }}>
+            <div>
+              <div style={{ fontSize: "0.72rem", color: "#475569", textTransform: "uppercase", letterSpacing: "0.08em", fontWeight: 600, marginBottom: "0.25rem" }}>
+                Community Surveillance Leaderboard
+              </div>
+              <div style={{ fontSize: "0.78rem", color: "#64748b" }}>
+                Top contributors reporting symptoms for IDSP disease tracking
+              </div>
+            </div>
+            <Link href="/profile?tab=symptoms" style={{ fontSize: "0.78rem", backgroundColor: "#0d9488", color: "#fff", padding: "0.45rem 1rem", borderRadius: "8px", textDecoration: "none", fontWeight: 600, flexShrink: 0 }}>
+              🩺 Report Symptoms →
+            </Link>
+          </div>
+          <div style={{ marginBottom: "1rem" }}>
+            <PushNotificationSetup state={detected?.name} />
+          </div>
+          <Leaderboard stateFilter={detected?.name} maxRows={10} />
+        </div>
 
         {/* ── All States grid ───────────────────────────────────────────── */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.6rem" }}>

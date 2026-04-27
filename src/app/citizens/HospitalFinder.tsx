@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import Link from "next/link";
 import { AB_SPECIALITIES, ABSpeciality } from "@/data/ab-specialities";
 
 interface StateItem { stateSlug: string; stateName: string; count: number; }
@@ -397,12 +398,15 @@ export default function HospitalFinder({ isLoggedIn, prefilledState, onPrefilled
             <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
               {result.hospitals.map((h, i) => (
                 <div key={i} style={{ background: "#071428", border: "1px solid #1e3a5f", borderRadius: "12px", padding: "1.1rem 1.25rem" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "1rem" }}>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: 600, color: "#e2e8f0", fontSize: "1rem", marginBottom: "0.3rem", lineHeight: 1.3 }}>
-                        {h.name || "—"}
+                  <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "flex-start", gap: "0.75rem" }}>
+                    <div style={{ flex: "1 1 200px", minWidth: 0 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap", marginBottom: "0.3rem" }}>
+                        <div style={{ fontWeight: 600, color: "#e2e8f0", fontSize: "0.95rem", lineHeight: 1.3 }}>
+                          {h.name || "—"}
+                        </div>
+                        {h.type && <span style={{ fontSize: "0.68rem", color: "#64748b", backgroundColor: "#0f2040", border: "1px solid #1e3a5f", borderRadius: "4px", padding: "0.1rem 0.4rem", flexShrink: 0 }}>{h.type}</span>}
                       </div>
-                      <div style={{ fontSize: "0.82rem", color: "#64748b", marginBottom: "0.4rem" }}>
+                      <div style={{ fontSize: "0.8rem", color: "#64748b", marginBottom: "0.4rem" }}>
                         {[h.district, h.address].filter(Boolean).join(" · ")}
                       </div>
                       {h.specialities && (
@@ -418,17 +422,16 @@ export default function HospitalFinder({ isLoggedIn, prefilledState, onPrefilled
                         </div>
                       )}
                     </div>
-                    <div style={{ textAlign: "right", flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "0.4rem" }}>
-                      {h.type && <span style={{ fontSize: "0.72rem", color: "#94a3b8" }}>{h.type}</span>}
+                    <div style={{ flexShrink: 0 }}>
                       {h.phone && isLoggedIn ? (
                         <a href={`tel:${h.phone.replace(/[\s\-]/g, "")}`}
-                          style={{ display: "inline-flex", alignItems: "center", gap: "5px", background: "#166534", color: "#4ade80", border: "1px solid #15803d", borderRadius: "7px", padding: "0.4rem 0.75rem", fontSize: "0.8rem", fontWeight: 600, textDecoration: "none", whiteSpace: "nowrap" }}>
-                          📞 Register: {h.phone}
+                          style={{ display: "inline-flex", alignItems: "center", gap: "5px", background: "#166534", color: "#4ade80", border: "1px solid #15803d", borderRadius: "7px", padding: "0.45rem 0.85rem", fontSize: "0.82rem", fontWeight: 600, textDecoration: "none" }}>
+                          📞 Register
                         </a>
                       ) : h.phone && !isLoggedIn ? (
-                        <span style={{ fontSize: "0.75rem", color: "#475569", border: "1px dashed #1e3a5f", borderRadius: "6px", padding: "0.35rem 0.6rem" }}>
-                          Sign in to call & register
-                        </span>
+                        <Link href="/auth" style={{ display: "inline-flex", fontSize: "0.75rem", color: "#475569", border: "1px dashed #1e3a5f", borderRadius: "6px", padding: "0.35rem 0.6rem", textDecoration: "none", whiteSpace: "nowrap" }}>
+                          Sign in to call
+                        </Link>
                       ) : null}
                     </div>
                   </div>

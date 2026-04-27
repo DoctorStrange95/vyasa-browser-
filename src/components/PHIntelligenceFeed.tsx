@@ -26,8 +26,8 @@ interface FeedData {
   cacheAgeHours?: number;
 }
 
-type Tab = "All" | "Outbreak" | "NCD" | "Program" | "Policy";
-const TABS: Tab[] = ["All", "Outbreak", "NCD", "Program", "Policy"];
+type Tab = "All" | "Outbreak" | "NCD";
+const TABS: Tab[] = ["All", "Outbreak", "NCD"];
 
 const TYPE_COLORS: Record<string, { bg: string; border: string; text: string }> = {
   Outbreak:       { bg: "#ef444415", border: "#ef444440", text: "#f87171" },
@@ -475,23 +475,31 @@ export default function PHIntelligenceFeed({ maxItems }: { maxItems?: number } =
     return () => { if (pollRef.current) clearInterval(pollRef.current); };
   }, [load]);
 
-  const allFiltered = data?.items.filter(i => {
+  // Sort: Outbreaks first, NCDs second, others last; within each type High confidence first
+  const priorityOrder = (i: PHItem) =>
+    i.type === "Outbreak" ? 0 : i.type === "NCD" || i.category === "ncd" ? 1 : 2;
+  const confOrder = (i: PHItem) =>
+    i.confidence === "High" ? 0 : i.confidence === "Medium" ? 1 : 2;
+
+  const sortedItems = [...(data?.items ?? [])].sort((a, b) => {
+    const pd = priorityOrder(a) - priorityOrder(b);
+    if (pd !== 0) return pd;
+    return confOrder(a) - confOrder(b);
+  });
+
+  const allFiltered = sortedItems.filter(i => {
     if (tab === "All")      return true;
     if (tab === "Outbreak") return i.type === "Outbreak";
     if (tab === "NCD")      return i.type === "NCD" || i.category === "ncd";
-    if (tab === "Program")  return i.type === "Program";
-    if (tab === "Policy")   return i.type === "Policy" || i.type === "Infrastructure";
     return true;
-  }) ?? [];
+  });
   const cap = maxItems && !showAll ? maxItems : undefined;
   const filtered = cap ? allFiltered.slice(0, cap) : allFiltered;
 
   const counts: Record<Tab, number> = {
-    All:      data?.items.length ?? 0,
-    Outbreak: data?.items.filter(i => i.type === "Outbreak").length ?? 0,
-    NCD:      data?.items.filter(i => i.type === "NCD" || i.category === "ncd").length ?? 0,
-    Program:  data?.items.filter(i => i.type === "Program").length ?? 0,
-    Policy:   data?.items.filter(i => i.type === "Policy" || i.type === "Infrastructure").length ?? 0,
+    All:      sortedItems.length,
+    Outbreak: sortedItems.filter(i => i.type === "Outbreak").length,
+    NCD:      sortedItems.filter(i => i.type === "NCD" || i.category === "ncd").length,
   };
 
   return (
@@ -547,7 +555,7 @@ export default function PHIntelligenceFeed({ maxItems }: { maxItems?: number } =
         <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap", marginBottom: "1.5rem" }}>
           {TABS.map(t => {
             const active = tab === t;
-            const tc     = t === "All" ? null : TYPE_COLORS[t === "Policy" ? "Policy" : t];
+            const tc     = t === "All" ? null : TYPE_COLORS[t];
             return (
               <button key={t} onClick={() => setTab(t)}
                 style={{

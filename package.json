@@ -25,6 +25,7 @@
     "react-chartjs-2": "^5.3.1",
     "react-dom": "^18.3.1",
     "react-leaflet": "^5.0.0",
+    "web-push": "^3.6.7",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
@@ -33,6 +34,7 @@
     "@types/pdf-parse": "^1.1.5",
     "@types/react": "^18.3.28",
     "@types/react-dom": "^18.3.7",
+    "@types/web-push": "^3.6.4",
     "eslint": "^9",
     "eslint-config-next": "16.2.4",
     "tailwindcss": "^4",
