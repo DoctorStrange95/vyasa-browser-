@@ -15,9 +15,7 @@ import type { OutbreakAlert, IDSPRecord, HospitalBedsRecord } from "@/lib/idsp";
 import { fsGet } from "@/lib/firestore";
 import type { IDSPOutbreak } from "@/lib/idspPDFParser";
 
-export async function generateStaticParams() {
-  return states.map((s) => ({ slug: s.slug }));
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {
   const s = states.find(st => st.slug === params.slug);

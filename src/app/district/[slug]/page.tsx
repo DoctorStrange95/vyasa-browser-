@@ -10,9 +10,7 @@ import path from "path";
 import type { OutbreakAlert } from "@/lib/idsp";
 import JsonLd from "@/components/JsonLd";
 
-export async function generateStaticParams() {
-  return cities.map((c) => ({ slug: c.slug }));
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: { slug: string } }) {
   const city = cities.find(c => c.slug === params.slug);
