@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminSession } from "@/lib/auth";
-import { adminSet } from "@/lib/firestore-admin";
+import { adminSet, adminSetSubcollection } from "@/lib/firestore-admin";
 import * as XLSX from "xlsx";
+
+const BATCH_SIZE = 200;
 
 export const maxDuration = 60;
 
@@ -52,13 +54,23 @@ export async function POST(req: NextRequest) {
   const stateName = file.name.replace(/\.(xls|xlsx)$/i, "");
 
   if (save) {
+    const batchCount = Math.ceil(rows.length / BATCH_SIZE);
+    // Write metadata doc first (no large array inline)
     await adminSet("hospitals", stateSlug, {
       stateName,
       stateSlug,
-      hospitals: rows,
       count: rows.length,
       importedAt: new Date().toISOString(),
+      batchCount,
     });
+    // Write rows in subcollection batches to stay under Firestore 1MB doc limit
+    await Promise.all(
+      Array.from({ length: batchCount }, (_, i) =>
+        adminSetSubcollection("hospitals", stateSlug, "batches", String(i), {
+          rows: rows.slice(i * BATCH_SIZE, (i + 1) * BATCH_SIZE),
+        })
+      )
+    );
   }
 
   return NextResponse.json({

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { adminList, adminGet } from "@/lib/firestore-admin";
+import { adminList, adminGet, adminListSubcollection } from "@/lib/firestore-admin";
 
 export const maxDuration = 30;
 
@@ -112,7 +112,15 @@ export async function GET(req: NextRequest) {
 
   if (!doc) return NextResponse.json({ error: "state not found" }, { status: 404 });
 
-  const rawHospitals = (doc.hospitals as Record<string, unknown>[]) ?? [];
+  // Support both legacy flat array and new batched subcollection format
+  let rawHospitals: Record<string, unknown>[];
+  if (doc.batchCount && Number(doc.batchCount) > 0) {
+    const batches = await adminListSubcollection("hospitals", state, "batches");
+    batches.sort((a, b) => Number(a._id) - Number(b._id));
+    rawHospitals = batches.flatMap(b => (b.rows as Record<string, unknown>[]) ?? []);
+  } else {
+    rawHospitals = (doc.hospitals as Record<string, unknown>[]) ?? [];
+  }
   if (!rawHospitals.length) {
     return NextResponse.json({ hospitals: [], districts: [], total: 0, columns: [] });
   }

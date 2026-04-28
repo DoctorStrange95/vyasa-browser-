@@ -91,7 +91,7 @@ export default function Header({ user, uiConfig }: { user?: HeaderUser | null; u
         {/* Right-side actions */}
         <div style={{ display: "flex", gap: "0.65rem", alignItems: "center" }}>
 
-          {/* Search button */}
+          {/* Search button — icon always visible, text hidden on small phones */}
           <button
             onClick={() => setSearchOpen(true)}
             aria-label="Search states and districts"
@@ -99,13 +99,14 @@ export default function Header({ user, uiConfig }: { user?: HeaderUser | null; u
               display: "inline-flex", alignItems: "center", gap: "0.4rem",
               backgroundColor: "#0f2040", border: "1px solid #1e3a5f",
               color: "#94a3b8", borderRadius: "8px",
-              padding: "0.5rem 0.85rem",
+              padding: "0.5rem 0.75rem",
               fontSize: "0.8rem", fontWeight: 500,
               cursor: "pointer", fontFamily: "inherit",
-              minHeight: "44px", whiteSpace: "nowrap",
+              minHeight: "44px", minWidth: "44px", whiteSpace: "nowrap",
+              flexShrink: 0,
             }}
           >
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="6.5" cy="6.5" r="4.5"/><line x1="10.5" y1="10.5" x2="14" y2="14"/></svg>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" style={{ flexShrink: 0 }}><circle cx="6.5" cy="6.5" r="4.5"/><line x1="10.5" y1="10.5" x2="14" y2="14"/></svg>
             <span className="header-search-label">Search</span>
           </button>
 

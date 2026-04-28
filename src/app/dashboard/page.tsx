@@ -88,7 +88,7 @@ function Metric({ label, value, unit, sub }: { label: string; value: string | nu
   );
 }
 
-const PINNED_STATS_KEY = "citizens_pinned_states_v1";
+function pinnedKey(uid: string) { return `hfi_pins_${uid}`; }
 
 // ── Dashboard ─────────────────────────────────────────────────────────────────
 export default function DashboardPage() {
@@ -104,6 +104,7 @@ export default function DashboardPage() {
   const [manualState,    setManualState]    = useState("");
   const [manualSuggestions, setManualSuggestions] = useState<StateStat[]>([]);
   const [pinnedSlugs,    setPinnedSlugs]    = useState<string[]>([]);
+  const [pinnedKey_,     setPinnedKey_]     = useState<string>("hfi_pins_anon");
   const [pinnedStats,    setPinnedStats]    = useState<StateStat[]>([]);
   const [locationCtx,    setLocationCtx]    = useState<LocationCtx | null>(null);
   const [localOutbreaks, setLocalOutbreaks] = useState<IDSPOutbreak[]>([]);
@@ -116,9 +117,23 @@ export default function DashboardPage() {
       fetch("/api/citizens/state-stats").then(r => r.json()),
       fetch("/api/citizens/me").then(r => r.ok ? r.json() : null).catch(() => null),
     ]).then(([ayush, stats, me]) => {
+      // Auth guard — dashboard requires login
+      if (!me || me.error) { router.replace("/auth?next=/dashboard"); return; }
+
       const statsList: StateStat[] = Array.isArray(stats) ? stats : [];
       setAyushmanStates(Array.isArray(ayush) ? ayush : []);
       setAllStats(statsList);
+
+      // Use Firestore as source of truth; UID-namespaced local key is just a cache
+      const firestorePins: string[] = Array.isArray(me.pinnedStates) ? me.pinnedStates : [];
+      const localKey = pinnedKey(me.uid ?? me.email ?? "anon");
+      setPinnedKey_(localKey);
+      const localCache = (() => { try { const s = localStorage.getItem(localKey); return s ? (JSON.parse(s) as string[]) : null; } catch { return null; } })();
+      // If Firestore has data use it; else fall back to local cache (first login)
+      const pins = firestorePins.length > 0 ? firestorePins : (localCache ?? []);
+      setPinnedSlugs(pins);
+      try { localStorage.setItem(localKey, JSON.stringify(pins)); } catch { /* ignore */ }
+
       if (me?.place && statsList.length) {
         const parts = (me.place as string).split(",").map((p: string) => p.trim()).reverse();
         let match: StateStat | undefined;
@@ -139,15 +154,8 @@ export default function DashboardPage() {
             .catch(() => {});
         }
       }
-    }).catch(() => {}).finally(() => setLoading(false));
-  }, []);
-
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem(PINNED_STATS_KEY);
-      if (saved) setPinnedSlugs(JSON.parse(saved));
-    } catch { /* ignore */ }
-  }, []);
+    }).catch(() => router.replace("/auth?next=/dashboard")).finally(() => setLoading(false));
+  }, [router]);
 
   useEffect(() => {
     if (!pinnedSlugs.length || !allStats.length) return;
@@ -205,7 +213,13 @@ export default function DashboardPage() {
   function togglePin(slug: string) {
     setPinnedSlugs(prev => {
       const next = prev.includes(slug) ? prev.filter(s => s !== slug) : [...prev, slug];
-      try { localStorage.setItem(PINNED_STATS_KEY, JSON.stringify(next)); } catch { /* ignore */ }
+      // UID-namespaced local cache + Firestore sync for cross-device persistence
+      try { localStorage.setItem(pinnedKey_, JSON.stringify(next)); } catch { /* ignore */ }
+      fetch("/api/citizens/me", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pinnedStates: next }),
+      }).catch(() => {});
       if (!prev.includes(slug)) {
         fetch(`/api/citizens/state-stats?state=${slug}`)
           .then(r => r.json())

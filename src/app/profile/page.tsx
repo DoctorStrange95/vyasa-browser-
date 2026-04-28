@@ -15,7 +15,7 @@ interface Submission  {
   extractedData?: string;
 }
 
-type Tab = "overview" | "edit" | "password" | "submissions" | "symptoms";
+type Tab = "overview" | "edit" | "password" | "submissions" | "symptoms" | "feedback";
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 const inp: React.CSSProperties = {
@@ -54,6 +54,12 @@ export default function ProfilePage() {
   const [pwForm,    setPwForm]    = useState({ current: "", next: "", confirm: "" });
   const [pwSaving,  setPwSaving]  = useState(false);
   const [showPw,    setShowPw]    = useState({ current: false, next: false, confirm: false });
+
+  // Feedback form state
+  const [fbType,    setFbType]    = useState("general");
+  const [fbMsg,     setFbMsg]     = useState("");
+  const [fbSaving,  setFbSaving]  = useState(false);
+  const [fbDone,    setFbDone]    = useState(false);
 
   function showToast(msg: string, type: "ok" | "err" = "ok") {
     setToast({ msg, type });
@@ -126,6 +132,7 @@ export default function ProfilePage() {
   const TABS: { id: Tab; label: string }[] = [
     { id: "overview",     label: "Overview" },
     { id: "symptoms",     label: "🩺 Report Symptoms" },
+    { id: "feedback",     label: "💬 Feedback" },
     { id: "edit",         label: "Edit Profile" },
     { id: "password",     label: "Change Password" },
     { id: "submissions",  label: `Submissions${subs.length ? ` (${subs.length})` : ""}` },
@@ -310,6 +317,70 @@ export default function ProfilePage() {
               userState={profile.place}
               onSubmitted={() => showToast("Report submitted! Credits added to your account.")}
             />
+          </div>
+        )}
+
+        {/* ── Feedback ── */}
+        {tab === "feedback" && (
+          <div style={{ backgroundColor: "#0a1628", border: "1px solid #1e3a5f", borderRadius: "12px", padding: "1.5rem" }}>
+            <div style={{ fontSize: "0.72rem", color: "#475569", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "1.25rem" }}>Send Feedback</div>
+            {fbDone ? (
+              <div style={{ textAlign: "center", padding: "2rem 1rem" }}>
+                <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>✅</div>
+                <div style={{ fontWeight: 700, color: "#4ade80", marginBottom: "0.4rem" }}>Thank you!</div>
+                <div style={{ fontSize: "0.82rem", color: "#64748b", marginBottom: "1.25rem" }}>Your feedback helps us improve HealthForIndia.</div>
+                <button onClick={() => { setFbDone(false); setFbMsg(""); setFbType("general"); }} style={{ background: "#0f2040", border: "1px solid #1e3a5f", color: "#94a3b8", borderRadius: "7px", padding: "0.45rem 1rem", fontSize: "0.82rem", cursor: "pointer" }}>
+                  Send Another
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={async e => {
+                e.preventDefault();
+                if (!fbMsg.trim()) return;
+                setFbSaving(true);
+                try {
+                  await fetch("/api/feedback", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      mode: "feedback",
+                      type: fbType,
+                      message: fbMsg,
+                      page: "/profile",
+                      submitterName: profile.name,
+                      submitterEmail: profile.email,
+                    }),
+                  });
+                  setFbDone(true);
+                } finally {
+                  setFbSaving(false);
+                }
+              }}>
+                <div style={{ marginBottom: "1rem" }}>
+                  <label style={lbl}>Feedback Type</label>
+                  <select style={inp} value={fbType} onChange={e => setFbType(e.target.value)}>
+                    <option value="general">General Feedback</option>
+                    <option value="wrong_data">Wrong / outdated data</option>
+                    <option value="missing_data">Missing data or feature</option>
+                    <option value="new_hospital">Add / correct a hospital</option>
+                  </select>
+                </div>
+                <div style={{ marginBottom: "1.25rem" }}>
+                  <label style={lbl}>Message</label>
+                  <textarea
+                    style={{ ...inp, resize: "vertical" }}
+                    rows={5}
+                    value={fbMsg}
+                    onChange={e => setFbMsg(e.target.value)}
+                    placeholder="Describe your feedback, issue, or suggestion…"
+                    required
+                  />
+                </div>
+                <button type="submit" disabled={fbSaving || !fbMsg.trim()} style={{ background: "#0d9488", color: "#fff", border: "none", borderRadius: "8px", padding: "0.6rem 1.5rem", fontWeight: 700, cursor: fbSaving ? "wait" : "pointer", fontSize: "0.88rem" }}>
+                  {fbSaving ? "Sending…" : "Send Feedback"}
+                </button>
+              </form>
+            )}
           </div>
         )}
 

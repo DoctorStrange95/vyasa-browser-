@@ -38,8 +38,8 @@ const CATEGORIES = [
     label: "Diarrhea",
     icon: "🦠",
     subTypes: [
-      { id: "cholera",   label: "Cholera",        hint: "rice-water stools, severe dehydration" },
-      { id: "acute-diarrhea", label: "Acute Diarrhea", hint: "loose stools, vomiting" },
+      { id: "cholera",         label: "Cholera",         hint: "rice-water stools, severe dehydration" },
+      { id: "acute-diarrhea",  label: "Acute Diarrhea",  hint: "loose stools, vomiting" },
     ],
   },
   {
@@ -66,8 +66,8 @@ const CATEGORIES = [
     label: "Vector-borne",
     icon: "🪲",
     subTypes: [
-      { id: "kala-azar",   label: "Kala-azar",   hint: "prolonged fever, splenomegaly" },
-      { id: "filariasis",  label: "Filariasis",  hint: "limb swelling, lymphoedema" },
+      { id: "kala-azar",  label: "Kala-azar",  hint: "prolonged fever, splenomegaly" },
+      { id: "filariasis", label: "Filariasis", hint: "limb swelling, lymphoedema" },
     ],
   },
   {
@@ -75,9 +75,9 @@ const CATEGORIES = [
     label: "Vaccine-Preventable",
     icon: "💉",
     subTypes: [
-      { id: "diphtheria",  label: "Diphtheria",  hint: "throat membrane, bull neck" },
-      { id: "pertussis",   label: "Pertussis",   hint: "whooping cough paroxysms" },
-      { id: "tetanus",     label: "Tetanus",     hint: "lockjaw, muscle spasms" },
+      { id: "diphtheria", label: "Diphtheria", hint: "throat membrane, bull neck" },
+      { id: "pertussis",  label: "Pertussis",  hint: "whooping cough paroxysms" },
+      { id: "tetanus",    label: "Tetanus",    hint: "lockjaw, muscle spasms" },
     ],
   },
   {
@@ -93,8 +93,8 @@ const CATEGORIES = [
     label: "Skin",
     icon: "🔬",
     subTypes: [
-      { id: "scabies",  label: "Scabies",       hint: "intense itching, burrows" },
-      { id: "fungal",   label: "Fungal Rash",   hint: "ring-shaped rash, scaling" },
+      { id: "scabies", label: "Scabies",     hint: "intense itching, burrows" },
+      { id: "fungal",  label: "Fungal Rash", hint: "ring-shaped rash, scaling" },
     ],
   },
 ];
@@ -106,7 +106,7 @@ interface Props {
 }
 
 export default function SymptomReporter({ userState, userDistrict, onSubmitted }: Props) {
-  const [step, setStep] = useState<"category" | "subtype" | "confirm" | "done">("category");
+  const [step, setStep]           = useState<"category" | "subtype" | "done">("category");
   const [selectedCat, setSelectedCat] = useState<typeof CATEGORIES[0] | null>(null);
   const [selectedSub, setSelectedSub] = useState<string>("");
   const [notes, setNotes]             = useState("");
@@ -124,12 +124,12 @@ export default function SymptomReporter({ userState, userDistrict, onSubmitted }
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          category:  selectedCat.id,
-          subType:   sub?.label ?? null,
-          symptoms:  [selectedCat.label, sub?.label].filter(Boolean),
-          state:     userState ?? null,
-          district:  userDistrict ?? null,
-          notes:     notes || null,
+          category: selectedCat.id,
+          subType:  sub?.label ?? null,
+          symptoms: [selectedCat.label, sub?.label].filter(Boolean),
+          state:    userState ?? null,
+          district: userDistrict ?? null,
+          notes:    notes || null,
         }),
       });
       const data = await res.json();

@@ -11,11 +11,13 @@ export async function GET() {
   if (!user) return NextResponse.json({ name: session.name, email: session.email });
 
   return NextResponse.json({
-    name:  String(user.name  ?? session.name),
-    email: String(user.email ?? session.email),
-    phone: String(user.phone ?? ""),
-    place: String(user.place ?? ""),
-    age:   user.age != null ? Number(user.age) : null,
+    uid:          session.uid,
+    name:         String(user.name  ?? session.name),
+    email:        String(user.email ?? session.email),
+    phone:        String(user.phone ?? ""),
+    place:        String(user.place ?? ""),
+    age:          user.age != null ? Number(user.age) : null,
+    pinnedStates: Array.isArray(user.pinnedStates) ? (user.pinnedStates as string[]) : [],
   });
 }
 
@@ -30,6 +32,10 @@ export async function PATCH(req: NextRequest) {
   const update: Record<string, unknown> = {};
   for (const key of allowed) {
     if (key in body) update[key] = key === "age" ? (body[key] ? Number(body[key]) : null) : String(body[key] ?? "").trim();
+  }
+  // pinnedStates is an array, handle separately
+  if ("pinnedStates" in body && Array.isArray(body.pinnedStates)) {
+    update.pinnedStates = (body.pinnedStates as unknown[]).filter(s => typeof s === "string").slice(0, 50);
   }
   if (update.name === "") return NextResponse.json({ error: "Name cannot be empty." }, { status: 400 });
 

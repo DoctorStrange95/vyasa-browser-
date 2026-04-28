@@ -2,7 +2,7 @@ import AuthForm from "@/components/AuthForm";
 import VyasaLogo from "@/components/VyasaLogo";
 import Link from "next/link";
 
-export const metadata = { title: "Sign In — HealthForIndia" };
+export const metadata = { title: "Sign Up — HealthForIndia" };
 
 export default function AuthPage({ searchParams }: { searchParams: { next?: string } }) {
   const next      = searchParams.next ?? "/profile";

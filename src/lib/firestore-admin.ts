@@ -120,4 +120,26 @@ export async function adminDelete(col: string, id: string): Promise<void> {
   await db.collection(col).doc(id).delete();
 }
 
+export async function adminSetSubcollection(
+  col: string,
+  id: string,
+  subCol: string,
+  subId: string,
+  data: Record<string, unknown>,
+): Promise<void> {
+  const db = getAdminDb();
+  await db.collection(col).doc(id).collection(subCol).doc(subId).set(data);
+}
+
+export async function adminListSubcollection(
+  col: string,
+  id: string,
+  subCol: string,
+  maxItems = 1000,
+): Promise<Array<Record<string, unknown> & { _id: string }>> {
+  const db   = getAdminDb();
+  const snap = await db.collection(col).doc(id).collection(subCol).limit(maxItems).get();
+  return snap.docs.map(d => ({ ...(d.data() as Record<string, unknown>), _id: d.id }));
+}
+
 export { getAdminDb };

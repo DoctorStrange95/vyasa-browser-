@@ -333,21 +333,21 @@ export default function GlobalSidebar({ user, uiConfig }: { user?: HeaderUser | 
 
       {showFAB && (
         <nav className="mobile-bottom-nav" aria-label="Mobile navigation">
-          <button className="mobile-bottom-nav-item" onClick={() => setMobileOpen(true)} aria-label="Open menu">
+          <button className={`mobile-bottom-nav-item${pathname === "/" ? " active" : ""}`} onClick={() => setMobileOpen(true)} aria-label="Open menu">
             <span>☰</span>
             <span>Menu</span>
           </button>
-          <Link href="/dashboard" className="mobile-bottom-nav-item" style={{ textDecoration: "none" }}>
+          <Link href="/dashboard" className={`mobile-bottom-nav-item${pathname === "/dashboard" ? " active" : ""}`} style={{ textDecoration: "none" }}>
             <span>📊</span>
             <span>Dashboard</span>
           </Link>
-          <button className="mobile-bottom-nav-item" onClick={openFacilityDrawer} aria-label="Find nearby">
+          <button className={`mobile-bottom-nav-item${pathname === "/citizens" ? " active" : ""}`} onClick={openFacilityDrawer} aria-label="Find nearby">
             <span>📍</span>
             <span>Find Nearby</span>
           </button>
-          <Link href={user ? "/profile" : "/auth"} className="mobile-bottom-nav-item" style={{ textDecoration: "none" }}>
+          <Link href={user ? "/profile" : "/auth"} className={`mobile-bottom-nav-item${(pathname === "/profile" || pathname === "/auth") ? " active" : ""}`} style={{ textDecoration: "none" }}>
             <span>👤</span>
-            <span>{user ? (user.name.split(" ")[0]) : "Sign In"}</span>
+            <span>{user ? (user.name.split(" ")[0]) : "Sign Up"}</span>
           </Link>
         </nav>
       )}
@@ -394,21 +394,33 @@ export default function GlobalSidebar({ user, uiConfig }: { user?: HeaderUser | 
         .mobile-bottom-nav {
           display: none;
           position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
-          background: #060d1a; border-top: 1px solid #1e3a5f;
+          background: rgba(6, 14, 30, 0.82);
+          backdrop-filter: blur(20px) saturate(160%);
+          -webkit-backdrop-filter: blur(20px) saturate(160%);
+          border-top: 1px solid rgba(45, 212, 191, 0.12);
+          box-shadow: 0 -1px 0 rgba(0,0,0,0.4), 0 -8px 24px rgba(0,0,0,0.3);
           padding-bottom: env(safe-area-inset-bottom, 0);
         }
         .mobile-bottom-nav-item {
           display: flex; flex-direction: column; align-items: center; justify-content: center;
-          gap: 0.2rem; flex: 1; padding: 0.55rem 0 0.5rem;
-          color: #94a3b8; font-size: 0.6rem; font-family: inherit; font-weight: 500;
+          gap: 0.18rem; flex: 1; padding: 0.6rem 0 0.55rem;
+          color: #4a6180; font-size: 0.6rem; font-family: inherit; font-weight: 600;
           background: none; border: none; cursor: pointer;
+          position: relative; transition: color 0.15s;
+          letter-spacing: 0.01em;
         }
-        .mobile-bottom-nav-item:hover { color: #e2e8f0; }
-        .mobile-bottom-nav-item span:first-child { font-size: 1.25rem; line-height: 1; }
+        .mobile-bottom-nav-item:hover { color: #94a3b8; }
+        .mobile-bottom-nav-item.active { color: #2dd4bf; }
+        .mobile-bottom-nav-item.active::after {
+          content: ""; position: absolute; top: 0; left: 20%; right: 20%;
+          height: 2px; background: #2dd4bf;
+          border-radius: 0 0 3px 3px;
+        }
+        .mobile-bottom-nav-item span:first-child { font-size: 1.2rem; line-height: 1; }
         @media (max-width: 900px) {
           .global-sidebar-desktop { display: none !important; }
           .mobile-bottom-nav { display: flex !important; }
-          body { padding-bottom: 64px; }
+          body { padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px)); }
         }
       `}</style>
     </>
