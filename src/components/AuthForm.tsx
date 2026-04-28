@@ -22,9 +22,9 @@ const EyeIcon = ({ open }: { open: boolean }) => (
   </svg>
 );
 
-export default function AuthForm({ redirectTo = "/profile" }: { redirectTo?: string }) {
+export default function AuthForm({ redirectTo = "/profile", initialMode = "register" }: { redirectTo?: string; initialMode?: Mode }) {
   const router = useRouter();
-  const [mode,     setMode]     = useState<Mode>("register");
+  const [mode,     setMode]     = useState<Mode>(initialMode);
   const [name,     setName]     = useState("");
   const [age,      setAge]      = useState("");
   const [email,    setEmail]    = useState("");

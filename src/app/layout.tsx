@@ -7,6 +7,7 @@ import FeedbackButton from "@/components/FeedbackButton";
 import FacilityDrawer from "@/components/FacilityDrawer";
 import CookieConsent from "@/components/CookieConsent";
 import SignInPrompt from "@/components/SignInPrompt";
+import FeedbackWidget from "@/components/FeedbackWidget";
 import { getUserSession } from "@/lib/userAuth";
 import PageTracker from "@/components/PageTracker";
 import PWASetup from "@/components/PWASetup";
@@ -127,6 +128,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <FacilityDrawer />
         <CookieConsent />
         <SignInPrompt isLoggedIn={!!session} />
+        <FeedbackWidget user={session ? { name: session.name, email: session.email } : null} />
       </body>
     </html>
   );

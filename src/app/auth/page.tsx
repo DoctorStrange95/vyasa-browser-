@@ -4,9 +4,10 @@ import Link from "next/link";
 
 export const metadata = { title: "Sign Up — HealthForIndia" };
 
-export default function AuthPage({ searchParams }: { searchParams: { next?: string } }) {
-  const next      = searchParams.next ?? "/profile";
-  const isCitizen = next.startsWith("/citizens");
+export default function AuthPage({ searchParams }: { searchParams: { next?: string; mode?: string } }) {
+  const next       = searchParams.next ?? "/profile";
+  const isCitizen  = next.startsWith("/citizens");
+  const initialMode = searchParams.mode === "login" ? "login" : "register";
 
   return (
     <div style={{ minHeight: "100vh", backgroundColor: "#070f1e", display: "flex", flexDirection: "column" }}>
@@ -33,7 +34,7 @@ export default function AuthPage({ searchParams }: { searchParams: { next?: stri
                 : "Sign in or create an account to contribute health data for your district."}
             </p>
           </div>
-          <AuthForm redirectTo={next} />
+          <AuthForm redirectTo={next} initialMode={initialMode} />
         </div>
       </div>
     </div>

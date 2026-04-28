@@ -8,6 +8,7 @@ export interface FeedbackItem {
   id: string;
   mode: "feedback" | "report";
   type: "wrong_data" | "missing_data" | "new_hospital" | "general";
+  rating?: number;
   page: string;
   // Report issue fields
   field?: string;
@@ -50,6 +51,7 @@ export async function POST(req: Request) {
     id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
     mode: body.mode === "report" ? "report" : "feedback",
     type: body.type ?? "general",
+    rating: body.rating ? Number(body.rating) : undefined,
     page: body.page ?? "",
     field: body.field || undefined,
     message: body.message ?? "",

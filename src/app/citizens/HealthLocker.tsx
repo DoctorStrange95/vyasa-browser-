@@ -182,7 +182,9 @@ export default function HealthLocker({ user }: Props) {
   // ── Not logged in ────────────────────────────────────────────────────────────
   if (!user) {
     return (
-      <div style={{ padding: "3rem 1rem", textAlign: "center", border: "1px dashed #1e3a5f", borderRadius: "12px", color: "#475569" }}>
+      <div
+        onClick={() => window.dispatchEvent(new CustomEvent("hfi:auth-prompt", { detail: { context: "locker" } }))}
+        style={{ padding: "3rem 1rem", textAlign: "center", border: "1px dashed #1e3a5f", borderRadius: "12px", color: "#475569", cursor: "pointer" }}>
         <div style={{ fontSize: "2.5rem", marginBottom: "0.75rem" }}>🔐</div>
         <div style={{ fontWeight: 600, color: "#64748b", marginBottom: "0.4rem" }}>Sign in to access your Health Locker</div>
         <div style={{ fontSize: "0.82rem" }}>Upload prescriptions, lab reports, vaccination certificates and share them with your doctor via WhatsApp.</div>
