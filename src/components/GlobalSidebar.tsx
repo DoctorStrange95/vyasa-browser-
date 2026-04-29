@@ -267,20 +267,6 @@ export default function GlobalSidebar({ user, uiConfig }: { user?: HeaderUser | 
       );
     }
 
-    // Admin — sub-menu links
-    if (pageCtx.kind === "admin") {
-      return (
-        <ContextSection label="Admin Panel">
-          {ADMIN_LINKS.map(l => {
-            const isActive = pathname === l.href || (l.href !== "/admin" && pathname.startsWith(l.href));
-            return (
-              <NavLink key={l.href} href={l.href} icon={l.icon} label={l.label} active={isActive} onClick={() => setMobileOpen(false)} />
-            );
-          })}
-        </ContextSection>
-      );
-    }
-
     // Profile
     if (pageCtx.kind === "profile") {
       return (

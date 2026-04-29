@@ -123,7 +123,7 @@ function ProfilePageInner() {
 
   async function handleLogout() {
     await fetch("/api/auth/user/logout", { method: "POST" });
-    router.push("/");
+    window.location.href = "/";
   }
 
   if (loading) return (
