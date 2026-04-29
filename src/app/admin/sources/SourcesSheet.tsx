@@ -30,6 +30,7 @@ interface FeedbackRow {
   currentValue?: string; suggestedValue?: string;
   submitterName?: string; submitterEmail?: string; submitterPhone?: string;
   wantsToJoin?: string; status?: string; timestamp?: string;
+  rating?: number; gender?: string; state?: string;
 }
 
 interface WaitlistRow {
@@ -228,7 +229,7 @@ export default function SourcesSheet() {
             {tab === "idsp"        && <IDSPSheet        rows={filter((data?.idsp?.outbreaks ?? []) as Record<string, unknown>[])} meta={data?.idsp ?? null} onExport={() => downloadCSV("idsp_outbreaks", (data?.idsp?.outbreaks ?? []) as Record<string, unknown>[])} />}
             {tab === "users"       && <UsersSheet       rows={filter((data?.users ?? []) as Record<string, unknown>[])}          onExport={() => downloadCSV("users", toUsersExport(data?.users ?? []))} />}
             {tab === "submissions" && <SubSheet         rows={filter((data?.submissions ?? []) as Record<string, unknown>[])}    onExport={() => downloadCSV("submissions", toSubExport(data?.submissions ?? []))} />}
-            {tab === "feedback"    && <FeedbackSheet    rows={filter((data?.feedback ?? []) as Record<string, unknown>[])}       onExport={() => downloadCSV("feedback", (data?.feedback ?? []) as Record<string, unknown>[])} />}
+            {tab === "feedback"    && <FeedbackSheet    rows={filter((data?.feedback ?? []) as Record<string, unknown>[])}       onExport={() => downloadCSV("feedback", toFeedbackExport(data?.feedback ?? []))} />}
             {tab === "waitlist"    && <WaitlistSheet    rows={filter((data?.waitlist ?? []) as Record<string, unknown>[])}       onExport={() => downloadCSV("waitlist", toWaitlistExport(data?.waitlist ?? []))} />}
           </>
         )}
@@ -269,6 +270,25 @@ function toSubExport(rows: SubRow[]): Record<string, unknown>[] {
     sizeKB: r.fileSize ? Math.round(r.fileSize / 1024) : "",
     status: r.status ?? "",
     submittedAt: r.submittedAt ?? "",
+  }));
+}
+
+function toFeedbackExport(rows: FeedbackRow[]): Record<string, unknown>[] {
+  return rows.map(r => ({
+    id:          r.id ?? "",
+    date:        r.timestamp ?? "",
+    mode:        r.mode ?? "",
+    type:        r.type ?? "",
+    page:        r.page ?? "",
+    rating:      r.rating ?? "",
+    message:     r.message ?? "",
+    name:        r.submitterName ?? "",
+    email:       r.submitterEmail ?? "",
+    phone:       r.submitterPhone ?? "",
+    gender:      r.gender ?? "",
+    state:       r.state ?? "",
+    wantsToJoin: r.wantsToJoin ?? "",
+    status:      r.status ?? "",
   }));
 }
 
@@ -462,13 +482,14 @@ function FeedbackSheet({ rows, onExport }: { rows: Record<string, unknown>[]; on
         <table style={{ width: "100%", borderCollapse: "collapse", tableLayout: "fixed" }}>
           <colgroup>
             <col style={{ width: "100px" }} /><col style={{ width: "80px" }} /><col style={{ width: "100px" }} />
-            <col style={{ width: "120px" }} /><col style={{ width: "260px" }} /><col style={{ width: "130px" }} />
-            <col style={{ width: "160px" }} /><col style={{ width: "90px" }} /><col style={{ width: "80px" }} />
+            <col style={{ width: "110px" }} /><col style={{ width: "220px" }} /><col style={{ width: "120px" }} />
+            <col style={{ width: "150px" }} /><col style={{ width: "80px" }} /><col style={{ width: "70px" }} />
+            <col style={{ width: "80px" }} /><col style={{ width: "80px" }} /><col style={{ width: "80px" }} />
             <col style={{ width: "80px" }} />
           </colgroup>
           <thead>
             <tr>
-              {["Date","Mode","Type","Page","Message","Name","Email","Phone","Wants to Join","Status"].map(h => (
+              {["Date","Mode","Type","Page","Message","Name","Email","Phone","Rating","Gender","State","Wants to Join","Status"].map(h => (
                 <th key={h} style={TH}>{h}</th>
               ))}
             </tr>
@@ -484,6 +505,11 @@ function FeedbackSheet({ rows, onExport }: { rows: Record<string, unknown>[]; on
                 <td style={TD}>{r.submitterName ?? "—"}</td>
                 <td style={TD}>{r.submitterEmail ? <a href={`mailto:${r.submitterEmail}`} style={{ color: "#2dd4bf", textDecoration: "none" }}>{r.submitterEmail}</a> : "—"}</td>
                 <td style={TD}>{r.submitterPhone ?? "—"}</td>
+                <td style={{ ...TD, color: "#eab308", fontFamily: "monospace" }}>
+                  {r.rating ? "★".repeat(r.rating) : "—"}
+                </td>
+                <td style={TD}>{r.gender ?? "—"}</td>
+                <td style={TD}>{r.state ?? "—"}</td>
                 <td style={TD}>{pill(r.wantsToJoin, { yes: "#22c55e", maybe: "#eab308", no: "#94a3b8" })}</td>
                 <td style={TD}>{pill(r.status)}</td>
               </tr>

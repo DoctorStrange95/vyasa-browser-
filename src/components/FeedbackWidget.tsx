@@ -3,83 +3,54 @@ import { useEffect, useState, useRef } from "react";
 import { usePathname } from "next/navigation";
 import states from "@/data/states.json";
 
-const LS_KEY      = "hfi_fb_v1";
-const COOLDOWN_MS = 3 * 24 * 60 * 60_000; // 3 days between prompts
-const SESSION_KEY = "hfi_fb_session";
-const PV_KEY      = "hfi_pv_count";
-const TRIGGER_PVS = 3;   // show after 3rd page view
-const TRIGGER_MS  = 45_000; // or after 45 seconds
+const LS_DONE_KEY  = "hfi_fb_done_v1"; // set after submission — never show again
+const INITIAL_MS   = 4_000;            // show chip 4s after first render
+const REAPPEAR_MS  = 12_000;           // reappear 12s after ✕ dismiss
+
+function hasDone(): boolean {
+  try { return !!localStorage.getItem(LS_DONE_KEY); } catch { return false; }
+}
+function markDone() {
+  try { localStorage.setItem(LS_DONE_KEY, "1"); } catch { /* */ }
+}
 
 interface UserInfo { name: string; email: string; }
 interface Props { user?: UserInfo | null; }
 
-function shouldShow(): boolean {
-  try {
-    if (sessionStorage.getItem(SESSION_KEY)) return false;
-    const raw = localStorage.getItem(LS_KEY);
-    if (!raw) return true;
-    const { lastShown } = JSON.parse(raw) as { lastShown: number };
-    return Date.now() - lastShown > COOLDOWN_MS;
-  } catch { return true; }
-}
-
-function markShown() {
-  try { localStorage.setItem(LS_KEY, JSON.stringify({ lastShown: Date.now() })); } catch { /* */ }
-}
-function markDismissed() {
-  try { sessionStorage.setItem(SESSION_KEY, "1"); } catch { /* */ }
-}
-
 export default function FeedbackWidget({ user }: Props) {
   const pathname = usePathname();
 
-  const [phase,   setPhase]   = useState<"hidden" | "chip" | "open" | "done">("hidden");
-  const [stars,   setStars]   = useState(0);
-  const [hover,   setHover]   = useState(0);
-  const [msg,     setMsg]     = useState("");
-  const [name,    setName]    = useState("");
-  const [email,   setEmail]   = useState("");
-  const [gender,  setGender]  = useState("");
-  const [state,   setState]   = useState("");
-  const [busy,    setBusy]    = useState(false);
-  const triggered = useRef(false);
+  const [phase,  setPhase]  = useState<"hidden" | "chip" | "open" | "done">("hidden");
+  const [stars,  setStars]  = useState(0);
+  const [hover,  setHover]  = useState(0);
+  const [msg,    setMsg]    = useState("");
+  const [name,   setName]   = useState("");
+  const [email,  setEmail]  = useState("");
+  const [gender, setGender] = useState("");
+  const [state,  setState]  = useState("");
+  const [busy,   setBusy]   = useState(false);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const blocked = pathname.startsWith("/admin") || pathname.startsWith("/auth");
 
-  // Increment page-view counter on every navigation
+  // Show chip after INITIAL_MS on first mount (unless already submitted)
   useEffect(() => {
-    if (blocked) return;
-    try {
-      const pv = Number(sessionStorage.getItem(PV_KEY) ?? "0") + 1;
-      sessionStorage.setItem(PV_KEY, String(pv));
-    } catch { /* */ }
-  }, [pathname, blocked]);
-
-  // Trigger logic
-  useEffect(() => {
-    if (blocked || triggered.current || !shouldShow()) return;
-
-    function fire() {
-      if (triggered.current) return;
-      triggered.current = true;
-      markShown();
-      setTimeout(() => setPhase("chip"), 600);
-    }
-
-    // Check current page-view count
-    const pv = Number(sessionStorage.getItem(PV_KEY) ?? "0");
-    if (pv >= TRIGGER_PVS) {
-      // Already hit threshold — fire after short delay
-      const t = setTimeout(fire, 1500);
-      return () => clearTimeout(t);
-    }
-
-    // Otherwise wait TRIGGER_MS
-    const t = setTimeout(fire, TRIGGER_MS);
+    if (blocked || hasDone()) return;
+    const t = setTimeout(() => setPhase("chip"), INITIAL_MS);
     return () => clearTimeout(t);
-  }, [pathname, blocked]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  function dismiss() { markDismissed(); setPhase("hidden"); }
+  // Cleanup reappear timer on unmount
+  useEffect(() => () => { if (timer.current) clearTimeout(timer.current); }, []);
+
+  function dismiss() {
+    setPhase("hidden");
+    // Schedule reappear — keeps persisting until user submits
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = setTimeout(() => {
+      if (!hasDone()) setPhase("chip");
+    }, REAPPEAR_MS);
+  }
 
   async function submit() {
     if (!stars) return;
@@ -100,12 +71,13 @@ export default function FeedbackWidget({ user }: Props) {
           state:          state  || null,
         }),
       });
+      markDone();
       setPhase("done");
-      setTimeout(dismiss, 2500);
+      setTimeout(() => setPhase("hidden"), 3000);
     } finally { setBusy(false); }
   }
 
-  if (phase === "hidden") return null;
+  if (blocked || phase === "hidden") return null;
 
   const inp: React.CSSProperties = {
     width: "100%", backgroundColor: "#060e1c", border: "1px solid #1e3a5f",
@@ -126,7 +98,7 @@ export default function FeedbackWidget({ user }: Props) {
       width:    phase === "chip" ? "auto" : "min(300px, calc(100vw - 2rem))",
     }}>
 
-      {/* ── Chip ───────────────────────────────────────────────────────── */}
+      {/* ── Chip ── */}
       {phase === "chip" && (
         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
           <button onClick={() => setPhase("open")} style={{
@@ -141,11 +113,14 @@ export default function FeedbackWidget({ user }: Props) {
             <span>⭐</span>
             <span>How&apos;s your experience?</span>
           </button>
-          <button onClick={dismiss} style={{ background: "none", border: "none", color: "#334155", cursor: "pointer", fontSize: "0.9rem", padding: "0.25rem" }}>✕</button>
+          <button onClick={dismiss} title="Dismiss" style={{
+            background: "none", border: "none", color: "#334155",
+            cursor: "pointer", fontSize: "0.9rem", padding: "0.25rem",
+          }}>✕</button>
         </div>
       )}
 
-      {/* ── Expanded form ──────────────────────────────────────────────── */}
+      {/* ── Expanded form ── */}
       {phase === "open" && (
         <div style={{
           backgroundColor: "#0a1628", border: "1px solid #1e3a5f",
@@ -153,7 +128,6 @@ export default function FeedbackWidget({ user }: Props) {
           padding: "1.1rem", boxShadow: "0 16px 48px #0008",
           animation: "fw-pop 0.28s cubic-bezier(0.34,1.56,0.64,1)",
         }}>
-          {/* Header */}
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.75rem" }}>
             <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#e2e8f0" }}>Rate your experience</span>
             <button onClick={dismiss} style={{ background: "none", border: "none", color: "#334155", cursor: "pointer", fontSize: "0.9rem", padding: 0 }}>✕</button>
@@ -176,14 +150,12 @@ export default function FeedbackWidget({ user }: Props) {
             ))}
           </div>
 
-          {/* Comment */}
           <textarea value={msg} onChange={e => setMsg(e.target.value)}
             placeholder="Tell us more… (optional)" rows={2}
             style={{ ...inp, resize: "vertical", marginBottom: "0.55rem" }}
             onFocus={focus} onBlur={blur}
           />
 
-          {/* Guest fields: name, email, gender, state */}
           {!user && (
             <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem", marginBottom: "0.6rem" }}>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.4rem" }}>
@@ -220,7 +192,7 @@ export default function FeedbackWidget({ user }: Props) {
         </div>
       )}
 
-      {/* ── Done ───────────────────────────────────────────────────────── */}
+      {/* ── Done ── */}
       {phase === "done" && (
         <div style={{
           backgroundColor: "#0a1628", border: "1px solid #1e3a5f",
