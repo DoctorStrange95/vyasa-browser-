@@ -40,12 +40,19 @@ interface WaitlistRow {
   status?: string; joinedAt?: string;
 }
 
+interface UserRow {
+  _id?: string; name?: string; email?: string; phone?: string;
+  age?: number; place?: string; authProvider?: string;
+  avatar?: string; createdAt?: string; lastLogin?: string;
+}
+
 type AllData = {
   phi: PHIRow[];
   idsp: { outbreaks?: IDSPRow[]; week?: number; year?: number; pdfUrl?: string; fetchedAt?: string } | null;
   submissions: SubRow[];
   feedback: FeedbackRow[];
   waitlist: WaitlistRow[];
+  users: UserRow[];
 };
 
 /* ── Style helpers ──────────────────────────────────────────────────────── */
@@ -109,6 +116,7 @@ function downloadCSV(name: string, rows: Record<string, unknown>[]) {
 const TABS = [
   { id: "phi",         label: "PHI Feed",          icon: "🛰" },
   { id: "idsp",        label: "IDSP Outbreaks",     icon: "🦠" },
+  { id: "users",       label: "Registered Users",   icon: "👤" },
   { id: "submissions", label: "Contributions",      icon: "📥" },
   { id: "feedback",    label: "Feedback & Reports", icon: "💬" },
   { id: "waitlist",    label: "Waitlist",            icon: "👥" },
@@ -135,11 +143,12 @@ export default function SourcesSheet() {
 
   /* ── counts for tab badges ── */
   const counts: Record<TabId, number> = {
-    phi:         data?.phi.length         ?? 0,
+    phi:         data?.phi.length              ?? 0,
     idsp:        data?.idsp?.outbreaks?.length ?? 0,
-    submissions: data?.submissions.length ?? 0,
-    feedback:    data?.feedback.length    ?? 0,
-    waitlist:    data?.waitlist.length    ?? 0,
+    users:       data?.users.length            ?? 0,
+    submissions: data?.submissions.length      ?? 0,
+    feedback:    data?.feedback.length         ?? 0,
+    waitlist:    data?.waitlist.length         ?? 0,
   };
 
   const q = search.toLowerCase();
@@ -217,6 +226,7 @@ export default function SourcesSheet() {
           <>
             {tab === "phi"         && <PHISheet         rows={filter((data?.phi ?? []) as Record<string, unknown>[])}         onExport={() => downloadCSV("phi_feed", toPHIExport(data?.phi ?? []))} />}
             {tab === "idsp"        && <IDSPSheet        rows={filter((data?.idsp?.outbreaks ?? []) as Record<string, unknown>[])} meta={data?.idsp ?? null} onExport={() => downloadCSV("idsp_outbreaks", (data?.idsp?.outbreaks ?? []) as Record<string, unknown>[])} />}
+            {tab === "users"       && <UsersSheet       rows={filter((data?.users ?? []) as Record<string, unknown>[])}          onExport={() => downloadCSV("users", toUsersExport(data?.users ?? []))} />}
             {tab === "submissions" && <SubSheet         rows={filter((data?.submissions ?? []) as Record<string, unknown>[])}    onExport={() => downloadCSV("submissions", toSubExport(data?.submissions ?? []))} />}
             {tab === "feedback"    && <FeedbackSheet    rows={filter((data?.feedback ?? []) as Record<string, unknown>[])}       onExport={() => downloadCSV("feedback", (data?.feedback ?? []) as Record<string, unknown>[])} />}
             {tab === "waitlist"    && <WaitlistSheet    rows={filter((data?.waitlist ?? []) as Record<string, unknown>[])}       onExport={() => downloadCSV("waitlist", toWaitlistExport(data?.waitlist ?? []))} />}
@@ -534,4 +544,68 @@ function WaitlistSheet({ rows, onExport }: { rows: Record<string, unknown>[]; on
       </div>
     </>
   );
+}
+
+/* ══════════════════════ REGISTERED USERS ══════════════════════════════════ */
+function UsersSheet({ rows, onExport }: { rows: Record<string, unknown>[]; onExport: () => void }) {
+  const typed = rows as UserRow[];
+  const AUTH_C: Record<string, string> = { google: "#4285F4", email: "#0d9488", phone: "#eab308" };
+  return (
+    <>
+      <SheetHeader count={typed.length} onExport={onExport} />
+      <div style={{ overflowX: "auto" }}>
+        <table style={{ width: "100%", borderCollapse: "collapse", tableLayout: "fixed" }}>
+          <colgroup>
+            <col style={{ width: "110px" }} /><col style={{ width: "160px" }} /><col style={{ width: "200px" }} />
+            <col style={{ width: "110px" }} /><col style={{ width: "50px" }} /><col style={{ width: "130px" }} />
+            <col style={{ width: "110px" }} /><col style={{ width: "110px" }} />
+          </colgroup>
+          <thead>
+            <tr>
+              {["Joined","Name","Email","Phone","Age","State","Sign-in Method","Last Login"].map(h => (
+                <th key={h} style={TH}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {typed.length === 0 ? <EmptyRow /> : typed
+              .slice()
+              .sort((a, b) => (b.createdAt ?? "").localeCompare(a.createdAt ?? ""))
+              .map((r, i) => (
+                <tr key={r._id ?? i} style={{ backgroundColor: i % 2 === 0 ? "transparent" : "#0b1a2e" }}>
+                  <td style={TD}>{fmtDate(r.createdAt)}</td>
+                  <td style={{ ...TD, color: "#e2e8f0", fontWeight: 500 }}>{r.name ?? "—"}</td>
+                  <td style={TD}>
+                    {r.email ? <a href={`mailto:${r.email}`} style={{ color: "#2dd4bf", textDecoration: "none" }}>{r.email}</a> : "—"}
+                  </td>
+                  <td style={TD}>{r.phone ?? "—"}</td>
+                  <td style={TD}>{r.age ?? "—"}</td>
+                  <td style={TD}>{r.place ?? "—"}</td>
+                  <td style={TD}>
+                    <span style={PILL(AUTH_C[r.authProvider ?? "email"] ?? "#94a3b8")}>
+                      {r.authProvider ?? "email"}
+                    </span>
+                  </td>
+                  <td style={{ ...TD, fontFamily: "'IBM Plex Mono', monospace", fontSize: "0.7rem" }}>{fmtDate(r.lastLogin)}</td>
+                </tr>
+              ))}
+          </tbody>
+        </table>
+      </div>
+    </>
+  );
+}
+
+function toUsersExport(rows: UserRow[]): Record<string, unknown>[] {
+  return rows.map(r => ({
+    id:           r._id ?? "",
+    name:         r.name ?? "",
+    email:        r.email ?? "",
+    phone:        r.phone ?? "",
+    age:          r.age ?? "",
+    state:        r.place ?? "",
+    authProvider: r.authProvider ?? "email",
+    createdAt:    r.createdAt ?? "",
+    lastLogin:    r.lastLogin ?? "",
+  }));
 }

@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
 import { getAdminSession } from "@/lib/auth";
-import { adminList, adminGet, adminQuery } from "@/lib/firestore-admin";
+import { adminList, adminQuery } from "@/lib/firestore-admin";
 import { fsGet } from "@/lib/firestore";
 
 export async function GET() {
   const isAdmin = await getAdminSession();
   if (!isAdmin) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const [phi, submissions, waitlist, idspRaw, feedbackDoc] = await Promise.allSettled([
+  const [phi, submissions, waitlist, idspRaw, feedback, users] = await Promise.allSettled([
     Promise.all([
       adminQuery("ph_intelligence", "status", "live",     500),
       adminQuery("ph_intelligence", "status", "pending",  200),
@@ -15,12 +15,13 @@ export async function GET() {
     ]).then(([live, pending, rejected]) => [...live, ...pending, ...rejected]),
     adminList("pendingSubmissions", 300),
     adminList("waitlist", 500),
-    fsGet("idsp_weekly", "latest_v3"),           // public-readable, REST helper fine
-    adminGet("feedback", "all"),
+    fsGet("idsp_weekly", "latest_v3"),
+    adminList("feedback", 500),
+    adminList("users", 500),
   ]);
 
   // Surface service-account errors so the admin UI can show an actionable banner
-  const firstErr = [phi, submissions, waitlist, feedbackDoc]
+  const firstErr = [phi, submissions, waitlist, feedback, users]
     .find(r => r.status === "rejected")
     ?.reason as Error | undefined;
   const adminError = firstErr?.message?.includes("FIREBASE_SERVICE_ACCOUNT_KEY")
@@ -35,8 +36,7 @@ export async function GET() {
     submissions: submissions.status === "fulfilled" ? submissions.value : [],
     waitlist:    waitlist.status    === "fulfilled" ? waitlist.value    : [],
     idsp:        idspRaw.status     === "fulfilled" ? (idspRaw.value as Record<string, unknown> | null) : null,
-    feedback:    feedbackDoc.status === "fulfilled"
-                   ? ((feedbackDoc.value as { items?: unknown[] } | null)?.items ?? [])
-                   : [],
+    feedback:    feedback.status    === "fulfilled" ? feedback.value    : [],
+    users:       users.status       === "fulfilled" ? users.value       : [],
   });
 }

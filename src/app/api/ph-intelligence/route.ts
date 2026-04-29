@@ -50,8 +50,11 @@ function readJsonFallback(): CacheDoc {
 /** Save new items to ph_intelligence Firestore collection for admin review (admin SDK) */
 async function saveItemsForReview(items: PHItem[]): Promise<number> {
   try {
-    const existing   = await adminList("ph_intelligence", 2000);
-    const existingIds = new Set(existing.map(d => d._id as string));
+    const existing    = await adminList("ph_intelligence", 2000);
+    const oneDayAgo   = new Date(Date.now() - 86_400_000).toISOString();
+    const existingIds = new Set(
+      existing.filter(d => (d.scrapedAt as string ?? "") > oneDayAgo).map(d => d._id)
+    );
     const db = getAdminDb();
     let saved = 0;
 

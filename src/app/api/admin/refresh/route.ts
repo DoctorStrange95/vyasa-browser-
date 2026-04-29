@@ -122,10 +122,13 @@ export async function POST(req: Request) {
       const payload = { ...data, refreshedAt: new Date().toISOString() };
       await writeCacheSafe(PHI_CACHE, PHI_TMP, JSON.stringify(payload, null, 2));
 
-      // Save new items to Firestore for admin review
+      // Save new items to Firestore — only skip items already scraped in the last 24 hours
       const { adminList, getAdminDb } = await import("@/lib/firestore-admin");
       const existing    = await adminList("ph_intelligence", 2000);
-      const existingIds = new Set(existing.map((d: { _id: string }) => d._id));
+      const oneDayAgo   = new Date(Date.now() - 86_400_000).toISOString();
+      const existingIds = new Set(
+        existing.filter(d => (d.scrapedAt as string ?? "") > oneDayAgo).map(d => d._id)
+      );
       const db = getAdminDb();
       let saved = 0;
       await Promise.allSettled(
