@@ -339,11 +339,19 @@ export default function DashboardPage() {
               <div style={{ fontWeight: 700, color: "#fbbf24", fontSize: "0.88rem" }}>📌 My States Dashboard</div>
               <span style={{ fontSize: "0.65rem", color: "#334155" }}>Pin states to compare</span>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: `repeat(${Math.min(orderedPinned.length, 3)}, 1fr)`, gap: "0.65rem" }}>
+            <div style={{
+              display: "flex",
+              gap: "0.65rem",
+              overflowX: "auto",
+              scrollSnapType: "x mandatory",
+              WebkitOverflowScrolling: "touch",
+              paddingBottom: "0.25rem",
+              scrollbarWidth: "none",
+            }}>
               {orderedPinned.map(s => {
                 const ayushCount = getAyush(s.slug, s.name);
                 return (
-                  <div key={s.slug} style={{ background: "#071428", border: `1px solid ${s.slug === detected?.slug ? "#3b82f680" : "#1e3a5f"}`, borderRadius: "12px", padding: "0.9rem 1rem", position: "relative", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                  <div key={s.slug} style={{ background: "#071428", border: `1px solid ${s.slug === detected?.slug ? "#3b82f680" : "#1e3a5f"}`, borderRadius: "12px", padding: "0.9rem 1rem", position: "relative", display: "flex", flexDirection: "column", gap: "0.5rem", minWidth: "min(260px, 80vw)", flexShrink: 0, scrollSnapAlign: "start" }}>
                     <button onClick={e => { e.stopPropagation(); togglePin(s.slug); }} style={{ position: "absolute", top: "0.5rem", right: "0.5rem", background: "none", border: "none", color: "#475569", cursor: "pointer", fontSize: "0.75rem", padding: "0.1rem 0.3rem" }} title="Remove">✕</button>
                     <button style={{ all: "unset", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.5rem" }} onClick={() => setDetected(s)}>
                       <div style={{ width: "36px", height: "36px", borderRadius: "50%", border: `3px solid ${scoreColor(s.healthScore)}`, display: "flex", alignItems: "center", justifyContent: "center", background: "#060e1c", flexShrink: 0 }}>
