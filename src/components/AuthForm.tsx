@@ -59,8 +59,9 @@ export default function AuthForm({ redirectTo = "/profile", initialMode = "regis
         router.refresh();
       } catch (e: unknown) {
         const code = (e as { code?: string })?.code ?? "";
-        // Only surface real errors, not "no redirect was in progress"
-        if (code && code !== "auth/no-auth-event") {
+        // Suppress expected non-errors: no redirect in progress, or stale failed redirect
+        const silent = ["auth/no-auth-event", "auth/internal-error", "auth/redirect-cancelled-by-user"];
+        if (code && !silent.includes(code)) {
           setErrMsg(`Google error: ${code}`);
         }
       }
