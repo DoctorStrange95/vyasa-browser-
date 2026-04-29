@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import VyasaLogo from "@/components/VyasaLogo";
@@ -41,6 +41,10 @@ function Toast({ msg, type }: { msg: string; type: "ok" | "err" }) {
 const VALID_TABS: Tab[] = ["overview", "edit", "password", "submissions", "symptoms", "feedback"];
 
 export default function ProfilePage() {
+  return <Suspense fallback={null}><ProfilePageInner /></Suspense>;
+}
+
+function ProfilePageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialTab = (searchParams.get("tab") ?? "overview") as Tab;

@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { Suspense } from "react";
 import "./globals.css";
 import Header from "@/components/Header";
 import GlobalSidebar from "@/components/GlobalSidebar";
@@ -116,7 +117,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <Header user={session} uiConfig={uiConfig} />
         <div style={{ height: "64px", flexShrink: 0 }} />
         <div style={{ display: "flex", alignItems: "flex-start" }}>
-          <GlobalSidebar user={session} uiConfig={uiConfig} />
+          <Suspense fallback={null}>
+            <GlobalSidebar user={session} uiConfig={uiConfig} />
+          </Suspense>
           <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", minHeight: "calc(100vh - 64px)" }}>
             <main style={{ flex: 1 }}>{children}</main>
             <Footer />
