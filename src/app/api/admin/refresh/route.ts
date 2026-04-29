@@ -107,8 +107,31 @@ export async function POST(req: Request) {
       const data = await collectPHIntelligence();
       const payload = { ...data, refreshedAt: new Date().toISOString() };
       await writeCacheSafe(PHI_CACHE, PHI_TMP, JSON.stringify(payload, null, 2));
-      results["ph-intelligence"] = { ok: true, items: data.items.length, sources: data.sources.length };
-      log.push(`✓ PH Intelligence: ${data.items.length} items from ${data.sources.length} sources`);
+
+      // Save new items to Firestore for admin review
+      const { adminList, getAdminDb } = await import("@/lib/firestore-admin");
+      const existing    = await adminList("ph_intelligence", 2000);
+      const existingIds = new Set(existing.map((d: { _id: string }) => d._id));
+      const db = getAdminDb();
+      let saved = 0;
+      await Promise.allSettled(
+        data.items.slice(0, 80).map(async (item) => {
+          try {
+            const raw = `${item.type}::${item.disease ?? item.program ?? ""}::${item.location.state}::${item.title.slice(0, 40)}`;
+            const id  = Buffer.from(raw).toString("base64").replace(/[/+=]/g, "_").slice(0, 100);
+            if (!existingIds.has(id)) {
+              await db.collection("ph_intelligence").doc(id).set({
+                ...(item as unknown as Record<string, unknown>),
+                status: "pending", scrapedAt: new Date().toISOString(),
+              });
+              saved++;
+            }
+          } catch { /* silent */ }
+        })
+      );
+
+      results["ph-intelligence"] = { ok: true, items: data.items.length, newPending: saved, sources: data.sources.length };
+      log.push(`✓ PH Intelligence: ${data.items.length} items, ${saved} new saved to Firestore for review`);
       revalidatePath("/");
     } catch (e) { log.push(`✗ PH Intelligence refresh failed: ${e}`); results["ph-intelligence"] = { ok: false }; }
   }

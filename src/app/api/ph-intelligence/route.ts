@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
 import { fsGet, fsSet } from "@/lib/firestore";
+import { adminList, getAdminDb } from "@/lib/firestore-admin";
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 const CACHE_FILE   = path.join(process.cwd(), "src/data/ph-intelligence-cache.json");
@@ -46,27 +47,32 @@ function readJsonFallback(): CacheDoc {
   catch { return { refreshedAt: "", items: [], sources: [], errors: [] }; }
 }
 
-/** Save individual items to ph_intelligence collection for admin review */
-async function saveItemsForReview(items: PHItem[]): Promise<void> {
-  const { fsExists, fsSet: fsSave } = await import("@/lib/firestore");
-  const batchSize = 10;
-  for (let i = 0; i < Math.min(items.length, 50); i += batchSize) {
+/** Save new items to ph_intelligence Firestore collection for admin review (admin SDK) */
+async function saveItemsForReview(items: PHItem[]): Promise<number> {
+  try {
+    const existing   = await adminList("ph_intelligence", 2000);
+    const existingIds = new Set(existing.map(d => d._id as string));
+    const db = getAdminDb();
+    let saved = 0;
+
     await Promise.allSettled(
-      items.slice(i, i + batchSize).map(async item => {
+      items.slice(0, 80).map(async item => {
         try {
           const raw = `${item.type}::${item.disease ?? item.program ?? ""}::${item.location.state}::${item.title.slice(0, 40)}`;
           const id  = Buffer.from(raw).toString("base64").replace(/[/+=]/g, "_").slice(0, 100);
-          if (!(await fsExists("ph_intelligence", id))) {
-            await fsSave("ph_intelligence", id, {
+          if (!existingIds.has(id)) {
+            await db.collection("ph_intelligence").doc(id).set({
               ...(item as unknown as Record<string, unknown>),
               status:    "pending",
               scrapedAt: new Date().toISOString(),
             });
+            saved++;
           }
         } catch { /* silent */ }
       })
     );
-  }
+    return saved;
+  } catch { return 0; }
 }
 
 // ── GET handler ────────────────────────────────────────────────────────────────

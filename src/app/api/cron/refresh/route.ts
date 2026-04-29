@@ -106,7 +106,30 @@ export async function GET(req: Request) {
       errors:      result.errors,
     };
     await writeCacheSafe(PHI_DEFAULT, PHI_TMP, JSON.stringify(payload, null, 2));
-    log.push(`✓ PH Intelligence: ${result.items.length} items collected (${result.sources.length} sources)`);
+
+    // Save new items to Firestore ph_intelligence for admin review
+    const { adminList, getAdminDb } = await import("@/lib/firestore-admin");
+    const existing    = await adminList("ph_intelligence", 2000);
+    const existingIds = new Set(existing.map((d: { _id: string }) => d._id));
+    const db = getAdminDb();
+    let saved = 0;
+    await Promise.allSettled(
+      result.items.slice(0, 80).map(async (item) => {
+        try {
+          const raw = `${item.type}::${item.disease ?? item.program ?? ""}::${item.location.state}::${item.title.slice(0, 40)}`;
+          const id  = Buffer.from(raw).toString("base64").replace(/[/+=]/g, "_").slice(0, 100);
+          if (!existingIds.has(id)) {
+            await db.collection("ph_intelligence").doc(id).set({
+              ...(item as unknown as Record<string, unknown>),
+              status: "pending", scrapedAt: new Date().toISOString(),
+            });
+            saved++;
+          }
+        } catch { /* silent */ }
+      })
+    );
+
+    log.push(`✓ PH Intelligence: ${result.items.length} items collected, ${saved} new saved to Firestore`);
     if (result.errors.length) log.push(`  ⚠ PH errors: ${result.errors.slice(0, 3).join("; ")}`);
   } catch (e) { errors.push(`✗ PH Intelligence: ${e}`); }
 
