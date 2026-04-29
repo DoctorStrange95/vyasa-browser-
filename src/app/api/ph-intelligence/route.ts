@@ -59,7 +59,8 @@ async function saveItemsForReview(items: PHItem[]): Promise<number> {
     await Promise.allSettled(
       items.slice(0, 80).map(async item => {
         try {
-          const raw = `${item.type}::${item.disease ?? item.program ?? ""}::${item.location.state}::${item.title.slice(0, 40)}`;
+          const urlPart = item.sourceUrl ? item.sourceUrl.replace(/[^a-zA-Z0-9]/g, "").slice(-40) : item.title.slice(40, 80);
+          const raw = `${item.type}::${item.disease ?? item.program ?? ""}::${item.location.state}::${item.title.slice(0, 40)}::${urlPart}`;
           const id  = Buffer.from(raw).toString("base64").replace(/[/+=]/g, "_").slice(0, 100);
           if (!existingIds.has(id)) {
             await db.collection("ph_intelligence").doc(id).set({
