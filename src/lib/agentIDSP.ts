@@ -236,7 +236,7 @@ async function fetchPIBFeed(): Promise<PHIntelligenceItem[]> {
   try {
     const res = await fetch(
       "https://pib.gov.in/RssMain.aspx?ModId=6&Lang=1&Regid=3",
-      { headers: { "User-Agent": "HealthForIndia/2.0 (+https://healthforindia.in)" }, next: { revalidate: 0 }, signal: AbortSignal.timeout(8000) }
+      { headers: { "User-Agent": "HealthForIndia/2.0 (+https://healthforindia.in)" }, redirect: "follow", next: { revalidate: 0 }, signal: AbortSignal.timeout(8000) }
     );
     if (!res.ok) return items;
     const xml   = await res.text();
@@ -505,60 +505,21 @@ async function fetchTheHinduHealth(): Promise<PHIntelligenceItem[]> {
   );
 }
 
-// ── Source 8: NDTV Health RSS ─────────────────────────────────────────────────
-async function fetchNDTVHealth(): Promise<PHIntelligenceItem[]> {
-  // Try both known NDTV feed URLs
-  const feeds = [
-    "https://feeds.feedburner.com/ndtvnews-health",
-    "https://www.ndtv.com/rss/health",
-  ];
-  for (const url of feeds) {
-    const items = await fetchRSS(url, "NDTV Health", "High", 12, false);
-    if (items.length > 0) return items;
-  }
-  return [];
-}
-
-// ── Source 9: Times of India Health RSS ────────────────────────────────────────
-async function fetchTOIHealth(): Promise<PHIntelligenceItem[]> {
+// ── Source 8: Indian Express Health RSS ──────────────────────────────────────
+async function fetchIndianExpressHealth(): Promise<PHIntelligenceItem[]> {
   return fetchRSS(
-    "https://timesofindia.indiatimes.com/rssfeeds/3908837.cms",
-    "Times of India Health",
+    "https://indianexpress.com/section/health/feed/",
+    "Indian Express Health",
     "High",
-    12,
+    20,
     false,
   );
 }
 
-// ── Source 10: The Wire Science & Health ──────────────────────────────────────
-async function fetchTheWireScience(): Promise<PHIntelligenceItem[]> {
-  return fetchRSS(
-    "https://thewire.in/category/health/feed",
-    "The Wire Science",
-    "High",
-    10,
-    false,
-  );
-}
-
-// ── Source 11: Hindustan Times Health ─────────────────────────────────────────
-async function fetchHTHealth(): Promise<PHIntelligenceItem[]> {
-  const feeds = [
-    "https://www.hindustantimes.com/feeds/rss/health/rssfeed.xml",
-    "https://www.hindustantimes.com/rss/health/story-9Yq1BqV5JsWWI7xJIpS8YO.rss",
-  ];
-  for (const url of feeds) {
-    const items = await fetchRSS(url, "Hindustan Times Health", "High", 10, false);
-    if (items.length > 0) return items;
-  }
-  return [];
-}
-
-// ── Source 12: WHO News (India-filtered) ──────────────────────────────────────
+// ── Source 9: WHO News (India-filtered) ───────────────────────────────────────
 async function fetchWHONews(): Promise<PHIntelligenceItem[]> {
   const feeds = [
     "https://www.who.int/rss-feeds/news-releases.xml",
-    "https://www.who.int/feeds/entity/csr/don/en/rss.xml",
   ];
   const items: PHIntelligenceItem[] = [];
   for (const url of feeds) {
@@ -567,17 +528,6 @@ async function fetchWHONews(): Promise<PHIntelligenceItem[]> {
     if (items.length >= 8) break;
   }
   return items.slice(0, 8);
-}
-
-// ── Source 13: ANI Health News ────────────────────────────────────────────────
-async function fetchANIHealth(): Promise<PHIntelligenceItem[]> {
-  return fetchRSS(
-    "https://www.aninews.in/rss/health.xml",
-    "ANI Health News",
-    "High",
-    10,
-    false,
-  );
 }
 
 // ── Deduplication ──────────────────────────────────────────────────────────────
@@ -608,19 +558,14 @@ export async function runIDSPAgent(): Promise<{
     fetchGoogleNewsIDSP(),
     fetchOutbreakNewsFeed(),
     fetchTheHinduHealth(),
-    fetchNDTVHealth(),
-    fetchTOIHealth(),
-    fetchTheWireScience(),
-    fetchHTHealth(),
+    fetchIndianExpressHealth(),
     fetchWHONews(),
-    fetchANIHealth(),
   ]);
 
   const labels = [
     "PIB", "MoHFW", "IDSP data.gov.in", "NHP/NCDC",
     "Google News", "Outbreak News Today",
-    "The Hindu Health", "NDTV Health", "Times of India",
-    "The Wire Science", "Hindustan Times", "WHO News", "ANI Health",
+    "The Hindu Health", "Indian Express Health", "WHO News",
   ];
 
   const all: PHIntelligenceItem[] = [];
@@ -641,7 +586,7 @@ export async function runIDSPAgent(): Promise<{
   };
 
   const sorted = dedup(all)
-    .filter(item => ageDays(item.date ?? "") <= 7)
+    .filter(item => ageDays(item.date ?? "") <= 30)
     .sort((a, b) => {
       const c = (confScore[b.confidence] ?? 0) - (confScore[a.confidence] ?? 0);
       if (c !== 0) return c;

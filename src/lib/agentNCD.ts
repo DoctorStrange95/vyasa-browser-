@@ -23,6 +23,7 @@ import type { PHIntelligenceItem } from "./phIntelligence";
 
 const GOV_KEY = process.env.DATA_GOV_IN_API_KEY ?? "";
 const BASE    = "https://api.data.gov.in/resource";
+const CURRENT_YEAR = new Date().getFullYear();
 
 // ── NCD disease / condition keywords ─────────────────────────────────────────
 const NCD_DISEASE_DICT: Record<string, string> = {
@@ -241,7 +242,7 @@ async function fetchPIBNCD(): Promise<PHIntelligenceItem[]> {
   try {
     const res = await fetch(
       "https://pib.gov.in/RssMain.aspx?ModId=6&Lang=1&Regid=3",
-      { headers: { "User-Agent": "HealthForIndia/2.0" }, next: { revalidate: 0 }, signal: AbortSignal.timeout(8000) }
+      { headers: { "User-Agent": "HealthForIndia/2.0" }, redirect: "follow", next: { revalidate: 0 }, signal: AbortSignal.timeout(8000) }
     );
     if (!res.ok) return items;
     const xml    = await res.text();
@@ -343,9 +344,9 @@ async function fetchDataGovNCD(): Promise<PHIntelligenceItem[]> {
 async function fetchGoogleNewsNCD(): Promise<PHIntelligenceItem[]> {
   const items: PHIntelligenceItem[] = [];
   const queries = [
-    "India+heart+attack+stroke+cardiovascular+health+2025",
-    "India+cancer+diabetes+NCD+non-communicable+disease",
-    "India+COPD+kidney+disease+NAFLD+fatty+liver+health",
+    `India+heart+attack+stroke+cardiovascular+health+${CURRENT_YEAR}`,
+    `India+cancer+diabetes+NCD+non-communicable+disease+${CURRENT_YEAR}`,
+    `India+COPD+kidney+disease+NAFLD+fatty+liver+health+${CURRENT_YEAR}`,
   ];
   for (const q of queries) {
     try {
@@ -407,6 +408,33 @@ async function fetchICMRWHONCD(): Promise<PHIntelligenceItem[]> {
   return items.slice(0, 10);
 }
 
+// ── Source 6: Indian Express Health RSS ──────────────────────────────────────
+async function fetchIndianExpressNCD(): Promise<PHIntelligenceItem[]> {
+  const items: PHIntelligenceItem[] = [];
+  try {
+    const res = await fetch("https://indianexpress.com/section/health/feed/", {
+      headers: { "User-Agent": "HealthForIndia/2.0 (+https://healthforindia.in)" },
+      next:    { revalidate: 0 },
+      signal:  AbortSignal.timeout(8000),
+    });
+    if (!res.ok) return items;
+    const xml    = await res.text();
+    const itemRE = /<item>([\s\S]*?)<\/item>/gi;
+    let m: RegExpExecArray | null;
+    while ((m = itemRE.exec(xml)) !== null && items.length < 20) {
+      const b       = m[1];
+      const title   = stripHtml(b.match(/<title><!\[CDATA\[([\s\S]*?)\]\]><\/title>/)?.[1] ?? b.match(/<title>([\s\S]*?)<\/title>/)?.[1] ?? "");
+      const desc    = stripHtml(b.match(/<description><!\[CDATA\[([\s\S]*?)\]\]><\/description>/)?.[1] ?? b.match(/<description>([\s\S]*?)<\/description>/)?.[1] ?? "");
+      const link    = (b.match(/<link>([\s\S]*?)<\/link>/)?.[1] ?? b.match(/<guid[^>]*>([\s\S]*?)<\/guid>/)?.[1] ?? "").trim();
+      const pubDate = b.match(/<pubDate>([\s\S]*?)<\/pubDate>/)?.[1] ?? "";
+      if (!title) continue;
+      const item = makeNCDItem(title, desc, link, pubDate, "Indian Express Health", "High");
+      if (item) items.push(item);
+    }
+  } catch { /* silent */ }
+  return items;
+}
+
 // ── Deduplication ──────────────────────────────────────────────────────────────
 function dedup(items: PHIntelligenceItem[]): PHIntelligenceItem[] {
   const seen = new Set<string>();
@@ -427,12 +455,13 @@ export async function runNCDAgent(): Promise<{
   const errors:  string[] = [];
   const sources: string[] = [];
 
-  const [pib, mohfw, dataGov, gnews, icmr] = await Promise.allSettled([
+  const [pib, mohfw, dataGov, gnews, icmr, ieHealth] = await Promise.allSettled([
     fetchPIBNCD(),
     fetchMoHFWNCD(),
     fetchDataGovNCD(),
     fetchGoogleNewsNCD(),
     fetchICMRWHONCD(),
+    fetchIndianExpressNCD(),
   ]);
 
   const all: PHIntelligenceItem[] = [];
@@ -446,14 +475,15 @@ export async function runNCDAgent(): Promise<{
     }
   };
 
-  add(pib,    "PIB NCD");
-  add(mohfw,  "MoHFW NCD");
-  add(dataGov,"data.gov.in NCD");
-  add(gnews,  "Google News NCD");
-  add(icmr,   "ICMR/WHO India");
+  add(pib,      "PIB NCD");
+  add(mohfw,    "MoHFW NCD");
+  add(dataGov,  "data.gov.in NCD");
+  add(gnews,    "Google News NCD");
+  add(icmr,     "ICMR/WHO India");
+  add(ieHealth, "Indian Express Health");
 
   const sorted = dedup(all)
-    .filter(item => ageDays(item.date ?? "") <= 7)
+    .filter(item => ageDays(item.date ?? "") <= 30)
     .sort((a, b) => {
       const cs = { High: 3, Medium: 2, Low: 1 };
       const c  = cs[b.confidence] - cs[a.confidence];
