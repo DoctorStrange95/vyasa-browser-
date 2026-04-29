@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAdminSession } from "@/lib/auth";
+import { getUserSession } from "@/lib/userAuth";
 import { adminAdd, adminList, adminUpdate, adminGet } from "@/lib/firestore-admin";
 
 const COLLECTION = "feedback";
@@ -27,6 +28,9 @@ export async function POST(req: Request) {
   const body = await req.json().catch(() => null);
   if (!body) return NextResponse.json({ error: "Invalid request." }, { status: 400 });
 
+  // Auto-populate submitter info from session for logged-in users
+  const session = await getUserSession().catch(() => null);
+
   const item = {
     mode:           body.mode === "report" ? "report" : "feedback",
     type:           body.type ?? "general",
@@ -36,9 +40,12 @@ export async function POST(req: Request) {
     message:        body.message ?? "",
     currentValue:   body.currentValue || null,
     suggestedValue: body.suggestedValue || null,
-    submitterName:  body.submitterName || body.name || null,
-    submitterEmail: body.submitterEmail || body.email || null,
-    submitterPhone: body.phone || null,
+    submitterName:  session?.name  || body.submitterName || body.name  || null,
+    submitterEmail: session?.email || body.submitterEmail || body.email || null,
+    submitterUid:   session?.uid   || null,
+    submitterPhone: body.phone     || null,
+    gender:         body.gender    || null,
+    state:          body.state     || null,
     wantsToJoin:    body.wantsToJoin || null,
     timestamp:      new Date().toISOString(),
     status:         "open",
