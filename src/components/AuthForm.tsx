@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import states from "@/data/states.json";
 
@@ -37,29 +37,45 @@ export default function AuthForm({ redirectTo = "/profile", initialMode = "regis
   const [errMsg,       setErrMsg]      = useState("");
   const [googleLoading, setGoogleLoading] = useState(false);
 
+  // Handle Google redirect result on mount (fired after signInWithRedirect returns)
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const { getRedirectResult } = await import("firebase/auth");
+        const { clientAuth } = await import("@/lib/firebaseClient");
+        const result = await getRedirectResult(clientAuth);
+        if (!result || cancelled) return;
+        setGoogleLoading(true);
+        const idToken = await result.user.getIdToken();
+        const res  = await fetch("/api/auth/google", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ idToken }),
+        });
+        const data = await res.json();
+        if (!res.ok) { setErrMsg(data.error ?? "Google sign-in failed."); setGoogleLoading(false); return; }
+        router.push(redirectTo);
+        router.refresh();
+      } catch { /* no redirect in progress — normal */ }
+    })();
+    return () => { cancelled = true; };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   async function signInWithGoogle() {
     setGoogleLoading(true);
     setErrMsg("");
     try {
-      const { signInWithPopup, GoogleAuthProvider } = await import("firebase/auth");
+      const { signInWithRedirect, GoogleAuthProvider } = await import("firebase/auth");
       const { clientAuth } = await import("@/lib/firebaseClient");
-      const result  = await signInWithPopup(clientAuth, new GoogleAuthProvider());
-      const idToken = await result.user.getIdToken();
-
-      const res  = await fetch("/api/auth/google", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ idToken }),
-      });
-      const data = await res.json();
-      if (!res.ok) { setErrMsg(data.error ?? "Google sign-in failed."); setGoogleLoading(false); return; }
-      router.push(redirectTo);
-      router.refresh();
+      await signInWithRedirect(clientAuth, new GoogleAuthProvider());
+      // Page navigates away — result handled in the useEffect above on return
     } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : "";
-      // Ignore user-closed popup
-      if (!msg.includes("popup-closed") && !msg.includes("cancelled")) {
-        setErrMsg("Google sign-in failed. Please try again.");
+      const code = (e as { code?: string })?.code ?? "";
+      if (code === "auth/unauthorized-domain") {
+        setErrMsg("This domain is not authorised in Firebase. Ask admin to add it under Authentication → Settings → Authorized domains.");
+      } else {
+        setErrMsg((e instanceof Error ? e.message : String(e)) || "Google sign-in failed. Please try again.");
       }
       setGoogleLoading(false);
     }
