@@ -72,39 +72,17 @@ export default function AuthForm({ redirectTo = "/profile", initialMode = "regis
     setGoogleLoading(true);
     setErrMsg("");
     try {
-      // Try popup first (instant UX); fall back to redirect if popup is blocked
-      const { signInWithPopup, signInWithRedirect, GoogleAuthProvider } = await import("firebase/auth");
+      // Always use redirect — more reliable than popup in production
+      const { signInWithRedirect, GoogleAuthProvider } = await import("firebase/auth");
       const { clientAuth } = await import("@/lib/firebaseClient");
       const provider = new GoogleAuthProvider();
-      let result;
-      try {
-        result = await signInWithPopup(clientAuth, provider);
-      } catch (popupErr: unknown) {
-        const c = (popupErr as { code?: string })?.code ?? "";
-        if (c === "auth/popup-blocked" || c === "auth/popup-cancelled" || c === "auth/cancelled-popup-request") {
-          // Popup blocked — fall back to full-page redirect
-          await signInWithRedirect(clientAuth, provider);
-          return; // page navigates away; useEffect handles the result on return
-        }
-        throw popupErr; // re-throw real errors (wrong domain etc.)
-      }
-      const idToken = await result.user.getIdToken();
-      const res  = await fetch("/api/auth/google", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ idToken }),
-      });
-      const data = await res.json();
-      if (!res.ok) { setErrMsg(data.error ?? "Google sign-in failed."); setGoogleLoading(false); return; }
-      router.push(redirectTo);
-      router.refresh();
+      await signInWithRedirect(clientAuth, provider);
+      // page navigates away; useEffect handles the result on return
     } catch (e: unknown) {
       const code = (e as { code?: string })?.code ?? "";
       const msg  = e instanceof Error ? e.message : String(e);
       if (code === "auth/unauthorized-domain") {
-        setErrMsg("Domain not authorised — admin must add vyasaa.com to Firebase Auth → Settings → Authorized domains.");
-      } else if (code === "auth/popup-closed-by-user") {
-        // user closed popup, not an error
+        setErrMsg("Domain not authorised in Firebase. Go to Firebase Console → Authentication → Settings → Authorized domains and add vyasaa.com.");
       } else {
         setErrMsg(code ? `Firebase: ${code}` : (msg || "Google sign-in failed."));
       }
@@ -297,7 +275,7 @@ export default function AuthForm({ redirectTo = "/profile", initialMode = "regis
           </div>
         </div>
 
-        {status === "error" && (
+        {(status === "error" || errMsg) && (
           <div style={{ fontSize: "0.8rem", color: "#f87171", backgroundColor: "#ef444412", border: "1px solid #ef444430", borderRadius: "8px", padding: "0.65rem 0.85rem", display: "flex", gap: "0.5rem", alignItems: "flex-start" }}>
             <span style={{ flexShrink: 0 }}>⚠</span>
             <span>{errMsg}</span>
