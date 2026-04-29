@@ -77,6 +77,20 @@ export async function POST(req: Request) {
       const { refreshAllHealthData } = await import("@/lib/idsp");
       const data = await refreshAllHealthData();
       await writeCacheSafe(IDSP_CACHE, IDSP_TMP, JSON.stringify(data, null, 2));
+
+      // Persist metadata to Firestore so it survives Vercel deploys
+      try {
+        const { getAdminDb } = await import("@/lib/firestore-admin");
+        const metaDb = getAdminDb();
+        await metaDb.collection("_meta").doc("idsp").set({
+          lastRefresh:    new Date().toISOString(),
+          diseaseRecords: data.diseaseRecords.length,
+          outbreaks:      data.outbreaks.length,
+          nhpAlerts:      data.nhpAlerts.length,
+          hospitalBeds:   data.hospitalBeds.length,
+        });
+      } catch { /* non-fatal — status display only */ }
+
       results.idsp = {
         ok: true,
         diseaseRecords: data.diseaseRecords.length,
@@ -154,23 +168,29 @@ export async function POST(req: Request) {
   });
 }
 
-// GET: return current cache status
+// GET: return current cache status from Firestore (persists across Vercel deploys)
 export async function GET() {
   const isAdmin = await getAdminSession();
   if (!isAdmin) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  let idspCache: Record<string, unknown> = {};
   try {
-    idspCache = JSON.parse(await readCacheSafe(IDSP_CACHE, IDSP_TMP));
-  } catch { /* no cache */ }
-
-  return NextResponse.json({
-    idsp: {
-      lastRefresh: idspCache.refreshedAt ?? null,
-      diseaseRecords: (idspCache.diseaseRecords as unknown[])?.length ?? 0,
-      outbreaks: (idspCache.outbreaks as unknown[])?.length ?? 0,
-      nhpAlerts: (idspCache.nhpAlerts as unknown[])?.length ?? 0,
-      hospitalBeds: (idspCache.hospitalBeds as unknown[])?.length ?? 0,
-    },
-  });
+    const { getAdminDb } = await import("@/lib/firestore-admin");
+    const db  = getAdminDb();
+    const doc = await db.collection("_meta").doc("idsp").get();
+    const meta = doc.exists ? (doc.data() as Record<string, unknown>) : {};
+    return NextResponse.json({
+      idsp: {
+        lastRefresh:    meta.lastRefresh    ?? null,
+        diseaseRecords: meta.diseaseRecords ?? 0,
+        outbreaks:      meta.outbreaks      ?? 0,
+        nhpAlerts:      meta.nhpAlerts      ?? 0,
+        hospitalBeds:   meta.hospitalBeds   ?? 0,
+      },
+    });
+  } catch (e) {
+    return NextResponse.json({
+      idsp: { lastRefresh: null, diseaseRecords: 0, outbreaks: 0, nhpAlerts: 0, hospitalBeds: 0 },
+      metaError: String(e),
+    });
+  }
 }

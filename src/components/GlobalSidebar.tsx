@@ -182,6 +182,9 @@ export default function GlobalSidebar({ user, uiConfig }: { user?: HeaderUser | 
   const showAbout            = uiConfig?.sidebar.showAbout            ?? true;
   const showFAB              = uiConfig?.mobile.showFAB               ?? true;
 
+  // Admin pages have their own dedicated layout — sidebar is not needed there
+  if (pageCtx.kind === "admin") return null;
+
   function openFacilityDrawer() {
     window.dispatchEvent(new Event("open-facility-drawer"));
     setMobileOpen(false);
@@ -322,7 +325,7 @@ export default function GlobalSidebar({ user, uiConfig }: { user?: HeaderUser | 
       {renderContextSection()}
 
       {/* ── About section ───────────────────────────── */}
-      {showAbout && pageCtx.kind !== "admin" && (
+      {showAbout && (
         <div style={{ padding: "0.75rem 0" }}>
           <div style={{ fontSize: "0.55rem", color: "#334155", textTransform: "uppercase", letterSpacing: "0.12em", fontWeight: 700, marginBottom: "0.5rem", paddingLeft: "1.1rem" }}>
             About
@@ -334,7 +337,7 @@ export default function GlobalSidebar({ user, uiConfig }: { user?: HeaderUser | 
       )}
 
       {/* ── CTA block ────────────────────────────────── */}
-      {pageCtx.kind !== "admin" && (
+      {(
         <div style={{ padding: "0 0.85rem 1rem", marginTop: "auto", borderTop: "1px solid #1e3a5f", paddingTop: "0.85rem" }}>
           {!user && showSignInCTA && (
             <Link

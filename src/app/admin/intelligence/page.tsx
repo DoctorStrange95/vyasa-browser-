@@ -24,6 +24,18 @@ const TYPE_COLORS: Record<string, string> = {
 };
 const CONF_COLORS: Record<string, string> = { High: "#4ade80", Medium: "#fb923c", Low: "#94a3b8" };
 
+function categoryBreakdown(items: PHItem[]) {
+  const counts: Record<string, number> = {};
+  for (const item of items) counts[item.type] = (counts[item.type] ?? 0) + 1;
+  return counts;
+}
+
+function lastScrapeTime(items: PHItem[]): string | null {
+  const times = items.map(i => i.scrapedAt).filter(Boolean) as string[];
+  if (!times.length) return null;
+  return times.sort().at(-1) ?? null;
+}
+
 export default function IntelligenceAdmin() {
   const [data, setData] = useState<{ pending: PHItem[]; liveCount: number; rejectedCount: number } | null>(null);
   const [loading, setLoading] = useState(true);
@@ -91,7 +103,7 @@ export default function IntelligenceAdmin() {
         {!noFirebase && (
           <>
             {/* Header row */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem", flexWrap: "wrap", gap: "1rem" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", flexWrap: "wrap", gap: "1rem" }}>
               <div>
                 <h1 style={{ fontSize: "1.4rem", fontWeight: 700, color: "#fff", margin: 0 }}>
                   Pending Items {data && <span style={{ color: "#64748b", fontSize: "1rem" }}>({data.pending.length})</span>}
@@ -107,6 +119,30 @@ export default function IntelligenceAdmin() {
                 </button>
               )}
             </div>
+
+            {/* Stats bar — category breakdown + last scrape */}
+            {data && data.pending.length > 0 && (() => {
+              const breakdown = categoryBreakdown(data.pending);
+              const lastAt    = lastScrapeTime(data.pending);
+              const catColors: Record<string, string> = { Outbreak: "#ef4444", NCD: "#818cf8", Program: "#0d9488", Policy: "#6366f1", Infrastructure: "#eab308" };
+              return (
+                <div style={{ backgroundColor: "#0f2040", border: "1px solid #1e3a5f", borderRadius: "10px", padding: "0.9rem 1.25rem", marginBottom: "1.5rem", display: "flex", flexWrap: "wrap", gap: "1rem", alignItems: "center" }}>
+                  <div style={{ fontSize: "0.65rem", color: "#475569", textTransform: "uppercase", letterSpacing: "0.08em", marginRight: "0.25rem" }}>Category breakdown</div>
+                  {Object.entries(breakdown).map(([type, count]) => (
+                    <div key={type} style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
+                      <span style={{ width: 8, height: 8, borderRadius: "50%", backgroundColor: catColors[type] ?? "#64748b", flexShrink: 0 }} />
+                      <span style={{ fontSize: "0.75rem", color: "#94a3b8" }}>{type}</span>
+                      <span style={{ fontSize: "0.75rem", color: catColors[type] ?? "#94a3b8", fontFamily: "'IBM Plex Mono', monospace", fontWeight: 700 }}>{count}</span>
+                    </div>
+                  ))}
+                  {lastAt && (
+                    <div style={{ marginLeft: "auto", fontSize: "0.65rem", color: "#334155", fontFamily: "'IBM Plex Mono', monospace" }}>
+                      Last scraped: {new Date(lastAt).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" })}
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
 
             {loading && (
               <div style={{ color: "#475569", fontSize: "0.85rem" }}>Loading pending items…</div>

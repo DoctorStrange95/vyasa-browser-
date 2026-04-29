@@ -84,6 +84,19 @@ export async function GET(req: Request) {
     const data = await refreshAllHealthData();
     const payload = { ...data, refreshLog: log };
     await writeCacheSafe(IDSP_CACHE, IDSP_TMP, JSON.stringify(payload, null, 2));
+
+    // Persist metadata to Firestore so admin panel status display survives deploys
+    try {
+      const { getAdminDb } = await import("@/lib/firestore-admin");
+      await getAdminDb().collection("_meta").doc("idsp").set({
+        lastRefresh:    new Date().toISOString(),
+        diseaseRecords: data.diseaseRecords.length,
+        outbreaks:      data.outbreaks.length,
+        nhpAlerts:      data.nhpAlerts.length,
+        hospitalBeds:   data.hospitalBeds.length,
+      });
+    } catch { /* non-fatal */ }
+
     log.push(`✓ IDSP: ${data.diseaseRecords.length} disease records, ${data.outbreaks.length + data.nhpAlerts.length} alerts, ${data.hospitalBeds.length} bed records`);
   } catch (e) { errors.push(`✗ IDSP refresh: ${e}`); }
 

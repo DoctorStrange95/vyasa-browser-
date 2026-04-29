@@ -153,6 +153,13 @@ const NCD_PROGRAM_DICT: Record<string, string> = {
 };
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
+function ageDays(isoDate: string): number {
+  try {
+    const ms = Date.now() - new Date(isoDate).getTime();
+    return ms / 86_400_000;
+  } catch { return 999; }
+}
+
 function stripHtml(s: string): string {
   return s.replace(/<[^>]+>/g, " ")
            .replace(/&[a-z]+;/g, " ")
@@ -445,12 +452,14 @@ export async function runNCDAgent(): Promise<{
   add(gnews,  "Google News NCD");
   add(icmr,   "ICMR/WHO India");
 
-  const sorted = dedup(all).sort((a, b) => {
-    const cs = { High: 3, Medium: 2, Low: 1 };
-    const c  = cs[b.confidence] - cs[a.confidence];
-    if (c !== 0) return c;
-    return (b.date ?? "").localeCompare(a.date ?? "");
-  });
+  const sorted = dedup(all)
+    .filter(item => ageDays(item.date ?? "") <= 7)
+    .sort((a, b) => {
+      const cs = { High: 3, Medium: 2, Low: 1 };
+      const c  = cs[b.confidence] - cs[a.confidence];
+      if (c !== 0) return c;
+      return (b.date ?? "").localeCompare(a.date ?? "");
+    });
 
   return { items: sorted.slice(0, 50), sources, errors };
 }

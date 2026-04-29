@@ -640,20 +640,15 @@ export async function runIDSPAgent(): Promise<{
     Outbreak: 4, Program: 3, Policy: 2, Infrastructure: 1, NCD: 0,
   };
 
-  const sorted = dedup(all).sort((a, b) => {
-    const aDays = ageDays(a.date ?? "");
-    const bDays = ageDays(b.date ?? "");
-
-    // Items older than 365 days always sort to the bottom
-    if (aDays > 365 && bDays <= 365) return 1;
-    if (bDays > 365 && aDays <= 365) return -1;
-
-    const c = (confScore[b.confidence] ?? 0) - (confScore[a.confidence] ?? 0);
-    if (c !== 0) return c;
-    const t = (typeScore[b.type] ?? 0) - (typeScore[a.type] ?? 0);
-    if (t !== 0) return t;
-    return (b.date ?? "").localeCompare(a.date ?? "");
-  });
+  const sorted = dedup(all)
+    .filter(item => ageDays(item.date ?? "") <= 7)
+    .sort((a, b) => {
+      const c = (confScore[b.confidence] ?? 0) - (confScore[a.confidence] ?? 0);
+      if (c !== 0) return c;
+      const t = (typeScore[b.type] ?? 0) - (typeScore[a.type] ?? 0);
+      if (t !== 0) return t;
+      return (b.date ?? "").localeCompare(a.date ?? "");
+    });
 
   return { items: sorted.slice(0, 70), sources, errors };
 }
