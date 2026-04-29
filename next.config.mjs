@@ -1,7 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // firebase-admin uses native Node.js modules — must not be bundled by webpack
-  serverExternalPackages: ["firebase-admin", "google-auth-library", "xlsx", "web-push"],
+  experimental: {
+    // firebase-admin uses native Node.js modules — must not be bundled by webpack
+    serverComponentsExternalPackages: ["firebase-admin", "google-auth-library", "xlsx", "web-push"],
+  },
 
   async headers() {
     return [
@@ -21,8 +23,8 @@ const nextConfig = {
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
               "img-src 'self' data: https:",
-              "connect-src 'self' https://firestore.googleapis.com https://api.groq.com https://news.google.com https://idsp.mohfw.gov.in https://nominatim.openstreetmap.org https://overpass-api.de https://wa.me",
-              "frame-src 'none'",
+              "connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com https://accounts.google.com https://vyasa-2b84a.firebaseapp.com https://api.groq.com https://news.google.com https://idsp.mohfw.gov.in https://nominatim.openstreetmap.org https://overpass-api.de https://wa.me",
+              "frame-src https://accounts.google.com https://vyasa-2b84a.firebaseapp.com",
               "object-src 'none'",
               "base-uri 'self'",
               "form-action 'self'",

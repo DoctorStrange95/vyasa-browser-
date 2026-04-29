@@ -121,12 +121,10 @@ export async function GET(req: Request) {
     await writeCacheSafe(PHI_DEFAULT, PHI_TMP, JSON.stringify(payload, null, 2));
 
     // Save new items to Firestore ph_intelligence for admin review
+    // Skip any item already in Firestore (any status/age) to avoid resetting reviewed items
     const { adminList, getAdminDb } = await import("@/lib/firestore-admin");
     const existing    = await adminList("ph_intelligence", 2000);
-    const oneDayAgo   = new Date(Date.now() - 86_400_000).toISOString();
-    const existingIds = new Set(
-      existing.filter(d => (d.scrapedAt as string ?? "") > oneDayAgo).map(d => d._id)
-    );
+    const existingIds = new Set(existing.map(d => d._id));
     const db = getAdminDb();
     let saved = 0;
     await Promise.allSettled(
