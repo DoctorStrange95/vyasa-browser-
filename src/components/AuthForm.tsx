@@ -57,7 +57,13 @@ export default function AuthForm({ redirectTo = "/profile", initialMode = "regis
         if (!res.ok) { setErrMsg(data.error ?? "Google sign-in failed."); setGoogleLoading(false); return; }
         router.push(redirectTo);
         router.refresh();
-      } catch { /* no redirect in progress — normal */ }
+      } catch (e: unknown) {
+        const code = (e as { code?: string })?.code ?? "";
+        // Only surface real errors, not "no redirect was in progress"
+        if (code && code !== "auth/no-auth-event") {
+          setErrMsg(`Google error: ${code}`);
+        }
+      }
     })();
     return () => { cancelled = true; };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -66,16 +72,41 @@ export default function AuthForm({ redirectTo = "/profile", initialMode = "regis
     setGoogleLoading(true);
     setErrMsg("");
     try {
-      const { signInWithRedirect, GoogleAuthProvider } = await import("firebase/auth");
+      // Try popup first (instant UX); fall back to redirect if popup is blocked
+      const { signInWithPopup, signInWithRedirect, GoogleAuthProvider } = await import("firebase/auth");
       const { clientAuth } = await import("@/lib/firebaseClient");
-      await signInWithRedirect(clientAuth, new GoogleAuthProvider());
-      // Page navigates away — result handled in the useEffect above on return
+      const provider = new GoogleAuthProvider();
+      let result;
+      try {
+        result = await signInWithPopup(clientAuth, provider);
+      } catch (popupErr: unknown) {
+        const c = (popupErr as { code?: string })?.code ?? "";
+        if (c === "auth/popup-blocked" || c === "auth/popup-cancelled" || c === "auth/cancelled-popup-request") {
+          // Popup blocked — fall back to full-page redirect
+          await signInWithRedirect(clientAuth, provider);
+          return; // page navigates away; useEffect handles the result on return
+        }
+        throw popupErr; // re-throw real errors (wrong domain etc.)
+      }
+      const idToken = await result.user.getIdToken();
+      const res  = await fetch("/api/auth/google", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idToken }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setErrMsg(data.error ?? "Google sign-in failed."); setGoogleLoading(false); return; }
+      router.push(redirectTo);
+      router.refresh();
     } catch (e: unknown) {
       const code = (e as { code?: string })?.code ?? "";
+      const msg  = e instanceof Error ? e.message : String(e);
       if (code === "auth/unauthorized-domain") {
-        setErrMsg("This domain is not authorised in Firebase. Ask admin to add it under Authentication → Settings → Authorized domains.");
+        setErrMsg("Domain not authorised — admin must add vyasaa.com to Firebase Auth → Settings → Authorized domains.");
+      } else if (code === "auth/popup-closed-by-user") {
+        // user closed popup, not an error
       } else {
-        setErrMsg((e instanceof Error ? e.message : String(e)) || "Google sign-in failed. Please try again.");
+        setErrMsg(code ? `Firebase: ${code}` : (msg || "Google sign-in failed."));
       }
       setGoogleLoading(false);
     }
