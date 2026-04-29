@@ -129,25 +129,31 @@ export async function POST(req: Request) {
       const existingIds = new Set(existing.map(d => d._id));
       const db = getAdminDb();
       let saved = 0;
+      let skipped = 0;
+      const saveErrors: string[] = [];
       await Promise.allSettled(
         data.items.slice(0, 80).map(async (item) => {
           try {
             const urlPart = item.sourceUrl ? item.sourceUrl.replace(/[^a-zA-Z0-9]/g, "").slice(-40) : item.title.slice(40, 80);
             const raw = `${item.type}::${item.disease ?? item.program ?? ""}::${item.location.state}::${item.title.slice(0, 40)}::${urlPart}`;
             const id  = Buffer.from(raw).toString("base64").replace(/[/+=]/g, "_").slice(0, 100);
-            if (!existingIds.has(id)) {
+            if (existingIds.has(id)) {
+              skipped++;
+            } else {
               await db.collection("ph_intelligence").doc(id).set({
                 ...(item as unknown as Record<string, unknown>),
+                _id: id,
                 status: "pending", scrapedAt: new Date().toISOString(),
               });
               saved++;
             }
-          } catch { /* silent */ }
+          } catch (e) { saveErrors.push(String(e).slice(0, 80)); }
         })
       );
 
-      results["ph-intelligence"] = { ok: true, items: data.items.length, newPending: saved, sources: data.sources.length };
-      log.push(`✓ PH Intelligence: ${data.items.length} items, ${saved} new saved to Firestore for review`);
+      const errNote = saveErrors.length ? ` | ${saveErrors.length} errors: ${saveErrors[0]}` : "";
+      results["ph-intelligence"] = { ok: true, items: data.items.length, newPending: saved, skipped, sources: data.sources.length };
+      log.push(`✓ PH Intelligence: ${data.items.length} items, ${saved} new saved, ${skipped} skipped (dedup)${errNote}`);
       revalidatePath("/");
     } catch (e) { log.push(`✗ PH Intelligence refresh failed: ${e}`); results["ph-intelligence"] = { ok: false }; }
   }

@@ -65,6 +65,7 @@ async function saveItemsForReview(items: PHItem[]): Promise<number> {
           if (!existingIds.has(id)) {
             await db.collection("ph_intelligence").doc(id).set({
               ...(item as unknown as Record<string, unknown>),
+              _id:       id,
               status:    "pending",
               scrapedAt: new Date().toISOString(),
             });
