@@ -44,6 +44,12 @@ function getAdminDb(): Firestore {
   return _db;
 }
 
+export function getAdminApp(): App {
+  getAdminDb(); // ensures initialization
+  if (!_app) throw new Error("Firebase Admin app not initialized");
+  return _app;
+}
+
 export async function adminGet(
   col: string,
   id: string,

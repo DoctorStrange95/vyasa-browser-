@@ -24,17 +24,46 @@ const EyeIcon = ({ open }: { open: boolean }) => (
 
 export default function AuthForm({ redirectTo = "/profile", initialMode = "register" }: { redirectTo?: string; initialMode?: Mode }) {
   const router = useRouter();
-  const [mode,     setMode]     = useState<Mode>(initialMode);
-  const [name,       setName]       = useState("");
-  const [age,        setAge]        = useState("");
-  const [email,      setEmail]      = useState("");
-  const [phone,      setPhone]      = useState("");
-  const [identifier, setIdentifier] = useState("");
-  const [place,    setPlace]    = useState("");
-  const [password, setPassword] = useState("");
-  const [showPw,   setShowPw]   = useState(false);
-  const [status,   setStatus]   = useState<"idle"|"loading"|"error"|"done">("idle");
-  const [errMsg,   setErrMsg]   = useState("");
+  const [mode,         setMode]        = useState<Mode>(initialMode);
+  const [name,         setName]        = useState("");
+  const [age,          setAge]         = useState("");
+  const [email,        setEmail]       = useState("");
+  const [phone,        setPhone]       = useState("");
+  const [identifier,   setIdentifier]  = useState("");
+  const [place,        setPlace]       = useState("");
+  const [password,     setPassword]    = useState("");
+  const [showPw,       setShowPw]      = useState(false);
+  const [status,       setStatus]      = useState<"idle"|"loading"|"error"|"done">("idle");
+  const [errMsg,       setErrMsg]      = useState("");
+  const [googleLoading, setGoogleLoading] = useState(false);
+
+  async function signInWithGoogle() {
+    setGoogleLoading(true);
+    setErrMsg("");
+    try {
+      const { signInWithPopup, GoogleAuthProvider } = await import("firebase/auth");
+      const { clientAuth } = await import("@/lib/firebaseClient");
+      const result  = await signInWithPopup(clientAuth, new GoogleAuthProvider());
+      const idToken = await result.user.getIdToken();
+
+      const res  = await fetch("/api/auth/google", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idToken }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setErrMsg(data.error ?? "Google sign-in failed."); setGoogleLoading(false); return; }
+      router.push(redirectTo);
+      router.refresh();
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "";
+      // Ignore user-closed popup
+      if (!msg.includes("popup-closed") && !msg.includes("cancelled")) {
+        setErrMsg("Google sign-in failed. Please try again.");
+      }
+      setGoogleLoading(false);
+    }
+  }
 
   const base: React.CSSProperties = {
     width: "100%", backgroundColor: "#080f1e", border: "1px solid #1e3a5f",
@@ -86,6 +115,41 @@ export default function AuthForm({ redirectTo = "/profile", initialMode = "regis
             {m === "login" ? "Sign In" : "Sign Up"}
           </button>
         ))}
+      </div>
+
+      {/* ── Google OAuth button ── */}
+      <button
+        onClick={signInWithGoogle}
+        disabled={googleLoading || status === "loading"}
+        style={{
+          width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.6rem",
+          backgroundColor: googleLoading ? "#0f1f3a" : "#131f35",
+          border: "1px solid #2d3f5e", borderRadius: "10px", padding: "0.72rem 1rem",
+          color: googleLoading ? "#475569" : "#e2e8f0", fontSize: "0.9rem", fontWeight: 600,
+          cursor: googleLoading ? "not-allowed" : "pointer", fontFamily: "inherit",
+          transition: "background-color 0.15s, border-color 0.15s", marginBottom: "1rem",
+        }}
+        onMouseEnter={e => { if (!googleLoading) e.currentTarget.style.borderColor = "#4285F4"; }}
+        onMouseLeave={e => { e.currentTarget.style.borderColor = "#2d3f5e"; }}
+      >
+        {googleLoading ? (
+          <span style={{ display: "inline-block", animation: "spin 0.8s linear infinite", fontSize: "1rem" }}>↻</span>
+        ) : (
+          <svg width="18" height="18" viewBox="0 0 48 48">
+            <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+            <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+            <path fill="#FBBC05" d="M10.53 28.59c-.5-1.45-.79-3-.79-4.59s.29-3.14.79-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+            <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+          </svg>
+        )}
+        {googleLoading ? "Signing in…" : "Continue with Google"}
+      </button>
+
+      {/* ── Divider ── */}
+      <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.25rem" }}>
+        <div style={{ flex: 1, height: "1px", backgroundColor: "#1e3a5f" }} />
+        <span style={{ fontSize: "0.7rem", color: "#334155", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em" }}>or</span>
+        <div style={{ flex: 1, height: "1px", backgroundColor: "#1e3a5f" }} />
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: "0.9rem" }}>
@@ -230,6 +294,7 @@ export default function AuthForm({ redirectTo = "/profile", initialMode = "regis
           </p>
         )}
       </div>
+      <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 }
