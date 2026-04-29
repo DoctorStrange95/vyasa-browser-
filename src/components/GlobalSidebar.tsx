@@ -1,9 +1,15 @@
 "use client";
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import type { HeaderUser } from "./Header";
 import type { UIConfig } from "@/lib/siteConfig";
+import cities from "@/data/cities.json";
+
+const districtStateMap: Record<string, { stateSlug: string; stateName: string }> = {};
+for (const c of cities as { slug: string; stateSlug: string; stateName: string }[]) {
+  districtStateMap[c.slug] = { stateSlug: c.stateSlug, stateName: c.stateName };
+}
 
 // ── Section configs per page context ────────────────────────────────────────
 
@@ -63,9 +69,9 @@ const CITIZENS_LINKS = [
 ];
 
 const PROFILE_LINKS = [
-  { href: "/profile",        icon: "👤", label: "My Profile" },
-  { href: "/profile#health", icon: "🏥", label: "Health Records" },
-  { href: "/profile#states", icon: "📊", label: "My States" },
+  { href: "/profile",                icon: "👤", label: "My Profile" },
+  { href: "/citizens?tab=locker",    icon: "🏥", label: "Health Locker" },
+  { href: "/dashboard",              icon: "📊", label: "My States" },
 ];
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -77,7 +83,7 @@ function slugToTitle(slug: string): string {
 type PageCtx =
   | { kind: "home" }
   | { kind: "state";    label: string; slug: string }
-  | { kind: "district"; label: string; slug: string }
+  | { kind: "district"; label: string; slug: string; parentStateSlug: string; parentStateName: string }
   | { kind: "citizens" }
   | { kind: "admin" }
   | { kind: "profile" }
@@ -90,9 +96,19 @@ function getPageCtx(pathname: string): PageCtx {
   if (pathname.startsWith("/admin"))     return { kind: "admin" };
   if (pathname.startsWith("/profile"))   return { kind: "profile" };
   const stateMatch = pathname.match(/^\/state\/([^/]+)/);
-  if (stateMatch) return { kind: "state",    label: slugToTitle(stateMatch[1]), slug: stateMatch[1] };
+  if (stateMatch) return { kind: "state", label: slugToTitle(stateMatch[1]), slug: stateMatch[1] };
   const distMatch  = pathname.match(/^\/district\/([^/]+)/);
-  if (distMatch)  return { kind: "district", label: slugToTitle(distMatch[1]),  slug: distMatch[1] };
+  if (distMatch) {
+    const distSlug = distMatch[1];
+    const parent   = districtStateMap[distSlug];
+    return {
+      kind: "district",
+      label: slugToTitle(distSlug),
+      slug: distSlug,
+      parentStateSlug: parent?.stateSlug ?? "",
+      parentStateName: parent?.stateName ?? "State",
+    };
+  }
   return { kind: "none" };
 }
 
@@ -129,8 +145,23 @@ function NavLink({ href, icon, label, active, onClick }: { href: string; icon: s
 // ── Main component ───────────────────────────────────────────────────────────
 
 export default function GlobalSidebar({ user, uiConfig }: { user?: HeaderUser | null; uiConfig?: UIConfig | null }) {
-  const pathname    = usePathname();
+  const pathname     = usePathname();
+  const searchParams = useSearchParams();
+  const activeTab    = searchParams.get("tab") ?? "";
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  // Track facility drawer open/close for mobile nav active state
+  useEffect(() => {
+    const onOpen  = () => setDrawerOpen(true);
+    const onClose = () => setDrawerOpen(false);
+    window.addEventListener("open-facility-drawer",  onOpen);
+    window.addEventListener("close-facility-drawer", onClose);
+    return () => {
+      window.removeEventListener("open-facility-drawer",  onOpen);
+      window.removeEventListener("close-facility-drawer", onClose);
+    };
+  }, []);
 
   const pageCtx = useMemo(() => getPageCtx(pathname), [pathname]);
 
@@ -200,8 +231,10 @@ export default function GlobalSidebar({ user, uiConfig }: { user?: HeaderUser | 
 
     // District page — scroll shortcuts
     if (pageCtx.kind === "district") {
+      const backHref  = pageCtx.parentStateSlug ? `/state/${pageCtx.parentStateSlug}` : "/";
+      const backLabel = pageCtx.parentStateName  ?? "All States";
       return (
-        <ContextSection label={pageCtx.label} backHref="/citizens" backLabel="Citizens">
+        <ContextSection label={pageCtx.label} backHref={backHref} backLabel={backLabel}>
           {DISTRICT_PAGE_SECTIONS.map(s => {
             const isActive = activeSection === s.id;
             return (
@@ -220,9 +253,13 @@ export default function GlobalSidebar({ user, uiConfig }: { user?: HeaderUser | 
     if (pageCtx.kind === "citizens") {
       return (
         <ContextSection label="Citizens Centre">
-          {CITIZENS_LINKS.map(l => (
-            <NavLink key={l.href} href={l.href} icon={l.icon} label={l.label} active={false} onClick={() => setMobileOpen(false)} />
-          ))}
+          {CITIZENS_LINKS.map(l => {
+            const tabParam = new URL(l.href, "http://x").searchParams.get("tab");
+            const isActive = pathname.startsWith("/citizens") && activeTab === tabParam;
+            return (
+              <NavLink key={l.href} href={l.href} icon={l.icon} label={l.label} active={isActive} onClick={() => setMobileOpen(false)} />
+            );
+          })}
         </ContextSection>
       );
     }
@@ -264,7 +301,7 @@ export default function GlobalSidebar({ user, uiConfig }: { user?: HeaderUser | 
           Navigation
         </div>
         <NavLink href="/"         icon="🏠" label="Home"            active={pathname === "/"}               onClick={() => setMobileOpen(false)} />
-        <NavLink href="/citizens" icon="🏥" label="Citizens Centre" active={pathname.startsWith("/citizens") && !pathname.startsWith("/citizens?tab=stats")} onClick={() => setMobileOpen(false)} />
+        <NavLink href="/citizens" icon="🏥" label="Citizens Centre" active={pathname.startsWith("/citizens")} onClick={() => setMobileOpen(false)} />
         {user && (
           <NavLink href="/dashboard" icon="📊" label="My Dashboard" active={pathname.startsWith("/dashboard")} onClick={() => setMobileOpen(false)} />
         )}
@@ -337,11 +374,18 @@ export default function GlobalSidebar({ user, uiConfig }: { user?: HeaderUser | 
             <span>☰</span>
             <span>Menu</span>
           </button>
-          <Link href="/dashboard" className={`mobile-bottom-nav-item${pathname === "/dashboard" ? " active" : ""}`} style={{ textDecoration: "none" }}>
-            <span>📊</span>
-            <span>Dashboard</span>
-          </Link>
-          <button className={`mobile-bottom-nav-item${pathname === "/citizens" ? " active" : ""}`} onClick={openFacilityDrawer} aria-label="Find nearby">
+          {user ? (
+            <Link href="/dashboard" className={`mobile-bottom-nav-item${pathname.startsWith("/dashboard") ? " active" : ""}`} style={{ textDecoration: "none" }}>
+              <span>📊</span>
+              <span>Dashboard</span>
+            </Link>
+          ) : (
+            <Link href="/citizens" className={`mobile-bottom-nav-item${pathname.startsWith("/citizens") ? " active" : ""}`} style={{ textDecoration: "none" }}>
+              <span>🏥</span>
+              <span>Citizens</span>
+            </Link>
+          )}
+          <button className={`mobile-bottom-nav-item${drawerOpen ? " active" : ""}`} onClick={openFacilityDrawer} aria-label="Find nearby">
             <span>📍</span>
             <span>Find Nearby</span>
           </button>

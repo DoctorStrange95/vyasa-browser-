@@ -33,12 +33,32 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "This email is already registered. Please log in." }, { status: 409 });
   }
 
+  const normalizedPhone = phone?.trim()
+    ? (() => {
+        const d = phone.replace(/\D/g, "");
+        if (d.length === 12 && d.startsWith("91")) return d.slice(2);
+        if (d.length === 11 && d.startsWith("0")) return d.slice(1);
+        return d;
+      })()
+    : "";
+
+  if (normalizedPhone && normalizedPhone.length !== 10) {
+    return NextResponse.json({ error: "Enter a valid 10-digit mobile number." }, { status: 400 });
+  }
+
+  if (normalizedPhone) {
+    const phoneExists = await adminQuery("users", "phone", normalizedPhone, 1);
+    if (phoneExists.length > 0) {
+      return NextResponse.json({ error: "This phone number is already registered. Please log in." }, { status: 409 });
+    }
+  }
+
   const passwordHash = await hashPassword(password);
   const uid = await adminAdd("users", {
     name:          name.trim(),
     age:           age ? Number(age) : null,
     email:         email.toLowerCase().trim(),
-    phone:         phone?.trim() ?? "",
+    phone:         normalizedPhone,
     place:         place?.trim() ?? "",
     passwordHash,
     createdAt:     new Date().toISOString(),

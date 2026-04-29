@@ -25,10 +25,11 @@ const EyeIcon = ({ open }: { open: boolean }) => (
 export default function AuthForm({ redirectTo = "/profile", initialMode = "register" }: { redirectTo?: string; initialMode?: Mode }) {
   const router = useRouter();
   const [mode,     setMode]     = useState<Mode>(initialMode);
-  const [name,     setName]     = useState("");
-  const [age,      setAge]      = useState("");
-  const [email,    setEmail]    = useState("");
-  const [phone,    setPhone]    = useState("");
+  const [name,       setName]       = useState("");
+  const [age,        setAge]        = useState("");
+  const [email,      setEmail]      = useState("");
+  const [phone,      setPhone]      = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [place,    setPlace]    = useState("");
   const [password, setPassword] = useState("");
   const [showPw,   setShowPw]   = useState(false);
@@ -46,7 +47,7 @@ export default function AuthForm({ redirectTo = "/profile", initialMode = "regis
     setStatus("loading"); setErrMsg("");
     try {
       const body = mode === "login"
-        ? { email, password }
+        ? { identifier, password }
         : { name, age: Number(age) || null, email, phone, place, password };
 
       const res  = await fetch(`/api/auth/user/${mode}`, {
@@ -65,7 +66,7 @@ export default function AuthForm({ redirectTo = "/profile", initialMode = "regis
   }
 
   function switchMode(m: Mode) {
-    setMode(m); setErrMsg(""); setStatus("idle");
+    setMode(m); setErrMsg(""); setStatus("idle"); setIdentifier("");
   }
 
   return (
@@ -131,16 +132,29 @@ export default function AuthForm({ redirectTo = "/profile", initialMode = "regis
           </>
         )}
 
-        <div>
-          <label style={{ fontSize: "0.7rem", color: "#64748b", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", display: "block", marginBottom: "0.35rem" }}>
-            Email <span style={{ color: "#0d9488" }}>*</span>
-          </label>
-          <input style={base} type="email" placeholder="you@example.com"
-            value={email} onChange={e => setEmail(e.target.value)}
-            onKeyDown={e => e.key === "Enter" && submit()}
-            onFocus={e => (e.currentTarget.style.borderColor = "#0d9488")}
-            onBlur={e => (e.currentTarget.style.borderColor = "#1e3a5f")} />
-        </div>
+        {mode === "login" ? (
+          <div>
+            <label style={{ fontSize: "0.7rem", color: "#64748b", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", display: "block", marginBottom: "0.35rem" }}>
+              Email or Phone <span style={{ color: "#0d9488" }}>*</span>
+            </label>
+            <input style={base} type="text" placeholder="you@example.com or 98765 43210"
+              value={identifier} onChange={e => setIdentifier(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && submit()}
+              onFocus={e => (e.currentTarget.style.borderColor = "#0d9488")}
+              onBlur={e => (e.currentTarget.style.borderColor = "#1e3a5f")} />
+          </div>
+        ) : (
+          <div>
+            <label style={{ fontSize: "0.7rem", color: "#64748b", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", display: "block", marginBottom: "0.35rem" }}>
+              Email <span style={{ color: "#0d9488" }}>*</span>
+            </label>
+            <input style={base} type="email" placeholder="you@example.com"
+              value={email} onChange={e => setEmail(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && submit()}
+              onFocus={e => (e.currentTarget.style.borderColor = "#0d9488")}
+              onBlur={e => (e.currentTarget.style.borderColor = "#1e3a5f")} />
+          </div>
+        )}
 
         <div>
           <label style={{ fontSize: "0.7rem", color: "#64748b", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", display: "block", marginBottom: "0.35rem" }}>

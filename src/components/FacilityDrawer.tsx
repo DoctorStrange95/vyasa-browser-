@@ -6,6 +6,11 @@ export default function FacilityDrawer() {
   const [open,  setOpen]  = useState(false);
   const [pulse, setPulse] = useState(false);
 
+  function close() {
+    setOpen(false);
+    window.dispatchEvent(new Event("close-facility-drawer"));
+  }
+
   /* Pulse once after 3 s to draw attention on first visit */
   useEffect(() => {
     const t = setTimeout(() => setPulse(true),  3000);
@@ -15,7 +20,7 @@ export default function FacilityDrawer() {
 
   /* Close on Escape, open on custom event from homepage button */
   useEffect(() => {
-    const kh = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
+    const kh = (e: KeyboardEvent) => { if (e.key === "Escape") close(); };
     const ch = () => setOpen(true);
     window.addEventListener("keydown", kh);
     window.addEventListener("open-facility-drawer", ch);
@@ -34,7 +39,7 @@ export default function FacilityDrawer() {
       {/* Backdrop */}
       {open && (
         <div
-          onClick={() => setOpen(false)}
+          onClick={close}
           style={{ position: "fixed", inset: 0, backgroundColor: "#00000070", zIndex: 998, backdropFilter: "blur(2px)" }}
         />
       )}
@@ -62,7 +67,7 @@ export default function FacilityDrawer() {
             <div style={{ fontSize: "0.65rem", color: "#475569" }}>Hospital · Doctor · Pharmacy · Lab · Blood Bank · Ambulance · Anganwadi</div>
           </div>
           <button
-            onClick={() => setOpen(false)}
+            onClick={close}
             style={{ background: "none", border: "1px solid #1e3a5f", color: "#64748b", borderRadius: "6px", width: "30px", height: "30px", cursor: "pointer", fontSize: "0.9rem", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}
             aria-label="Close"
           >✕</button>

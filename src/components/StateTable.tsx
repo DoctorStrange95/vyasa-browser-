@@ -341,7 +341,7 @@ function StateRow({ state, rank, isExpanded, onToggle, cityCount: count, topCiti
             View Full State Dashboard →
           </Link>
           <Link
-            href={`/state/${state.slug}#health-centres`}
+            href={`/state/${state.slug}#facilities`}
             onClick={(e) => e.stopPropagation()}
             style={{
               display: "inline-flex", alignItems: "center", gap: "0.5rem",

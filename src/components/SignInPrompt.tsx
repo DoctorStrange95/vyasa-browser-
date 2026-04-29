@@ -221,6 +221,18 @@ export default function SignInPrompt({ isLoggedIn }: { isLoggedIn: boolean }) {
   const wave = s.dismissCount;
   const copy = getCopy(pathname, ctx, wave);
 
+  // Derive context-aware redirect destination for auth links
+  function authHref(mode?: string): string {
+    let next = "/profile";
+    if (ctx === "locker")   next = "/citizens?tab=locker";
+    else if (ctx === "pin") next = "/dashboard";
+    else if (ctx === "alerts" || ctx === "hospital") next = pathname;
+    else if (pathname !== "/" && pathname !== "/auth") next = pathname;
+    const params = new URLSearchParams({ next });
+    if (mode) params.set("mode", mode);
+    return `/auth?${params.toString()}`;
+  }
+
   return (
     <>
       {/* Backdrop */}
@@ -290,7 +302,7 @@ export default function SignInPrompt({ isLoggedIn }: { isLoggedIn: boolean }) {
 
         {/* CTAs */}
         <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-          <Link href="/auth" onClick={dismiss}
+          <Link href={authHref()} onClick={dismiss}
             style={{
               flex: 1, textAlign: "center", backgroundColor: "#0d9488", color: "#fff",
               padding: "0.72rem 1rem", borderRadius: "10px", textDecoration: "none",
@@ -298,7 +310,7 @@ export default function SignInPrompt({ isLoggedIn }: { isLoggedIn: boolean }) {
             }}>
             {copy.cta}
           </Link>
-          <Link href="/auth?mode=login" onClick={dismiss}
+          <Link href={authHref("login")} onClick={dismiss}
             style={{ fontSize: "0.78rem", color: "#475569", textDecoration: "none", whiteSpace: "nowrap", flexShrink: 0 }}>
             Sign in
           </Link>

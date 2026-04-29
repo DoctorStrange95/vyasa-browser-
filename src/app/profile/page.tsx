@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import VyasaLogo from "@/components/VyasaLogo";
 import SymptomReporter from "@/components/SymptomReporter";
 import PushNotificationSetup from "@/components/PushNotificationSetup";
@@ -38,12 +38,16 @@ function Toast({ msg, type }: { msg: string; type: "ok" | "err" }) {
 }
 
 // ── Page ──────────────────────────────────────────────────────────────────────
+const VALID_TABS: Tab[] = ["overview", "edit", "password", "submissions", "symptoms", "feedback"];
+
 export default function ProfilePage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const initialTab = (searchParams.get("tab") ?? "overview") as Tab;
   const [profile,   setProfile]   = useState<UserProfile | null>(null);
   const [subs,      setSubs]      = useState<Submission[]>([]);
   const [loading,   setLoading]   = useState(true);
-  const [tab,       setTab]       = useState<Tab>("overview");
+  const [tab,       setTab]       = useState<Tab>(VALID_TABS.includes(initialTab) ? initialTab : "overview");
   const [toast,     setToast]     = useState<{ msg: string; type: "ok" | "err" } | null>(null);
 
   // Edit form state

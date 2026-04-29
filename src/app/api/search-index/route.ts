@@ -2,8 +2,7 @@ import { NextResponse } from "next/server";
 import states from "@/data/states.json";
 import cities from "@/data/cities.json";
 
-export const dynamic = "force-static";
-export const revalidate = 86400;
+export const dynamic = "force-dynamic";
 
 export function GET(req: Request) {
   const { searchParams } = new URL(req.url);

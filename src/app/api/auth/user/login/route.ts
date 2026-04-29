@@ -33,18 +33,43 @@ async function upgradeHash(uid: string, pw: string) {
   await adminUpdate("users", uid, { passwordHash: hash }).catch(() => {});
 }
 
+function normalizePhone(raw: string): string {
+  const digits = raw.replace(/\D/g, "");
+  if (digits.length === 12 && digits.startsWith("91")) return digits.slice(2);
+  if (digits.length === 11 && digits.startsWith("0")) return digits.slice(1);
+  return digits;
+}
+
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
   if (!body) return NextResponse.json({ error: "Invalid request." }, { status: 400 });
 
-  const { email, password } = body as { email: string; password: string };
-  if (!email?.trim() || !password) {
-    return NextResponse.json({ error: "Email and password are required." }, { status: 400 });
+  const { identifier, email: emailField, password } = body as { identifier?: string; email?: string; password: string };
+  const raw = (identifier ?? emailField ?? "").trim();
+  if (!raw || !password) {
+    return NextResponse.json({ error: "Email (or phone) and password are required." }, { status: 400 });
   }
 
-  const rows = await adminQuery("users", "email", email.toLowerCase().trim(), 1);
-  if (!rows.length) {
-    return NextResponse.json({ error: "No account found with this email." }, { status: 404 });
+  const isPhone = !raw.includes("@");
+  let rows: Record<string, unknown>[];
+  let resolvedEmail: string;
+
+  if (isPhone) {
+    const phone = normalizePhone(raw);
+    if (phone.length !== 10) {
+      return NextResponse.json({ error: "Enter a valid 10-digit mobile number." }, { status: 400 });
+    }
+    rows = await adminQuery("users", "phone", phone, 1);
+    if (!rows.length) {
+      return NextResponse.json({ error: "No account found with this phone number." }, { status: 404 });
+    }
+    resolvedEmail = String(rows[0].email ?? "");
+  } else {
+    resolvedEmail = raw.toLowerCase();
+    rows = await adminQuery("users", "email", resolvedEmail, 1);
+    if (!rows.length) {
+      return NextResponse.json({ error: "No account found with this email." }, { status: 404 });
+    }
   }
 
   const user = rows[0];
@@ -55,8 +80,8 @@ export async function POST(req: NextRequest) {
 
   if (needsUpgrade) upgradeHash(String(user._id), password);
 
-  const token = await signUserToken({ uid: String(user._id), name: String(user.name), email: email.toLowerCase().trim() });
-  const res   = NextResponse.json({ success: true, name: user.name, email: email.toLowerCase().trim() });
+  const token = await signUserToken({ uid: String(user._id), name: String(user.name), email: resolvedEmail });
+  const res   = NextResponse.json({ success: true, name: user.name, email: resolvedEmail });
   res.cookies.set(USER_COOKIE, token, {
     httpOnly: true, secure: process.env.NODE_ENV === "production",
     sameSite: "lax", maxAge: 60 * 60 * 24 * 30, path: "/",
